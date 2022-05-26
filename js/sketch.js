@@ -169,7 +169,7 @@ export default class unitDirectionSketch
       sk.preload = function()
       { //preload text font
         inconsolata = sk.loadFont(
-        "http://sapiens.udenar.edu.co/cdn/fonts/HelveticaNeue.otf"
+        "//sapiens.udenar.edu.co/cdn/fonts/HelveticaNeue.otf"
         );
       }
     } //end sketch function
