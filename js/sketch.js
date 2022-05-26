@@ -168,7 +168,7 @@ export default class unitDirectionSketch
 
       sk.preload = function()
       { //preload text font
-        inconsolata = sk.loadFont(inconsolata = sk.loadFont("assets/fonts/HelveticaNeue.otf"));
+        inconsolata = sk.loadFont("assets/fonts/HelveticaNeue.otf");
       }
     } //end sketch function
 
