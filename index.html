@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang = "en">
+
+  <head>
+    <meta charset = "utf-8">
+    <meta http-equiv = "X-UA-Compatible" content = "IE = edge">
+    <meta name = "viewport" content = "width = device-width, initial-scale = 1">
+    <link rel = "stylesheet" type = "text/css" href = "./css/style.css">
+    <link defer rel = "icon" type = "image/svg" href = "./icon/favicon.svg">
+
+    <!--
+    <script defer type = "text/javascript" src = "https://livejs.com/live.js"></script>
+    <script defer type = "text/javascript" src = "https://unpkg.com/p5/lib/p5.min.js"></script>
+    -->
+    <script defer type = "text/javascript" src = "./js/lib/live.js"></script>
+    <script defer type = "text/javascript" src = "./js/lib/p5.js"></script>
+
+    <script defer type = "text/javascript" src = "https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script defer type = "text/javascript" src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id = "MathJax-script"></script>
+
+    <title> Electromagnetism & Special Relativity </title>
+    <script defer type = "module" src = "./js/executionSetup.js"></script> <!-- load execution setup for javascript components -->
+
+  </head>
+
+  <body>
+
+    <span id = "langSpan"> </span>
+
+    <h1 class = "mainTitle"> Relativistic motion of a charged and massive particle on a uniform and constant electromagnetic field </h1>
+  
+    <h2 class = "initCondF"> Initial conditions: fields </h2>
+    <div class = "container"> <!-- begin div class "container" (FOR FIELDS) -->
+      <div class = "adaptDiv">
+        <h3 class = "EFtitle">Electric Field</h3>
+        <form id = "ElectricFieldMagnitude">
+          <h4 class = "MagnTitle">Norm</h4>
+          <label for = "EFM"> \(\ \lvert {\bf E} \rvert = \) </label>
+          <input class = "cstmInpt" type = "number" id = "EFM" step = "1.0e-15" placeholder = "[0, ∞)" min = "0" required>
+          <span class = "validity"></span> 
+          <span id = "EFMpref"></span> V/m
+          <button type = "button" id = "EFMprBtn" class = "prBtn">Pseudorandom</button>
+        </form>
+        <h4 class = "UnitDirTitle">Unit vector</h4>
+        <div id = "cEF" style = "position: relative;"></div>
+      </div> <!-- end div class "adaptDiv" -->
+
+      <div class = "adaptDiv">
+      <h3 class = "MFtitle">Magnetic Field</h3>
+        <form id = "MagneticFieldMagnitude">
+          <h4 class = "MagnTitle">Norm</h4>
+          <label for = "MFM"> \(\ \lvert {\bf B} \rvert = \) </label>
+          <input class = "cstmInpt" type = "number" id = "MFM" step = "1.0e-15" placeholder = "[0, ∞)" min = "0" required>
+          <span class = "validity"></span>
+          <span id = "MFMpref"></span> T
+          <button type = "button" id = "MFMprBtn" class = "prBtn">Pseudorandom</button>
+        </form>
+        <h4 class = "UnitDirTitle">Unit vector</h4>
+        <div id = "cMF" style = "position: relative;"></div>
+      </div>
+    </div> <br> <!-- end div class "container" (FOR FIELDS) -->
+
+    <h2 class = "initCondP"> Initial conditions: particle </h2>
+    <div class = "container"> <!-- begin div class "container" (FOR PARTICLE) -->
+      <div class = "adaptDiv"> <!-- start div class "adaptDiv" for MASS, CHARGE, INIT POS -->
+        <form id = "InertialMass">
+          <h3 class = "inMassTitle">Inertial mass</h3>
+          <label for = "IM"> \(\ m = \) </label>
+          <input class = "cstmInpt" type = "number" id = "IM" step = "1.0e-15" placeholder = "(0, ∞)" min = "1.0e-15" required>
+          <span class = "validity"></span> 
+          <span id = "IMpref"></span> g  
+          <button type = "button" id = "IMprBtn" class = "prBtn">Pseudorandom</button>
+        </form>
+
+        <form id = "ElectricCharge">
+          <h3 class = "EChTitle">Electric charge</h3>
+          <label for = "ECH"> \(\ q_{_E} = \) </label>
+          <input class = "cstmInpt" type = "number" id = "ECH" step = "1.0e-15" placeholder = "(-∞, ∞)" required>
+          <span class = "validity"></span> 
+          <span id = "EChpref"></span>
+          <span id = "EChU"> <select id = "EChUnits">
+            <option value = "C">C</option>
+            <option value = "e">|qₑ|</option>
+          </select> </span> 
+          <button type = "button" id = "EChprBtn" class = "prBtn">Pseudorandom</button>
+        </form> <br>
+
+        <span class = "loadPreset"> Load preset: </span>
+        <span id = "loadPresetPart"> <select id = "presetPart">
+          <option value = "none" class = "none"> none </option>
+        </select> </span><br>
+
+        <form id = "InitialPosition">
+          <h3 class = "initPosTitle">Initial position</h3>
+          <label for = "x0"> \(\ x_0 = \) </label>
+          <input class = "cstmInpt" type = "number" id = "x0" step = "1.0e-15" placeholder = "(-∞, ∞)" value = "0" required> <span class = "validity"></span> m <br> <br>
+          <label for = "y0"> \(\ y_0 = \) </label>
+          <input class = "cstmInpt" type = "number" id = "y0" step = "1.0e-15" placeholder = "(-∞, ∞)" value = "0" required> <span class = "validity"></span> m <br> <br>
+          <label for = "z0"> \(\ z_0 = \) </label>
+          <input class = "cstmInpt" type = "number" id = "z0" step = "1.0e-15" placeholder = "(-∞, ∞)" value = "0" required> <span class = "validity"></span> m <br>
+        </form> <!-- end form id "InitialPosition" -->
+      </div> <!-- end div class "adaptDiv" for MASS, CHARGE, INIT POS -->
+
+      <div class = "adaptDiv"> <!-- start div class "adaptDiv" for INIT VEL -->
+        <h3 class = "initVelTitle">Initial velocity</h3>
+        <form id = "initSpeedFrac">
+          <h4 class = "MagnTitle">Norm</h4>
+          <label for "initSpeedFr" class = "initSpeedFrac"> Input the fraction of the initial speed with respect to the speed of light in vacuum </label>
+          <span> \( c = \) <span id = "speedOfLight"> </span> m/s. <br> <br> \(\ \dfrac{v}{c} = \) </span>
+          <input class = "cstmInpt" type = "number" id = "initSpeedFr" step = "1.0e-15" placeholder = "[0, 1)" min = "0.0" max = "0.9999999" required>
+          <span class = "validity"></span>
+          <button type = "button" id = "IVprBtn" class = "prBtn">Pseudorandom</button>
+        </form> <!-- end form id "initSpeedFrac" -->
+        <h4 class = "UnitDirTitle">Unit vector</h4>
+        <div id = "cIV" style = "position: relative;"></div>
+      </div> <!-- end div class "adaptDiv" for INIT VEL -->
+
+    </div> <br> <!-- end div class "container" (FOR PARTICLE) -->
+
+    <div class = "container"> <button type = "button" id = "svBtn" class = "svBtn"> Save changes and show system parameters </button> </div>
+
+    <div id = "secondPartDiv" style = "display: none;"> <!--  -->
+      <h2 class = "inputValues"> Input values </h2>
+      <div> <table id = "inputTable">
+        <tr>
+          <th scope = "col" class = "Quantity">Quantity</th>
+          <th scope = "col" colspan = "2" class = "Value">Value</th>
+        </tr>
+        <tr>
+          <td> <span class = "EFtitle">Electric Field</span> </td>
+          <td> <span id = "uiEFM"> </span> V/m </td>
+          <td> <span id = "uiEFdir"> </td>
+        </tr>
+        <tr>
+          <td> <span class = "MFtitle">Magnetic Field</span> </td>
+          <td> <span id = "uiMFM"> </span> T </td>
+          <td> <span id = "uiMFdir"> </td>
+        </tr>
+        <tr>
+          <td> <span class = "inMassTitle">Inertial mass</span> </td>
+          <td colspan = "2"> <span id = "uiIM"> </span> kg </td>
+        </tr>
+        <tr>
+          <td> <span class = "EChTitle">Electric charge</span> </td>
+          <td colspan = "2"> <span id = "uiEChC"> </span> C = <span id = "uiEChe"> </span> |qₑ| </td>
+        </tr>
+        <tr>
+          <td> <span class = "initPosTitle">Initial position</span> </td>
+          <td colspan = "2"> <span id = "uiInitPos"> </span> m </td>
+        </tr>
+        <tr>
+          <td> <span class = "initVelTitle">Initial velocity</span> </td>
+          <td> <span id = "isFract"> </span> \( c \) = <span id = "isInMetPerSec"> </span> m/s </td>
+          <td> <span id = "uiIVdir"> </td>
+        </tr>
+      </table> </div>
+
+      <h2>System characterisation</h2>
+
+      <div class = "container">
+        <div id = "animFeatDiv" class = "adaptDiv" style = "width: auto;">
+        <div> <span id = "nullType" class = "nullType"></span>
+              <span id = "electricType" class = "electricType"></span>
+              <span id = "magneticType" class = "magneticType"></span>
+              <span id = "collinearType" class = "collinearType"></span>
+              <span id = "EcB"> \( \lvert {\bf E} \rvert = c\ \lvert {\bf B} \rvert \) </span>
+              <span id = "neglBoost" class = "neglBoost"></span>
+              <span id = "yesBoost" class = "yesBoost"></span>
+              <span id = "LaTeXb"> \( \beta \) = </span> <span id = "propFrameBoostRap"></span> <span id = "LaTeXc"> \( c \) = </span>
+              <span id = "propFrameBoostSpeed"></span> </div> <br>
+        <fieldset> <legend> Animation features: </legend>
+          <div> <label for = "inptChTimeFactor"> Characteristic time factor: </label>
+            <input class = "cstmInpt" type = "number" id = "inptChTimeFactor" step = "1.0e-15" placeholder = "(0, ∞)" min = "1.0e-15" required>
+            <span class = "validity"></span> </div> <br>
+          <div> <input type = "checkbox" id = "includeSpecFrame">
+            <label for = "includeSpecFrame"> Include animation on special frame </label> </div> <br>
+          <div> <input type = "checkbox" id = "includeCstmFrame">
+            <label for = "includeCstmFrame"> Include animation on custom inertial frame </label> </div> <br>
+          <div> <input type = "checkbox" id = "includeNonRelAnim">
+            <label for = "includeNonRelAnim"> Include non relativistic animation </label> </div>
+        </fieldset>
+        </div>
+
+        <div id = "cstmBoostDIV" class = "adaptDiv" style = "display: none;"> <!-- start div class "adaptDiv" for CUSTOM BOOST -->
+          <fieldset> <legend class = "cstmBoostTitle"> Custom boost </legend>
+          <form id = "cstmBoostFrac">
+            <h4 class = "MagnTitle">Norm</h4>
+            <label for "cstmBoostFr" class = "cstmBoostFrac"> Input the fraction of the boost speed with respect to the speed of light in vacuum </label>
+            <span> \( c \). <br> <br> \(\ \beta = \) </span>
+            <input class = "cstmInpt" type = "number" id = "cstmBoostFr" step = "1.0e-15" placeholder = "[0, 1)" min = "0.0" max = "0.9999999" required>
+            <span class = "validity"></span>
+            <button type = "button" id = "CBprBtn" class = "prBtn">Pseudorandom</button>
+          </form> <!-- end form id "cstmBoostFrac" -->
+          <h4 class = "UnitDirTitle">Unit vector</h4>
+          <div id = "cCB" style = "position: relative;"></div>
+          </fieldset>
+        </div>  <!-- end div class "adaptDiv" for CUSTOM BOOST -->
+      </div>
+
+    </div>
+
+  </body>
+
+</html>
