@@ -370,6 +370,7 @@ async function typeOfField(Efvec, Mfvec)
       for (var elem of ["yesBoost", "LaTeXb", "propFrameBoostRap", "LaTeXc", "propFrameBoostSpeed"])
       { document.getElementById(elem).style.display = "none"; }
       document.getElementById("neglBoost").style.display = "block";
+      document.getElementById("includeSpecFrame").disabled = true;
     }
     else if (betaNorm > PARAM.TOL)
     {
@@ -399,7 +400,7 @@ async function collectRemainderAnimParams()
   let boostDir = angFracsToUV(secondPartInputs["cCBinputTheta"][0], secondPartInputs["cCBinputPhi"][0]);
 
   animParams["chTimeFactor"] = Number(secondPartInputs["inptChTimeFactor"][0]);
-  animParams["boostBeta"] = [boostInSIunits, boostDir]; //boostDir.map(x => boostInSIunits * x);
+  animParams["boostBeta"] = boostDir.map(x => boostInSIunits * x);
 }
 
 async function checkFinalInputs()

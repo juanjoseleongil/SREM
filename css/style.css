@@ -49,6 +49,7 @@ fieldset { width: auto; margin: 0 auto; }
 table, td, th { border-collapse: collapse; }
 td, th { padding: 1.5625vw 1.5625vh; }
 #inputTable { margin-right: auto; margin-left: auto; }
+#colorInputTable tr {margin: 0 auto; text-align: center; vertical-align: middle;}
 
 @media screen and (orientation: portrait)
 {

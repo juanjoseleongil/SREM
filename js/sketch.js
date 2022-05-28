@@ -167,7 +167,7 @@ export default class unitDirectionSketch
       }
 
       sk.preload = function()
-      { //preload text font
+      { //preload text font. Downloaded from sapiens.udenar.edu.co/cdn/fonts/HelveticaNeue.otf
         inconsolata = sk.loadFont("assets/fonts/HelveticaNeue.otf");
       }
     } //end sketch function

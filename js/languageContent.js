@@ -52,10 +52,13 @@ export const language =
     electricType: 'The electromagnetic field is of "electric" type; that is, there exists an inertial frame such that the electric field is the only one present, and the magnetic field vanishes.',
     magneticType: 'The electromagnetic field is of "magnetic" type; that is, there exists an inertial frame such that the magnetic field is the only one present, and the electric field vanishes.',
     collinearType: 'The electromagnetic field is of "collinear" type; that is, there exists an inertial frame such that both fields are present and they are collinear, i.e., either parallel or antiparallel.',
-    neglBoost: "The boost parameter is null or negligible with respect to the scale of the system as given by the chosen parameters.",
-    yesBoost: "The boost to such inertial reference frame is characterized by a rapidity with the following norm and unit direction:<br>",
+    neglBoost: "<br>The boost parameter is null or negligible with respect to the scale of the system as given by the chosen parameters.",
+    yesBoost: "<br>The boost to such inertial reference frame is characterized by a velocity with the following norm and unit direction:<br>",
     gfiAlert: "Success! Scroll down to check your input values",
-    bfiAlert: "Check every input and try again"
+    bfiAlert: "Check every input and try again",
+    SystCharTitle: "System characterization",
+    AnimPropLeg: "Animation properties:",
+    inptCTFlbl: "Characteristic time factor:"
   },
   es:
   {
@@ -96,14 +99,17 @@ export const language =
     inputValues: "Valores de entrada",
     Quantity: "Cantidad",
     Value: "Valor",
-    nullType: 'The electromagnetic field is of "null" type; that is, either both fields are null, or they are perpendicular and their magnitudes are such that (up tp numerical precision)',
-    electricType: 'The electromagnetic field is of "electric" type; that is, there exists an inertial frame such that the electric field is the only one present, and the magnetic field vanishes.',
-    magneticType: 'The electromagnetic field is of "magnetic" type; that is, there exists an inertial frame such that the magnetic field is the only one present, and the electric field vanishes.',
-    collinearType: 'The electromagnetic field is of "collinear" type; that is, there exists an inertial frame such that both fields are present and they are collinear, i.e., either parallel or antiparallel.',
-    neglBoost: "The boost parameter is null or negligible with respect to the scale of the system as given by the chosen parameters.",
-    yesBoost: "The boost to such inertial reference frame is characterized by<br>",
+    nullType: 'El campo electromagnético es de tipo "nulo"; es decir que ambos campos son nulos, o son perpendiculares y sus magnitudes son tales que (dentro del margen de precisión numérico)',
+    electricType: 'El campo electromagnético es de tipo "eléctrico"; es decir que existe un marco de referencia inercial tal que el campo eléctrico es el único presente, y el campo magnético se anula.',
+    magneticType: 'El campo electromagnético es de tipo "magnético"; es decir que existe un marco de referencia inercial tal que el campo magnético es el único presente, y el campo eléctrico se anula.',
+    collinearType: 'El campo eléctrico es de tipo "colineal"; es decir que existe un marco de referencia inercial tal que ambos campos están presentes y son colineales (paralelos o antiparalelos).',
+    neglBoost: "<br>El parámetro de boost es nulo o despreciable respecto a la escala del sistema dada por los parámetros ingresados.",
+    yesBoost: "<br>El <em>boost</em> a tal marco de referencia se caracteriza por una velocidad con la siguiente magnitud y dirección:<br>",
     gfiAlert: "Success! Scroll down to check your input values",
-    bfiAlert: "Check every input and try again"
+    bfiAlert: "Check every input and try again",
+    SystCharTitle: "Carecterización del sistema",
+    AnimPropLeg: "Propiedades de la animación:",
+    inptCTFlbl: "Factor de tiempo característico:"
   },
   fr:
   {
