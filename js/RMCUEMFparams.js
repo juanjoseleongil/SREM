@@ -14,13 +14,13 @@ export const ooμc = 795774.7150262416446744057792;
 //const natMF = 1.256637062123837e-6;
 
 // PARAMETERS
-export const TOL = (2.0**2) * Number.EPSILON; //tolerance for numeric computations
+export const TOL = Number.EPSILON; //tolerance for numeric computations
 
 export const signiFigM1 = 3 - 1; //significant figures (minus one)
 
 export const revFracStep = 1.0 / (2.0**16); //stepsize, fractions of revolution for sketch sliders
 
-export const ptsPerCharTime = 128; //time discretization per pseudocycle, for three.js animations
+export const ptsPerCharTime = 256; //time discretization per pseudocycle, for three.js animations
 
 export const prefixes =
 {

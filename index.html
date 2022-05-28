@@ -8,12 +8,11 @@
     <link rel = "stylesheet" type = "text/css" href = "./css/style.css">
     <link defer rel = "icon" type = "image/svg" href = "./icon/favicon.svg">
 
-    <!--
-    <script defer type = "text/javascript" src = "https://livejs.com/live.js"></script>
+    <!-- <script defer type = "text/javascript" src = "https://livejs.com/live.js"></script> -->
     <script defer type = "text/javascript" src = "https://unpkg.com/p5/lib/p5.min.js"></script>
-    -->
-    <script defer type = "text/javascript" src = "./js/lib/live.js"></script>
-    <script defer type = "text/javascript" src = "./js/lib/p5.js"></script>
+
+    <!-- <script defer type = "text/javascript" src = "./js/lib/live.js"></script>
+    <script defer type = "text/javascript" src = "./js/lib/p5.js"></script> -->
 
     <script defer type = "text/javascript" src = "https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script defer type = "text/javascript" src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id = "MathJax-script"></script>
@@ -32,7 +31,7 @@
     <h2 class = "initCondF"> Initial conditions: fields </h2>
     <div class = "container"> <!-- begin div class "container" (FOR FIELDS) -->
       <div class = "adaptDiv">
-        <h3 class = "EFtitle">Electric Field</h3>
+        <h3 class = "EFtitle">Electric field</h3>
         <form id = "ElectricFieldMagnitude">
           <h4 class = "MagnTitle">Norm</h4>
           <label for = "EFM"> \(\ \lvert {\bf E} \rvert = \) </label>
@@ -46,7 +45,7 @@
       </div> <!-- end div class "adaptDiv" -->
 
       <div class = "adaptDiv">
-      <h3 class = "MFtitle">Magnetic Field</h3>
+      <h3 class = "MFtitle">Magnetic field</h3>
         <form id = "MagneticFieldMagnitude">
           <h4 class = "MagnTitle">Norm</h4>
           <label for = "MFM"> \(\ \lvert {\bf B} \rvert = \) </label>
@@ -127,12 +126,12 @@
           <th scope = "col" colspan = "2" class = "Value">Value</th>
         </tr>
         <tr>
-          <td> <span class = "EFtitle">Electric Field</span> </td>
+          <td> <span class = "EFtitle">Electric field</span> </td>
           <td> <span id = "uiEFM"> </span> V/m </td>
           <td> <span id = "uiEFdir"> </td>
         </tr>
         <tr>
-          <td> <span class = "MFtitle">Magnetic Field</span> </td>
+          <td> <span class = "MFtitle">Magnetic field</span> </td>
           <td> <span id = "uiMFM"> </span> T </td>
           <td> <span id = "uiMFdir"> </td>
         </tr>
@@ -175,17 +174,15 @@
             <span class = "validity"></span> </div> <br>
 
           <div> <table id = "colorInputTable">
+            <tr> <th scope = "col" colspan = "4" class = "colours">Colours</th> </tr>
             <tr>
-              <th scope = "col" colspan = "4" class = "colours">Colours</th>
+              <td> <span id = "prtclClr" class = "prtcl"> Particle </span> </td>
+              <td> <span id = "trailClr" class = "trail"> Trail </span> </td>
+              <td> <span id = "electricClr" class = "EFtitle"> Electric field </span> </td>
+              <td> <span id = "magneticClr" class = "MFtitle"> Magnetic field </span> </td>
             </tr>
             <tr>
-              <td> <span id = "ptclClr"> Particle </span> </td>
-              <td> <span id = "trailClr"> Trail </span> </td>
-              <td> <span id = "electricClr"> Electric field </span> </td>
-              <td> <span id = "magneticClr"> Magnetic field </span> </td>
-            </tr>
-            <tr>
-              <td> <input type = "color" id = "ptcClr" value = "#ffffff"> </input> </td>
+              <td> <input type = "color" id = "prtclClr" value = "#ffffff"> </input> </td>
               <td> <input type = "color" id = "trailClr" value = "#808080"> </input> </td>
               <td> <input type = "color" id = "electricClr" value = "#00ffff"> </input> </td>
               <td> <input type = "color" id = "magneticClr" value = "#ff00ff"> </input> </td>
@@ -193,11 +190,11 @@
           </table> </div> <br>
           
           <div> <input type = "checkbox" id = "includeSpecFrame">
-            <label for = "includeSpecFrame"> Include animation on special frame </label> </div> <br>
+            <label for = "includeSpecFrame" class = "includeSpecFrame"> Include animation on special frame </label> </div> <br>
           <div> <input type = "checkbox" id = "includeCstmFrame">
-            <label for = "includeCstmFrame"> Include animation on custom inertial frame </label> </div> <br>
+            <label for = "includeCstmFrame" class = "includeCstmFrame"> Include animation on custom inertial frame </label> </div> <br>
           <div> <input type = "checkbox" id = "includeNonRelAnim">
-            <label for = "includeNonRelAnim"> Include non relativistic animation </label> </div>
+            <label for = "includeNonRelAnim" class = "includeNonRelAnim"> Include non relativistic animation </label> </div>
         </fieldset>
         </div>
 

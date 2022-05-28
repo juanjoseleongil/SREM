@@ -349,10 +349,6 @@ export async function continueAfterGoodInput()
 async function typeOfField(Efvec, Mfvec)
 {
   let redEF = COMP.reduceField(Efvec, "electricType"), redMF = COMP.reduceField(Mfvec, "magneticType");
-  //console.log("Efvec: " + Efvec);
-  //console.log("redEF: " + redEF);
-  //console.log("Mfvec: " + Mfvec);
-  //console.log("redMF: " + redMF);
   let bp = COMP.boostParameters(redEF, redMF);
   let fType = bp[0], betaVec = bp[1];
   let betaNorm = COMP.norm3Vec(betaVec), betaDir = COMP.scalTim3Vec(1 / betaNorm, betaVec);
@@ -381,6 +377,7 @@ async function typeOfField(Efvec, Mfvec)
       document.getElementById("neglBoost").style.display = "none";
     }
     document.getElementById("EcB").style.display = "none";
+    document.getElementById("includeSpecFrame").disabled = false;
   }
   else if (fType === "nullType")
   {

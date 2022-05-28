@@ -19,8 +19,8 @@ export const language =
     cZeroToOne: "[0, 1)",
     mainTitle: "Relativistic motion of a charged and massive particle on a uniform and constant electromagnetic field",
     initCondF: "Initial conditions: fields",
-    EFtitle: "Electric Field",
-    MFtitle: "Magnetic Field",
+    EFtitle: "Electric field",
+    MFtitle: "Magnetic field",
     MagnTitle: "Norm",
     UnitDirTitle: "Unit vector",
     prBtn: "Pseudorandom",
@@ -58,7 +58,12 @@ export const language =
     bfiAlert: "Check every input and try again",
     SystCharTitle: "System characterization",
     AnimPropLeg: "Animation properties:",
-    inptCTFlbl: "Characteristic time factor:"
+    inptCTFlbl: "Characteristic time factor:",
+    includeSpecFrame: "Include animation on special frame",
+    includeCstmFrame: "Include animation on custom inertial frame",
+    includeNonRelAnim: "Include non relativistic animation",
+    cstmBoostTitle: "Custom boost",
+    cstmBoostFrac: "Input the fraction of the boost speed with respect to the speed of light in vacuum"
   },
   es:
   {
@@ -70,8 +75,8 @@ export const language =
     cZeroToOne: "[0, 1)",
     mainTitle: "Movimiento relativista de una partícula cargada y masiva en un campo electromagnético uniforme y constante",
     initCondF: "Condiciones iniciales: campos",
-    EFtitle: "Campo Eléctrico",
-    MFtitle: "Campo Magnético",
+    EFtitle: "Campo eléctrico",
+    MFtitle: "Campo magnético",
     MagnTitle: "Norma",
     UnitDirTitle: "Vector unitario",
     prBtn: "Pseudoaleatorio",
@@ -103,13 +108,18 @@ export const language =
     electricType: 'El campo electromagnético es de tipo "eléctrico"; es decir que existe un marco de referencia inercial tal que el campo eléctrico es el único presente, y el campo magnético se anula.',
     magneticType: 'El campo electromagnético es de tipo "magnético"; es decir que existe un marco de referencia inercial tal que el campo magnético es el único presente, y el campo eléctrico se anula.',
     collinearType: 'El campo eléctrico es de tipo "colineal"; es decir que existe un marco de referencia inercial tal que ambos campos están presentes y son colineales (paralelos o antiparalelos).',
-    neglBoost: "<br>El parámetro de boost es nulo o despreciable respecto a la escala del sistema dada por los parámetros ingresados.",
+    neglBoost: "<br>El parámetro de <em>boost</em> es nulo o despreciable respecto a la escala del sistema dada por los parámetros ingresados.",
     yesBoost: "<br>El <em>boost</em> a tal marco de referencia se caracteriza por una velocidad con la siguiente magnitud y dirección:<br>",
     gfiAlert: "Success! Scroll down to check your input values",
     bfiAlert: "Check every input and try again",
     SystCharTitle: "Carecterización del sistema",
     AnimPropLeg: "Propiedades de la animación:",
-    inptCTFlbl: "Factor de tiempo característico:"
+    inptCTFlbl: "Factor de tiempo característico:",
+    includeSpecFrame: "Include animation on special frame",
+    includeCstmFrame: "Include animation on custom inertial frame",
+    includeNonRelAnim: "Include non relativistic animation",
+    cstmBoostTitle: "Custom boost",
+    cstmBoostFrac: "Input the fraction of the boost speed with respect to the speed of light in vacuum"
   },
   fr:
   {
@@ -121,8 +131,8 @@ export const language =
     cZeroToOne: "[0, 1[",
     mainTitle: "Mouvement relativiste d'une particule chargée et massive sur un champ électromagnétique uniforme et constant",
     initCondF: "Conditions initiales : champs",
-    EFtitle: "Champ Électrique ",
-    MFtitle: "Champ Magnétique ",
+    EFtitle: "Champ électrique ",
+    MFtitle: "Champ magnétique ",
     MagnTitle: "Norme",
     UnitDirTitle: "Vecteur unitaire ",
     prBtn: "Pseudo-aléatoire",
@@ -157,7 +167,15 @@ export const language =
     neglBoost: "The boost parameter is null or negligible with respect to the scale of the system as given by the chosen parameters.",
     yesBoost: "The boost to such inertial reference frame is characterized by<br>",
     gfiAlert: "Success! Scroll down to check your input values",
-    bfiAlert: "Check every input and try again"
+    bfiAlert: "Check every input and try again",
+    SystCharTitle: "System characterization",
+    AnimPropLeg: "Animation properties:",
+    inptCTFlbl: "Characteristic time factor:",
+    includeSpecFrame: "Include animation on special frame",
+    includeCstmFrame: "Include animation on custom inertial frame",
+    includeNonRelAnim: "Include non relativistic animation",
+    cstmBoostTitle: "Custom boost",
+    cstmBoostFrac: "Input the fraction of the boost speed with respect to the speed of light in vacuum"
   },
   it:
   {
@@ -169,8 +187,8 @@ export const language =
     cZeroToOne: "[0, 1)",
     mainTitle: "Moto relativistico di una particella carica e massiccia su un campo elettromagnetico uniforme e costante",
     initCondF: "Condizioni iniziali: campi",
-    EFtitle: "Campo Elettrico",
-    MFtitle: "Campo Magnetico",
+    EFtitle: "Campo elettrico",
+    MFtitle: "Campo magnetico",
     MagnTitle: "Norma",
     UnitDirTitle: "Vettore unitario",
     prBtn: "Pseudocasuale",
@@ -205,7 +223,15 @@ export const language =
     neglBoost: "The boost parameter is null or negligible with respect to the scale of the system as given by the chosen parameters.",
     yesBoost: "The boost to such inertial reference frame is characterized by<br>",
     gfiAlert: "Success! Scroll down to check your input values",
-    bfiAlert: "Check every input and try again"
+    bfiAlert: "Check every input and try again",
+    SystCharTitle: "System characterization",
+    AnimPropLeg: "Animation properties:",
+    inptCTFlbl: "Characteristic time factor:",
+    includeSpecFrame: "Include animation on special frame",
+    includeCstmFrame: "Include animation on custom inertial frame",
+    includeNonRelAnim: "Include non relativistic animation",
+    cstmBoostTitle: "Custom boost",
+    cstmBoostFrac: "Input the fraction of the boost speed with respect to the speed of light in vacuum"
   },
   pt:
   {
@@ -217,8 +243,8 @@ export const language =
     cZeroToOne: "[0, 1)",
     mainTitle: "Movimento relativístico de uma partícula carregada e massiva em um campo eletromagnético uniforme e constante",
     initCondF: "Condições iniciais: campos",
-    EFtitle: "Campo Elétrico",
-    MFtitle: "Campo Magnético",
+    EFtitle: "Campo elétrico",
+    MFtitle: "Campo magnético",
     MagnTitle: "Norma",
     UnitDirTitle: "Vetor unitário",
     prBtn: "Pseudo-random",
@@ -253,6 +279,14 @@ export const language =
     neglBoost: "The boost parameter is null or negligible with respect to the scale of the system as given by the chosen parameters.",
     yesBoost: "The boost to such inertial reference frame is characterized by<br>",
     gfiAlert: "Success! Scroll down to check your input values",
-    bfiAlert: "Check every input and try again"
+    bfiAlert: "Check every input and try again",
+    SystCharTitle: "System characterization",
+    AnimPropLeg: "Animation properties:",
+    inptCTFlbl: "Characteristic time factor:",
+    includeSpecFrame: "Include animation on special frame",
+    includeCstmFrame: "Include animation on custom inertial frame",
+    includeNonRelAnim: "Include non relativistic animation",
+    cstmBoostTitle: "Custom boost",
+    cstmBoostFrac: "Input the fraction of the boost speed with respect to the speed of light in vacuum"
   },
 };
