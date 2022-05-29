@@ -156,17 +156,19 @@
 
       <h2 class = "SystCharTitle">System characterisation</h2>
 
+      <div> <span id = "nullType" class = "nullType"></span>
+            <span id = "electricType" class = "electricType"></span>
+            <span id = "magneticType" class = "magneticType"></span>
+            <span id = "collinearType" class = "collinearType"></span>
+            <span id = "EcB"> \( \lvert {\bf E} \rvert = c\ \lvert {\bf B} \rvert \) </span>
+            <span id = "neglBoost" class = "neglBoost"></span>
+            <span id = "yesBoost" class = "yesBoost"></span>
+            <span id = "LaTeXb"> \( v \) = </span> <span id = "propFrameBoostRap"></span> <span id = "LaTeXc"> \( c \) = </span>
+            <span id = "propFrameBoostSpeed"></span> </div> <br>
+
       <div class = "container">
+
         <div id = "animFeatDiv" class = "adaptDiv" style = "width: auto;">
-        <div> <span id = "nullType" class = "nullType"></span>
-              <span id = "electricType" class = "electricType"></span>
-              <span id = "magneticType" class = "magneticType"></span>
-              <span id = "collinearType" class = "collinearType"></span>
-              <span id = "EcB"> \( \lvert {\bf E} \rvert = c\ \lvert {\bf B} \rvert \) </span>
-              <span id = "neglBoost" class = "neglBoost"></span>
-              <span id = "yesBoost" class = "yesBoost"></span>
-              <span id = "LaTeXb"> \( v \) = </span> <span id = "propFrameBoostRap"></span> <span id = "LaTeXc"> \( c \) = </span>
-              <span id = "propFrameBoostSpeed"></span> </div> <br>
 
         <fieldset> <legend class = "AnimPropLeg"> Animation properties: </legend>
           <div> <label for = "inptChTimeFactor" class = "inptCTFlbl"> Characteristic time factor: </label>
@@ -174,19 +176,15 @@
             <span class = "validity"></span> </div> <br>
 
           <div> <table id = "colorInputTable">
-            <tr> <th scope = "col" colspan = "4" class = "colours">Colours</th> </tr>
-            <tr>
-              <td> <span id = "prtclClr" class = "prtcl"> Particle </span> </td>
-              <td> <span id = "trailClr" class = "trail"> Trail </span> </td>
-              <td> <span id = "electricClr" class = "EFtitle"> Electric field </span> </td>
-              <td> <span id = "magneticClr" class = "MFtitle"> Magnetic field </span> </td>
-            </tr>
-            <tr>
-              <td> <input type = "color" id = "prtclClr" value = "#ffffff"> </input> </td>
-              <td> <input type = "color" id = "trailClr" value = "#808080"> </input> </td>
-              <td> <input type = "color" id = "electricClr" value = "#00ffff"> </input> </td>
-              <td> <input type = "color" id = "magneticClr" value = "#ff00ff"> </input> </td>
-            </tr>
+            <tr> <td rowspan = "4"> <span class = "Colours"> Colours </span> </td>
+                 <td> <span id = "prtclClr" class = "prtcl"> Particle </span> </td>
+                 <td> <input type = "color" id = "prtclClr" value = "#ffffff"> </input> </td> </tr>
+            <tr> <td> <span id = "trailClr" class = "trail"> Trail </span> </td>
+                 <td> <input type = "color" id = "trailClr" value = "#808080"> </input> </td> </tr>
+            <tr> <td> <span id = "electricClr" class = "EFtitle"> Electric field </span> </td>
+                 <td> <input type = "color" id = "electricClr" value = "#00ffff"> </input> </td> </tr>
+            <tr> <td> <span id = "magneticClr" class = "MFtitle"> Magnetic field </span> </td>
+                 <td> <input type = "color" id = "magneticClr" value = "#ff00ff"> </input> </td> </tr>
           </table> </div> <br>
           
           <div> <input type = "checkbox" id = "includeSpecFrame">
