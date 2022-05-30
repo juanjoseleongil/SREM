@@ -3,6 +3,15 @@ import * as PARAM from "./RMCUEMFparams.js";
 // MATHEMATICAL FUNCTIONS
 export function tfCos(x) {return (1.0 + 1.0 * Math.cos(x) / 1.0 - 1.0); }
 export function tfSin(x) {return (1.0 + 1.0 * Math.sin(x) / 1.0 - 1.0); }
+export function tfAngs(u3vec)
+{
+  let x = u3vec[0], y = u3vec[1], z = u3vec[2], theta = 1, phi = Math.atan2(z, Math.sqrt(x**2 + y**2));
+  if (x >= 0 && y >= 0) { theta = Math.atan2(y, x); } //first quadrant
+  else if (x < 0 && y >= 0) { theta = PARAM.tau / 2 - Math.atan2(y, Math.abs(x)); } //second quadrant
+  if (x < 0 && y < 0) { theta = PARAM.tau / 2 + Math.atan2(Math.abs(y), Math.abs(x)); } //third quadrant
+  if (x >= 0 && y < 0) { theta = PARAM.tau - Math.atan2(Math.abs(y), x); } //fourth quadrant
+  return [theta, phi];
+}
 
 function vec3BinOp(vecA, op, vecB)
 {

@@ -64,6 +64,9 @@ function angFracsToUV(thetaFr, phiFr)
           COMP.tfSin(PARAM.tau * Number(phiFr))];
 }
 
+function UVtoAngFracs(UV)
+{ return COMP.tfAngs(UV).map( ang => ang / PARAM.tau); }
+
 function tripletString(compArr)
 { return `(${expNot(compArr[0])}` + `${LANGdecSep()}` + `${expNot(compArr[1])}` + `${LANGdecSep()}` + `${expNot(compArr[2])})`; }
 
@@ -352,6 +355,7 @@ async function typeOfField(Efvec, Mfvec)
   let bp = COMP.boostParameters(redEF, redMF);
   let fType = bp[0], betaVec = bp[1];
   let betaNorm = COMP.norm3Vec(betaVec), betaDir = COMP.scalTim3Vec(1 / betaNorm, betaVec);
+  let angFracBeta = UVtoAngFracs(betaDir);
 
   for (var fieldType of ["nullType", "electricType", "magneticType", "collinearType"])
   {
@@ -373,17 +377,18 @@ async function typeOfField(Efvec, Mfvec)
       for (var elem of ["yesBoost", "LaTeXb", "propFrameBoostRap", "LaTeXc", "propFrameBoostSpeed"])
       { document.getElementById(elem).style.display = "inline"; }
       document.getElementById("propFrameBoostRap").innerHTML = expNot(betaNorm);
-      document.getElementById("propFrameBoostSpeed").innerHTML = expNot(PARAM.c * betaNorm) + " m/s, <br>" + tripletString(betaDir);
+      document.getElementById("propFrameBoostSpeed").innerHTML = expNot(PARAM.c * betaNorm) + " m/s, <br>" + tripletString(betaDir) + " → " + `(${expNot(angFracBeta[0])}` + `${LANGdecSep()}` + `${expNot(angFracBeta[1])}).`;
       document.getElementById("neglBoost").style.display = "none";
+      document.getElementById("includeSpecFrame").disabled = false;
     }
     document.getElementById("EcB").style.display = "none";
-    document.getElementById("includeSpecFrame").disabled = false;
   }
   else if (fType === "nullType")
   {
     for (var elem of ["neglBoost", "yesBoost", "LaTeXb", "propFrameBoostRap", "LaTeXc", "propFrameBoostSpeed"])
     { document.getElementById(elem).style.display = "none"; }
     document.getElementById("EcB").style.display = "inline";
+    document.getElementById("includeSpecFrame").disabled = false;
   }
 
 }

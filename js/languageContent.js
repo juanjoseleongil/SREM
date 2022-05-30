@@ -48,7 +48,7 @@ export const language =
     inputValues: "Input values",
     Quantity: "Quantity",
     Value: "Value",
-    nullType: 'The electromagnetic field is of "null" type; that is, either both fields are null, or they are perpendicular and their magnitudes are such that (up tp numerical precision)',
+    nullType: 'The electromagnetic field is of "null" type; that is, either both fields are null, or they are perpendicular and their magnitudes are such that (up to numerical precision)',
     electricType: 'The electromagnetic field is of "electric" type; that is, there exists an inertial frame such that the electric field is the only one present, and the magnetic field vanishes.',
     magneticType: 'The electromagnetic field is of "magnetic" type; that is, there exists an inertial frame such that the magnetic field is the only one present, and the electric field vanishes.',
     collinearType: 'The electromagnetic field is of "collinear" type; that is, there exists an inertial frame such that both fields are present and they are collinear, i.e., either parallel or antiparallel.',
