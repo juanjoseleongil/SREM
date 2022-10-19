@@ -1,20 +1,71 @@
-import * as PARAM from "./RMCUEMFparams.js";
+import {τ, sqrt2, c, e, εf, μc, ooc, coεf, ooμc, TOL, signiFigM1, revFracStep, ptsPerCharTime, prefixes, particles} from "./RMCUEMFparams.js";
+import * as FN from "./HTMLfunctions.js";
+
+// INITIAL VARIABLES
+export var unitE = [0.0, 0.0, 0.0], unitB = [0.0, 0.0, 0.0], normE = 1.0, normB = 1.0; //input fields, in SI units
+export var x0 = [0.0, 0.0, 0.0], unitu0 = [0.0, 0.0, 0.0], normu0oc = 1.0, normu0 = 1.0; //initial position and velocity
+export var γ0 = 1.0, m = 1.0, q = 1.0 //initial gamma factor, mass and electric charge
+export var normEred = 1.0, normBred = 1.0; //reduced field magnitudes (in s⁻¹ m⁻¹ C)
+export var qred = 1.0; //reduced electric charge
+export var typeOfField = "", γprop = 1.0, unitβprop = [0.0, 0.0, 0.0], normβprop = 0.0; //field parameters depending on relativistic invariants
+export var unitEprop = [0.0, 0.0, 0.0], unitBprop = [0.0, 0.0, 0.0], normEprop = 1.0, normBprop = 1.0; //for proper frame computation
+export var x0prop = [0.0, 0.0, 0.0], unitu0prop = [0.0, 0.0, 0.0], normu0ocprop = 1.0, normu0prop = 1.0, γ0prop = 1.0;
+export var unitEres = [0.0, 0.0, 0.0], unitBres = [0.0, 0.0, 0.0], normEres = 1.0, normBres = 1.0; //rescaled proper frame fields
+export var charTimeFactor = 1.0, numPts = 1.0; //animation parameters
+export var boostDone = false, rescaleDone = false;
+
+export var charTime = 1.0, maxTime = 1.0, timeStep = 1.0;
+export function setTimeStep() { timeStep = maxTime / numPts; }
+
+export function setInputs(inptUnitE, inptUnitB, inptNormE, inptNormB, inptx0, inptUnitu0, inptNormu0oc, inptm, inptq)
+{
+  unitE = inptUnitE, unitB = inptUnitB, normE = inptNormE, normB = inptNormB;
+  x0 = inptx0, unitu0 = inptUnitu0, normu0oc = inptNormu0oc;
+  γ0 = 1.0 / Math.sqrt(1.0 - Math.pow(normu0oc, 2)); //gamma factor related to the initial velocity
+  normu0 = c * normu0oc;
+  m = inptm, q = inptq;
+  reduceChargeAndFields();
+
+  console.log("particle mass: " + FN.expNot(m) + " kg, \tcharge: " + FN.expNot(q) + " C");
+  console.log("\nInitial position: " + FN.tripletString(x0) + " m");
+  console.log("Initial velocity: " + FN.expNot(normu0) + " s⁻¹ m, \tβ = " + FN.expNot(normu0oc) + ", \tunit direction " + FN.tripletString(unitu0));
+  console.log("Relativistic γ factor: " + FN.expNot(γ0));
+  console.log("\nElectric field: " + FN.expNot(normE) + " m⁻¹ V, \tunit direction " + FN.tripletString(unitE));
+  console.log("Magnetic field: " + FN.expNot(normB) + " T, \tunit direction " + FN.tripletString(unitB));
+}
+
+export function setTimeAndPts(inptCharTimeFactor)
+{
+  charTimeFactor = inptCharTimeFactor;
+  numPts = charTimeFactor * ptsPerCharTime;
+}
+
+function reduceChargeAndFields() { qred = εf * q, normEred = coεf * normE, normBred = ooμc * normB; }
+
+function rescaleFields()
+{
+  normEres = ( Math.abs(qred) / (m * c**2) ) * normEprop, normBres = ( Math.abs(qred) / (m * c**2) ) * normBprop;
+  unitEres = unitEprop.map(x => Math.sign(q) * x), unitBres = unitBprop.map(x => Math.sign(q) * x);
+  if (typeOfField === "magneticType") { normBres /= γ0prop; }
+}
 
 // MATHEMATICAL FUNCTIONS
-export function tfCos(x) {return (1.0 + 1.0 * Math.cos(x) / 1.0 - 1.0); }
-export function tfSin(x) {return (1.0 + 1.0 * Math.sin(x) / 1.0 - 1.0); }
+export function tfCos(x) {return Math.cos(x); } //(1.0 + 1.0 * Math.cos(x) / 1.0 - 1.0); }
+export function tfSin(x) {return Math.sin(x); } //(1.0 + 1.0 * Math.sin(x) / 1.0 - 1.0); }
+
 export function tfAngs(u3vec)
-{
+{ //input: unit 3vec. output: spherical angles theta and phi
   let x = u3vec[0], y = u3vec[1], z = u3vec[2], theta = 1, phi = Math.atan2(z, Math.sqrt(x**2 + y**2));
   if (x >= 0 && y >= 0) { theta = Math.atan2(y, x); } //first quadrant
-  else if (x < 0 && y >= 0) { theta = PARAM.tau / 2 - Math.atan2(y, Math.abs(x)); } //second quadrant
-  if (x < 0 && y < 0) { theta = PARAM.tau / 2 + Math.atan2(Math.abs(y), Math.abs(x)); } //third quadrant
-  if (x >= 0 && y < 0) { theta = PARAM.tau - Math.atan2(Math.abs(y), x); } //fourth quadrant
+  else if (x < 0 && y >= 0) { theta = τ / 2 - Math.atan2(y, Math.abs(x)); } //second quadrant
+  else if (x < 0 && y < 0) { theta = τ / 2 + Math.atan2(Math.abs(y), Math.abs(x)); } //third quadrant
+  else if (x >= 0 && y < 0) { theta = τ - Math.atan2(Math.abs(y), x); } //fourth quadrant
   return [theta, phi];
 }
 
-function vec3BinOp(vecA, op, vecB)
-{
+
+function vecBinOp(vecA, op, vecB)
+{ //vector binary operation (addition, subtraction)
   let output = [0.0, 0.0, 0.0], factor;
   if      (op === "+") { factor =  1.0; }
   else if (op === "-") { factor = -1.0; }
@@ -22,16 +73,20 @@ function vec3BinOp(vecA, op, vecB)
   return output;
 }
 
-export function scalTim3Vec(scal, vec)
+
+export function scalMultVec(scal, vec)
 {
   return [scal * vec[0], scal * vec[1], scal * vec[2]];
 }
 
+
 function dot(vecA, vecB)
 { return vecA[0] * vecB[0] + vecA[1] * vecB[1] + vecA[2] * vecB[2]; }
 
+
 export function norm3Vec(vec)
-{ return Math.sqrt(dot(vec, vec)); }
+{ return Math.hypot(vec[0], vec[1], vec[2]); }
+
 
 function cross(vecA, vecB)
 {
@@ -41,7 +96,7 @@ function cross(vecA, vecB)
 }
 
 
-function matrixDotVector(M, v) //returns ARRAY
+function matrixDotVector(M, v)
 {
   let rows = M.length, cols = M[0].length;
   let out = Array.from( {length : rows}, (v, i) => 0 );
@@ -60,322 +115,237 @@ function γofβ(β)
 { return 1.0 / Math.sqrt( 1.0 - dot(β, β) ); }
 
 
-function LorentzTransform4vec(β, fourVector)
+function LorentzTransf4vec(unitβ, normβ, γ, fourVector)
 {
-  let γ = γofβ(β), β1 = β[0], β2 = β[1], β3 = β[2];
-  let βsq = dot(β, β);
-  let Λ = [[γ,       -γ * β1,                       -γ * β2,                       -γ * β3                      ],
-           [-γ * β1, 1.0 + (γ - 1.0) * β1**2 / βsq, (γ - 1.0) * β1 * β2 / βsq,     (γ - 1.0) * β1 * β3 / βsq    ],
-           [-γ * β2, (γ - 1.0) * β2 * β1 / βsq,     1.0 + (γ - 1.0) * β2**2 / βsq, (γ - 1.0) * β2 * β3 / βsq    ],
-           [-γ * β3, (γ - 1.0) * β3 * β1 / βsq,     (γ - 1.0) * β3 * β2 / βsq,     1.0 + (γ - 1.0) * β3**2 / βsq]];
-
+  let uβ1 = unitβ[0], uβ2 = unitβ[1], uβ3 = unitβ[2];
+  let β1 = normβ * uβ1, β2 = normβ * uβ2, β3 = normβ * uβ3;
+  let Λ = [[γ,       -γ * β1,                  -γ * β2,                  -γ * β3                  ],
+           [-γ * β1, 1.0 + (γ - 1.0) * uβ1**2, (γ - 1.0) * uβ1 * uβ2,    (γ - 1.0) * uβ1 * uβ3    ],
+           [-γ * β2, (γ - 1.0) * uβ2 * uβ1,    1.0 + (γ - 1.0) * uβ2**2, (γ - 1.0) * uβ2 * uβ3    ],
+           [-γ * β3, (γ - 1.0) * uβ3 * uβ1,    (γ - 1.0) * uβ3 * uβ2,    1.0 + (γ - 1.0) * uβ3**2]];
   return matrixDotVector(Λ, fourVector);
 }
 
 
 function LorentzTransfEBfields(γ, β, E, B, field)
-{
-  let outField, crossProd, dotProd, firstTerm, secondTerm, βsq = dot(β, β);
+{ //Lorentz transformation on (reduced) fields. Hopefully this function won't be needed
+  let outField, crossProd, dotProd, firstTerm, secondTerm, uβ = scalMultVec(1 / norm3Vec(β), β);
   if (field === "E")
   {
-    crossProd = cross(B, β), dotProd = dot(β, E);
-    firstTerm = scalTim3Vec( γ, vec3BinOp(E, "-", crossProd) );
-    secondTerm = scalTim3Vec( (γ - 1.0) * dotProd / βsq, β );
-    outField = vec3BinOp(firstTerm, "-", secondTerm);
+    crossProd = cross(B, β), dotProd = dot(uβ, E);
+    firstTerm = scalMultVec( γ, vecBinOp(E, "-", crossProd) );
+    secondTerm = scalMultVec( (γ - 1.0) * dotProd, uβ );
+    outField = vecBinOp(firstTerm, "-", secondTerm);
   }
   else if (field === "B")
   {
-    crossProd = cross(E, β), dotProd = dot(β, B);
-    firstTerm = scalTim3Vec( γ, vec3BinOp(B, "+", crossProd) );
-    secondTerm = scalTim3Vec( (γ - 1.0) * dotProd / βsq, β );
-    outField = vec3BinOp(firstTerm, "-", secondTerm);
+    crossProd = cross(E, β), dotProd = dot(uβ, B);
+    firstTerm = scalMultVec( γ, vecBinOp(B, "+", crossProd) );
+    secondTerm = scalMultVec( (γ - 1.0) * dotProd, uβ );
+    outField = vecBinOp(firstTerm, "-", secondTerm);
   }
   return outField;
 }
 
 
-function reduceCharge(q)
-{ return εf * q; }
+export function boostToProperFrame()
+{ // boost reduced fields, initial position and initial velocity to proper frame according to relativistic invariants
+  let dotProdU = dot(unitE, unitB), crossProdU = cross(unitE, unitB);
+  console.log("unit cross vector prod norm:" + FN.tripletString(crossProdU))
+  let normCrossProdU = Math.hypot(crossProdU[0], crossProdU[1], crossProdU[2]);
+  console.log("unit cross vector prod uvec:" + FN.expNot(normCrossProdU));
+  let unitCrossProdU;
+  if (!isNaN(normCrossProdU) && isFinite(normCrossProdU) && normCrossProdU > TOL) {console.log("unit vector can be normalized"); unitCrossProdU = crossProdU.map(x => x / normCrossProdU);}
+  let En = normEred, Bn = normBred, Esq = Math.pow(normEred, 2), Bsq = Math.pow(normBred, 2);
+  let Is = -Esq + Bsq, Ip = En * Bn * dotProdU;
+  let Is2 = Math.pow(Is, 2), Ip2 = Math.pow(Ip, 2);
+  let EoB = 1.0, BoE = 1.0;
+  console.log("En: " + FN.expNot(En));
+  console.log("Bn: " + FN.expNot(Bn));
+  if (!isNaN(Bn) && isFinite(Bn) && Bn > TOL) {console.log("Bn can be denominator"); EoB = En / Bn; console.log("EoB = " + FN.expNot(EoB));}
+  if (!isNaN(En) && isFinite(En) && En > TOL) {console.log("En can be denominator"); BoE = Bn / En; console.log("BoE = " + FN.expNot(BoE));}
 
+  //initialization of unit vectors and norms on the proper frame
+  unitEprop = [...unitE], normEprop = 1.0 * normEred; //electric field
+  unitBprop = [...unitB], normBprop = 1.0 * normBred; //magnetic field
+  if (!isNaN(normCrossProdU) && isFinite(normCrossProdU) && normCrossProdU > TOL) {console.log("unit beta vector can be assigned"); unitβprop = [...unitCrossProdU];} else {console.log("error with beta unit vector");} //β unit direction
 
-export function reduceField(field, type)
-{
-  let Fred;
-  if (type === "electricType") { Fred = scalTim3Vec(PARAM.coεf, field); }
-  else if (type === "magneticType") { Fred = scalTim3Vec(PARAM.ooμc, field); }
-  return Fred;
-}
-
-
-function computeInvariants(E, B)
-{
-  return [-dot(E, E) + dot(B, B), dot(E, B)];
-}
-
-
-export function boostParameters(E, B)
-{
-  let Esq = dot(E, E), Bsq = dot(B, B), EXB = cross(E, B);
-  let En = Math.sqrt(Esq), Bn = Math.sqrt(Bsq);
-  let Is, Ip, Is2, Ip2, invariants, β, γ, Ep, Bp;
-
-  invariants = computeInvariants(E, B);
-  Is = invariants[0], Ip = invariants[1], invariants = null;
-  Is2 = Math.pow(Is, 2), Ip2 = Math.pow(Ip, 2);
-
-  console.log("Is: " + Is); //REMOVE BEFORE SENDING CODE
-  console.log("Ip: " + Ip); //REMOVE BEFORE SENDING CODE
-
-  let output; //final output
-
-  if (Math.abs(Ip) <= PARAM.TOL) //null pseudoscalar invariant
+  if ( Math.abs(dotProdU) <= TOL || En <= TOL || Bn <= TOL ) //null pseudoscalar invariant
   {
-    if (Math.abs(Is) <= PARAM.TOL) //null-like case
+    if (En - Bn > TOL) //electric-like case
     {
-      output = ["nullType", [0.0, 0.0, 0.0], 1.0, E, B];
+      typeOfField = "electricType";
+      if (Bn > 0.0)
+      {
+        γprop = En / Math.sqrt( -Is );
+        normβprop = BoE * Math.sqrt( 1.0 - Math.pow(dotProdU, 2) );
+        normEprop = Math.sqrt( -Is ), normBprop = 0.0;
+      }
+      else {} //the lab field is already electric-like, no Lorentz Boost needed
     }
-    else if (Is <= -PARAM.TOL) //electric-like case
+    else if (Bn - En > TOL) //magnetic-like case
     {
-      β = scalTim3Vec( 1.0 / Esq, EXB );
-      γ = En / Math.sqrt( -Is );
-      Ep = scalTim3Vec( Math.sqrt( -Is ) / En , E );
-      Bp = [0.0, 0.0, 0.0];
-      output = ["electricType", β, γ, Ep, Bp];
+      typeOfField = "magneticType";
+      if (En > 0.0)
+      {
+        γprop = Bn / Math.sqrt( Is );
+        normβprop = EoB * Math.sqrt( 1.0 - Math.pow(dotProdU, 2) );
+        normEprop = 0.0, normBprop = Math.sqrt( Is );
+      }
+      else {} //the lab field is already magnetic-like, no Lorentz Boost needed
     }
-    else if (Is > PARAM.TOL) //magnetic-like case
-    {
-      β = scalTim3Vec( 1.0 / Bsq, EXB );
-      γ = Bn / Math.sqrt( Is );
-      Ep = [0.0, 0.0, 0.0];
-      Bp = scalTim3Vec( Math.sqrt( Is ) / Bn , B );
-      output = ["magneticType", β, γ, Ep, Bp];
-    }
+    else {typeOfField = "nullType";} //else if ( fabs(En - Bn) <= TOL ) //null-like case
   }
-  else if (Math.abs(Ip) > PARAM.TOL) //pseudoscalar invariant different from zero
+  else // if ( Math.abs(dotProdU) > TOL && En > TOL && Bn > TOL ) //pseudoscalar invariant different from zero
   {
-    β = scalTim3Vec( ( Esq + Bsq - Math.sqrt( Is2 + 4.0 * Ip2 ) ) / ( 2.0 * ( Math.pow(En * Bn, 2) - Ip2 ) ) , EXB );
-    γ = Math.sqrt(2.0) * Math.sqrt( ( Math.pow( Is2 + 4.0 * Ip2 , -0.5) * ( Math.pow(En * Bn, 2) - Ip2 ) ) / ( Esq + Bsq - Math.sqrt( Is2 + 4.0 * Ip2 ) ) );
-    Ep = LorentzTransfEBfields(γ, β, E, B, "E");
-    Bp = LorentzTransfEBfields(γ, β, E, B, "B");
-    output = ["collinearType", β, γ, Ep, Bp];
+    typeOfField = "collinearType";
+    let fIs = -EoB + BoE, fIp = dotProdU //fractional scalar and pseudoscalar
+    let fIs2 = Math.pow(fIs, 2), fIp2 = Math.pow(fIp, 2);
+    let s = Math.sqrt( fIs2 + 4.0 * fIp2 );
+    γprop = sqrt2 * Math.sqrt(1.0 - fIp2) / Math.sqrt( s * (EoB + BoE - s) );
+    normβprop = (EoB + BoE - s) / (2 * Math.sqrt(1.0 - fIp2));
+    normEprop = Math.sqrt( En * Bn * ( s - fIs ) / 2.0 ), normBprop = Math.sqrt( En * Bn * ( s + fIs ) / 2.0 );
+    unitEprop = unitE.map( x => x * (sqrt2 / Math.sqrt(s) ) * ( EoB * Math.sqrt(1.0 - fIp2) / Math.sqrt( s - fIs - 2.0 * EoB * fIp2 ) ) );
+    unitEprop = vecBinOp( unitB.map(x => fIp * x), "-", unitE );
+    unitEprop = unitEprop.map( x => x * (sqrt2 / Math.sqrt(s) ) * ( BoE / Math.sqrt( s - fIs + 2.0 * BoE * fIp2 ) ) );
+    unitBprop = unitB.map( x => x * (sqrt2 / Math.sqrt(s) ) * ( BoE * Math.sqrt(1.0 - fIp2) / Math.sqrt( s + fIs - 2.0 * BoE * fIp2 ) ) );
+    unitBprop = vecBinOp( unitE.map(x => fIp * x), "-", unitB );
+    unitBprop = unitBprop.map( x => x * (sqrt2 / Math.sqrt(s) ) * ( EoB / Math.sqrt( s + fIs + 2.0 * EoB * fIp2 ) ) );
   }
+    
+  //boost initial position and velocity
+  let lbx0 = LorentzTransf4vec(unitβprop, normβprop, γprop, [0.0, x0[0], x0[1], x0[2]]);
+  let lbu0 = LorentzTransf4vec(unitβprop, normβprop, γprop, [γ0 * c, γ0 * normu0 * unitu0[0], γ0 * normu0 * unitu0[1], γ0 * normu0 * unitu0[2]]);
+  x0prop = lbx0.slice(1);
+  γ0prop = γprop * γ0 * ( 1.0 - normβprop * normu0oc * dot( unitβprop, unitu0 ) );
+  let u0prop = lbu0.slice(1).map(x => x / γ0prop);
+  normu0prop = Math.hypot(u0prop[0], u0prop[1], u0prop[2]);
+  unitu0prop = u0prop.map(x => x / normu0prop), normu0ocprop = normu0prop / c;
 
-  return output;
+  console.log("\nProper boost parameters:");
+  console.log("Invariants: Scalar: " + FN.expNot(Is) + "\t Pseudoscalar: " + FN.expNot(Ip));
+  console.log("Type of field: " + typeOfField );
+  console.log("γ: " + FN.expNot(γprop));
+  console.log("β: norm " + FN.expNot(normβprop) + ", direction " + FN.tripletString(unitβprop));
+  console.log("E: norm " + FN.expNot(normEprop) + " s⁻¹ m⁻¹ C, direction " + FN.tripletString(unitEprop));
+  console.log("B: norm " + FN.expNot(normBprop) + " s⁻¹ m⁻¹ C, direction " + FN.tripletString(unitBprop));
+  console.log("u0: norm " + FN.expNot(normu0prop) + " s⁻¹ m, direction " + FN.tripletString(unitu0prop));
 }
 
-
-function rescaleFields(qred, m, Ered, Bred, u0, type)
+function nullType()
 {
-  let rescE = [Ered[0], Ered[1], Ered[2]];
-  let rescB = [Bred[0], Bred[1], Bred[2]];
+  let normF = 1.0 * normEres; //field vector norm (in this case normE = normB)
+  let normv0 = 1.0 * normu0ocprop, unitv0 = [...unitu0prop] //rescaled initial velocity
 
-  if (type === "nullType" || type == "collinearType")
-  {
-    rescE = scalTim3Vec( qred / (m * PARAM.c**2), rescE );
-    rescB = scalTim3Vec( qred / (m * PARAM.c**2), rescB );
-  }
-  else if (type === "electricType")
-  {
-    rescE = scalTim3Vec( qred / (m * PARAM.c**2), rescE );
-  }
-  else if (type === "magneticType")
-  {
-    let γ = γofβ( scalTim3Vec(PARAM.ooc, u0) );
-    rescB = scalTim3Vec( qred / (γ * m * PARAM.c**2), rescB );
-  }
-
-  return [rescE, rescB];
-}
-
-
-// SYSTEM EVOLUTION
-function generatePosition(q, m, Efield, Bfield, x0, u0, numPts, charTimeFactor)
-{
-  //SYSTEM PARAMETERS
-  const qred = reduceCharge(q);
-  const Ered = reduceField(Efield, "electricType"), Bred = reduceField(Bfield, "magneticType");
-  var bp = boostParameters(Ered, Bred);
-  const type = bp[0], β = bp[1], γ = bp[2], Ep = bp[3], Bp = bp[4]; bp = null;
-  const βn = norm3Vec(β);
-
-  console.log("The electromagnetic field is of " + type + " type"); //DELETE BEFORE SENDING CODE
-
-  //POSITION AS SOLUTION TO THE EQUATIONS OF MOTION
-  let properFrame4pos;
-  if (type === "nullType")
-  { properFrame4pos = nullType(qred, m, Ered, Bred, x0, u0, numPts, charTimeFactor); }
-  else if (type === "electricType")
-  { properFrame4pos = electricType(qred, m, Ered, Bred, x0, u0, numPts, charTimeFactor); }
-  else if (type === "magneticType")
-  { properFrame4pos = magneticType(qred, m, Ered, Bred, x0, u0, numPts, charTimeFactor); }
-  else if (type === "collinearType")
-  { properFrame4pos = collinearType(qred, m, Ered, Bred, x0, u0, numPts, charTimeFactor); }
-
-  // LAB FRAME POSITION 4-VECTOR COMPONENTS
-  let labTime = Array.from( {length : numPts}, (v, i) => 0 );
-  let labPosx = Array.from( {length : numPts}, (v, i) => 0 );
-  let labPosy = Array.from( {length : numPts}, (v, i) => 0 );
-  let labPosz = Array.from( {length : numPts}, (v, i) => 0 );
-  let tempLabPos4vec = Array.from( {length : 4}, (v, i) => 0 );
-
-  if (βn <= PARAM.TOL)
-  {
-    console.log("The lab frame is already a proper frame, so no Lorentz Boost is necessary");
-    labTime = properFrame4pos[0];
-    labPosx = properFrame4pos[1];
-    labPosy = properFrame4pos[2];
-    labPosz = properFrame4pos[3];
-  }
-  else if (βn > PARAM.TOL)
-  {
-    console.log("A Lorentz Boost with β = " + β + " is going to be performed");
-    for (var i = 0; i < numPts; i++)
-    {
-      let propT = properFrame4pos[0][i], propX = properFrame4pos[1][i], propY = properFrame4pos[2][i], propZ = properFrame4pos[3][i];
-      tempLabPos4vec = LorentzTransform4vec(scalTim3Vec(-1, β), [propT, propX, propY, propZ]);
-      labTime[i] = tempLabPos4vec[0];
-      labPosx[i] = tempLabPos4vec[1];
-      labPosy[i] = tempLabPos4vec[2];
-      labPosz[i] = tempLabPos4vec[3];
-    }
-  }
-
-  let labFrame4pos = [labTime, labPosx, labPosy, labPosz];
-  console.log("t:" + labFrame4pos[0]);
-  console.log("x:" + labFrame4pos[1]);
-  console.log("y:" + labFrame4pos[2]);
-  console.log("z:" + labFrame4pos[3]);
-
-  return labFrame4pos;
-}
-
-
-function nullType(qred, m, Ered, Bred, x0, u0, numPts, charTimeFactor)
-{
-  var rescF = rescaleFields(qred, m, Ered, Bred, u0, "nullType");
-  const E = rescF[0], B = rescF[1]; rescF = null;
-  const En = norm3Vec(E), Bn = norm3Vec(B), u0n = norm3Vec(u0);
-
-  //gamma factor related to the initial velocity
-  const γ0 = γofβ( scalTim3Vec(PARAM.ooc, u0) );
-
-  //field vector norm (in this case normE = normB) and unit direction
-  const normF = 0.5 * (En + Bn), unitF = scalTim3Vec(1 / En, E);
-
-  //rescaled initial velocity
-  const v0 = scalTim3Vec(PARAM.ooc, u0);
-  const normv0 = PARAM.ooc * u0n, unitv0 = scalTim3Vec(1 / u0n, u0);
-
-  //electric and magnetic field unit vectors
-  const unitE = scalTim3Vec(1 / En, E), unitB = scalTim3Vec(1 / Bn, B);
-
-  //Rotation to align the cross product unitE × unitM with the x_3 axis
-  let crossProd = cross(unitE, unitB);
+  //Rotation to align the cross product unitE × unitB with the x_3 axis
+  let crossProd = cross(unitEres, unitBres);
+  let ncp = Math.hypot(crossProd[0], crossProd[1], crossProd[2]);
+  console.log("cross product: " + FN.tripletString(crossProd));
 
   //components of the unit direction vector
-  let ncp = norm3Vec(crossProd), d1 = crossProd[0] / ncp, d2 = crossProd[1] / ncp, d3 = crossProd[2] / ncp;
+  let d1 = crossProd[0] / ncp, d2 = crossProd[1] / ncp, d3 = crossProd[2] / ncp;
 
-  //direct rotation matrix
-  let rot3 = [[1.0 - d1**2 / (1.0 + d3), - d1 * d2 / (1.0 + d3),   -d1                               ],
+  //direct ("rot") and inverse ("tor") rotation matrices
+  let rot3, tor3;
+  if ( Math.abs(1 + d3) > TOL )
+  {
+  rot3 = [[1.0 - d1**2 / (1.0 + d3), - d1 * d2 / (1.0 + d3),   -d1                               ],
               [-d1 * d2 / (1.0 + d3),    1.0 - d2**2 / (1.0 + d3), -d2                               ],
               [d1,                       d2,                       1.0 - (d1**2 + d2**2) / (1.0 + d3)]];
-
-  //inverse rotation matrix
-  let tor3 = [[1.0 - d1**2 / (1.0 + d3), - d1 * d2 / (1.0 + d3),   d1                                ],
+  tor3 = [[1.0 - d1**2 / (1.0 + d3), - d1 * d2 / (1.0 + d3),   d1                                ],
               [-d1 * d2 / (1.0 + d3),    1.0 - d2**2 / (1.0 + d3), d2                                ],
               [-d1,                      -d2,                      1.0 - (d1**2 + d2**2) / (1.0 + d3)]];
+  } else
+  {
+    rot3 = [[-1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, -1.0]];
+    tor3 = [[-1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, -1.0]];
+  }
+
 
   //execute the first rotation
   let rot3E = matrixDotVector(rot3, unitE);
   let rot3B = matrixDotVector(rot3, unitB);
   let rot3unitv0 = matrixDotVector(rot3, unitv0);
+  console.log("rot3E: " + FN.expNot(rot3E));
+  console.log("rot3B: " + FN.expNot(rot3B));
 
 
   //Rotation to align the unit vector rot3E with the x_1 axis
-
-  //direct rotation matrix
-  let rot1 = [[1.0 - (rot3E[1]**2 + rot3E[2]**2) / (1.0 + rot3E[0]), rot3E[1], rot3E[2]],
+  //direct ("rot") and inverse ("tor") rotation matrices
+  let rot1, tor1;
+  if ( Math.abs(1 + rot3E[0]) > TOL )
+  {
+  rot1 = [[1.0 - (rot3E[1]**2 + rot3E[2]**2) / (1.0 + rot3E[0]), rot3E[1], rot3E[2]],
               [-rot3E[1], 1.0 - rot3E[1]**2 / (1.0 + rot3E[0]), -rot3E[1] * rot3E[2] / (1.0 + rot3E[0])],
               [-rot3E[2], -rot3E[1] * rot3E[2] / (1.0 + rot3E[0]), 1.0 - rot3E[2]**2 / (1.0 + rot3E[0])]];
-
-  //inverse rotation matrix
-  let tor1 = [[1.0 - (rot3E[1]**2 + rot3E[2]**2) / (1.0 + rot3E[0]), -rot3E[1], -rot3E[2]],
+  tor1 = [[1.0 - (rot3E[1]**2 + rot3E[2]**2) / (1.0 + rot3E[0]), -rot3E[1], -rot3E[2]],
               [rot3E[1], 1.0 - rot3E[1]**2 / (1.0 + rot3E[0]), -rot3E[1] * rot3E[2] / (1.0 + rot3E[0])],
               [rot3E[2], -rot3E[1] * rot3E[2] / (1.0 + rot3E[0]), 1.0 - rot3E[2]**2 / (1.0 + rot3E[0])]];
+  } else
+  {
+    rot1 = [[-1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, -1.0]];
+    tor1 = [[-1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, -1.0]];
+  }
 
   //execute the second rotation
-  //let rotE = matrixDotVector(rot1, rot3E); //this should be equal to [1, 0, 0]
-  //let rotB = matrixDotVector(rot1, rot3B); //this should be equal to [0, 1, 0]
+  let rotE = matrixDotVector(rot1, rot3E); //this should be equal to [1, 0, 0]
+  let rotB = matrixDotVector(rot1, rot3B); //this should be equal to [0, 1, 0]
   let rotunitv0 = matrixDotVector(rot1, rot3unitv0);
 
   //function to undo the full rotation
-  function undoRot(vec)
-  { return matrixDotVector(tor3, matrixDotVector(tor1, vec)); }
+  function undoRot(vec) { return matrixDotVector(tor3, matrixDotVector(tor1, vec)); }
 
   //normalized initial rotated velocity
   let v10 = normv0 * rotunitv0[0], v20 = normv0 * rotunitv0[1], v30 = normv0 * rotunitv0[2];
 
   //constant terms appearing in the next definitions
   let const0 = v10 * (3.0 * (1.0 - v30) - v10**2) / ( Math.sqrt( 2.0 * (1.0 - v30) - v10**2 )**3 );
-  let const1 = 3.0 * normF * (1.0 - v30)**2 / ( γ0 * Math.sqrt( 2.0 * (1.0 - v30) - v10**2 )**3 );
+  let const1 = 3.0 * normF * (1.0 - v30)**2 / ( γ0prop * Math.sqrt( 2.0 * (1.0 - v30) - v10**2 )**3 );
   let tsnoc0 = -const0 / const1;
   let tsnoc1 = 1.0 / const1;
 
   //Adimensional scaling of time
-  function T(t)
-  { return const0 + const1 * t; }
+  function T(t) { return const0 + const1 * t; }
 
   //characteristic time
-  function charT(N)
-  { return tsnoc0 + tsnoc1 * N; }
-  const maxTime = charT(charTimeFactor);
-  const timeStep = maxTime / numPts;
-
+  function charT(N) { return tsnoc0 + tsnoc1 * N; }
+  charTime = charT(1), maxTime = charT(charTimeFactor);
+  setTimeStep();
 
   //cubic roots related to the circular expressions on the solution
-  function rp(T)
-  { return Math.cbrt( 1.0 + 2.0 * T * Math.sqrt(1.0 + T**2) + 2.0 * T**2 ); }
+  function rp(T) { return Math.cbrt( 1.0 + 2.0 * T * Math.sqrt(1.0 + T**2) + 2.0 * T**2 ); }
 
-  function rm(T)
-  { return Math.cbrt( 1.0 - 2.0 * T * Math.sqrt(1.0 + T**2) + 2.0 * T**2 ); }
+  function rm(T) { return Math.cbrt( 1.0 - 2.0 * T * Math.sqrt(1.0 + T**2) + 2.0 * T**2 ); }
 
 
   //algebraic combinations of circular functions
-
   //one over (one minus cosine)
-  function ooomc(T)
-  { return 0.5 + 2.0 * T**2 / ( (1.0 + rp(T) + rm(T))**2 ); }
+  function ooomc(T) { return 0.5 + 2.0 * T**2 / ( (1.0 + rp(T) + rm(T))**2 ); }
 
-  //value at t = 0
-  let ooomc0 = ooomc( T(0.0) );
+  let ooomc0 = ooomc( T(0.0) ); //value at t = 0
 
   //sine over (one minus cosine)
-  function soomc(T)
-  { return 2.0 * T / (1.0 + rp(T) + rm(T)); }
+  function soomc(T) { return 2.0 * T / (1.0 + rp(T) + rm(T)); }
 
-  //value at t = 0
-  let soomc0 = soomc( T(0.0) );
+  let soomc0 = soomc( T(0.0) ); //value at t = 0
 
   //algebraic combination of circular functions in x3(t)
-  function algComb(T)
-  { return T / (1.0 + rp(T) + rm(T)) - 4.0 * T**3 / ( 3.0 * (1.0 + rp(T) + rm(T))**3 ); }
+  function algComb(T) { return T / (1.0 + rp(T) + rm(T)) - 4.0 * T**3 / ( 3.0 * (1.0 + rp(T) + rm(T))**3 ); }
 
-  //value at t = 0
-  let algComb0 = algComb( T(0.0) );
+  let algComb0 = algComb( T(0.0) ); //value at t = 0
 
 
   //time evolution of position
-
   //constants appearing on the solution
-  let const1x1 = γ0 * PARAM.c * (2.0 * (1.0 - v30) - v10**2 ) / ( normF * (1.0 - v30) );
+  let const1x1 = γ0prop * c * (2.0 * (1.0 - v30) - v10**2 ) / ( normF * (1.0 - v30) );
   let const0x1 = -const1x1 * ooomc0;
 
-  let const1x2 = γ0 * PARAM.c * v20 * Math.sqrt( 2.0 * (1.0 - v30) - v10**2 ) / ( normF * (1.0 - v30) );
+  let const1x2 = γ0prop * c * v20 * Math.sqrt( 2.0 * (1.0 - v30) - v10**2 ) / ( normF * (1.0 - v30) );
   let const0x2 = -const1x2 * soomc0;
 
-  let const1x3 = -γ0 * PARAM.c * Math.sqrt( 2.0 * (1.0 - v30) - v10**2 ) / normF;
+  let const1x3 = -γ0prop * c * Math.sqrt( 2.0 * (1.0 - v30) - v10**2 ) / normF;
   let const0x3 = -const1x3 * algComb0;
-  let consttx3 = PARAM.c * (1.0 - v30**2 - v10**2) / ( 2.0 * (1.0 - v30) - v10**2 );
+  let consttx3 = c * (1.0 - v30**2 - v10**2) / ( 2.0 * (1.0 - v30) - v10**2 );
 
 
   //Time evolution function: returns position array
@@ -385,73 +355,54 @@ function nullType(qred, m, Ered, Bred, x0, u0, numPts, charTimeFactor)
     let x2mx20 = const0x2 + const1x2 * soomc( T(t) );
     let x3mx30 = const0x3 + consttx3 * t + const1x3 * algComb( T(t) );
     let vecDynSln = undoRot([x1mx10, x2mx20, x3mx30]);
-    return vec3BinOp( x0, "+", vecDynSln );
+    return vecBinOp( x0prop, "+", vecDynSln );
   }
 
-  //COMPUTATION: PROPER FRAME POSITION 4-VECTOR
-  return properFrameComputation(numPts, timeStep, xNull);
+  return properFrameComputation(xNull); //COMPUTATION: PROPER FRAME POSITION 4-VECTOR
 }
 
 
-function electricType(qred, m, Ered, Bred, x0, u0, numPts, charTimeFactor)
+function electricType()
 {
-  var rescF = rescaleFields(qred, m, Ered, Bred, u0, "electricType");
-  const F = rescF[0]; rescF = null;
+  let F = unitEres.map(x => normEres * x), normF = 1.0 * normEres, unitF = [...unitEres]; //focal vector norm and unit direction
+  let U0 = unitu0.map(x => γ0prop * normu0oc * x); //rescaled initial velocity
 
-  //gamma factor related to the initial velocity
-  const γ0 = γofβ( scalTim3Vec(PARAM.ooc, u0) );
-
-  //focal vector norm and unit direction
-  const normF = norm3Vec(F), unitF = scalTim3Vec(1 / normF, F);
-
-  //rescaled initial velocity
-  const U0 = scalTim3Vec( γ0 * PARAM.ooc, u0 );
-
-  const charTime = 1.0 / normF; //characteristic time
-  const maxTime = charTimeFactor * charTime;
-  const timeStep = maxTime / numPts;
+  charTime = 1.0 / normF; //characteristic time
+  maxTime = charTimeFactor * charTime;
+  setTimeStep();
 
   //constant quantities appearing on the time evolution function
-  const FdotU0 = dot(F, U0);
-  const perProjU0overF = vec3BinOp( U0, "-", scalTim3Vec( FdotU0 / (normF**2), F ) );
-  const sqrt1PlusU0sqrd = Math.sqrt( 1.0 + dot(U0, U0) );
+  let uFdotU0 = dot(unitF, U0);
+  let perProjU0overF = vecBinOp(U0, "-", scalMultVec(uFdotU0, unitF));
+  let sqrt1PlusU0sqrd = Math.sqrt( 1.0 + Math.pow(γ0prop * normu0oc, 2) );
 
   //Time evolution function: returns position array
   function xE(t)
   {
-    let U0PlusFt = vec3BinOp( U0, "+", scalTim3Vec(t, F) );
+    let U0PlusFt = vecBinOp(U0, "+", scalMultVec(t,  F));
     let sqrt1PlusU0PlusFtsqrd = Math.sqrt( 1.0 + dot(U0PlusFt, U0PlusFt) );
 
-    let parallF = PARAM.c * (sqrt1PlusU0PlusFtsqrd - sqrt1PlusU0sqrd) / (normF**2);
-    let perpenF = PARAM.c * Math.log( (normF * sqrt1PlusU0PlusFtsqrd + dot(F, U0PlusFt)) / (normF * sqrt1PlusU0sqrd + FdotU0) ) / normF;
+    let parallF = c * (sqrt1PlusU0PlusFtsqrd - sqrt1PlusU0sqrd) / normF;
+    let perpenF = c * Math.log( (normF * sqrt1PlusU0PlusFtsqrd + dot(F, U0PlusFt)) / (normF * (sqrt1PlusU0sqrd + uFdotU0) ) ) / normF;
 
-    let parallTerm = scalTim3Vec(parallF, F);
-    let perpenTerm = scalTim3Vec(perpenF, perProjU0overF);
+    let parallTerm = scalMultVec(parallF, unitF);
+    let perpenTerm = scalMultVec(perpenF, perProjU0overF);
 
-    let dynamicTerm = vec3BinOp(parallTerm, "+", perpenTerm);
+    let dynamicTerm = vecBinOp(parallTerm, "+", perpenTerm);
 
-    return vec3BinOp(x0, "+", dynamicTerm);
+    return vecBinOp(x0prop, "+", dynamicTerm);
   }
-
-  //COMPUTATION: PROPER FRAME POSITION 4-VECTOR
-  return properFrameComputation(numPts, timeStep, xE);
+  return properFrameComputation(xE); //COMPUTATION: PROPER FRAME POSITION 4-VECTOR
 }
 
 
-function magneticType(qred, m, Ered, Bred, x0, u0, numPts, charTimeFactor)
+function magneticType()
 {
-  var rescF = rescaleFields(qred, m, Ered, Bred, u0, "magneticType");
-  const Ω = rescF[1]; rescF = null;
+  let normΩ = 1.0 * normBres, unitΩ = [...unitBres]; //angular frequency vector norm and unit direction
 
-  //gamma factor related to the initial velocity
-  const γ0 = γofβ( scalTim3Vec(PARAM.ooc, u0) );
-
-  //angular frequency vector norm and unit direction
-  const normΩ = norm3Vec(Ω), unitΩ = scalTim3Vec(1 / normΩ, Ω);
-
-  const charTime = PARAM.tau / normΩ; //characteristic time
-  const maxTime = charTimeFactor * charTime;
-  const timeStep = maxTime / numPts;
+  charTime = τ / normΩ; //characteristic time
+  maxTime = charTimeFactor * charTime;
+  setTimeStep();
 
   //main direction cosines
   const λ1 = unitΩ[0];
@@ -473,12 +424,12 @@ function magneticType(qred, m, Ered, Bred, x0, u0, numPts, charTimeFactor)
   const secAngle3 = Math.atan2( unitΩ[0], unitΩ[1] * unitΩ[2] );
 
   //cosines of $\vartheta_1$ and $\vartheta_3$
-  const Cos1 = tfCos( secAngle1 );
-  const Cos3 = tfCos( secAngle3 );
+  const Cos1 = Math.cos( secAngle1 );
+  const Cos3 = Math.cos( secAngle3 );
 
   //sines of $\vartheta_1$ and $\vartheta_3$
-  const Sin1 = tfSin( secAngle1 );
-  const Sin3 = tfSin( secAngle3 );
+  const Sin1 = Math.sin( secAngle1 );
+  const Sin3 = Math.sin( secAngle3 );
 
   //SOLUTION MATRICES
   //main direction cosines matrix
@@ -510,7 +461,7 @@ function magneticType(qred, m, Ered, Bred, x0, u0, numPts, charTimeFactor)
         {
           for (var l = 0; l < 3; l++)
           {
-            linCombCosAndSin = cosMat[l][k] * tfSin(normΩ * t) + sinMat[l][k] * (1.0 - tfCos(normΩ * t));
+            linCombCosAndSin = cosMat[l][k] * Math.sin(normΩ * t) + sinMat[l][k] * (1.0 - Math.cos(normΩ * t));
             circularMatrixxij += diagMat[i][l] * linCombCosAndSin * diagMat[k][j];
           }
         }
@@ -524,56 +475,52 @@ function magneticType(qred, m, Ered, Bred, x0, u0, numPts, charTimeFactor)
       let timeDependentTerm = 0.0;
       for (var j = 0; j < 3; j++)
       {
-        timeDependentTerm += timeDependentMatrix[i][j] * u0[j];
+        timeDependentTerm += timeDependentMatrix[i][j] * normu0prop * unitu0prop[j];
       }
 
-      x[i] += x0[i] + timeDependentTerm;
+      x[i] += x0prop[i] + timeDependentTerm;
     }
 
     return x;
   }
 
-  //COMPUTATION: PROPER FRAME POSITION 4-VECTOR
-  return properFrameComputation(numPts, timeStep, xM);
+  return properFrameComputation(xM); //COMPUTATION: PROPER FRAME POSITION 4-VECTOR
 }
 
 
-function collinearType(qred, m, Ered, Bred, x0, u0, numPts, charTimeFactor)
+function collinearType()
 {
-  var rescF = rescaleFields(qred, m, Ered, Bred, u0, "collinearType");
-  const E = rescF[0], B = rescF[1]; rescF = null;
-
-  //gamma factor related to the initial velocity
-  const γ0 = γofβ( scalTim3Vec(PARAM.ooc, u0) );
-
   //electric and magnetic field vector norms and unit directions
-  const normE = norm3Vec(E), normB = norm3Vec(B), unitE = scalTim3Vec(1 / En, E), unitB = scalTim3Vec(1 / Bn, B);
-  const snormE = 1.0 * normE, snormB = normB * Math.sign( dot(unitE, unitB) ); //new B norm: older norm times sign of new unit direction
+  let snormE = 1.0 * normEres, snormB = normBres * Math.sign( dot(unitEres, unitBres) ); //new B norm: older norm times sign of dot product
+
+  console.log("snormE: " + FN.expNot(snormE));
+  console.log("snormB: " + FN.expNot(snormB));
 
   //rescaled initial velocity
-  const v0 = scalTim3Vec(PARAM.ooc, u0);
-  const normv0 = norm3Vec(v0), unitv0 = scalTim3Vec(1 / normv0, v0);
-
+  let normv0 = 1.0 * normu0ocprop, unitv0 = [...unitu0prop];
 
   //Rotation to align the unit vector unitE with the x_1 axis
-
-  //direct rotation matrix
-  let rot1 = [[1.0 - (unitE[1]**2 + unitE[2]**2) / (1.0 + unitE[0]), unitE[1], unitE[2]],
-              [-unitE[1], 1.0 - unitE[1]**2 / (1.0 + unitE[0]), -unitE[1] * unitE[2] / (1.0 + unitE[0])],
-              [-unitE[2], -unitE[1] * unitE[2] / (1.0 + unitE[0]), 1.0 - unitE[2]**2 / (1.0 + unitE[0])]];
-
-  //inverse rotation matrix
-  let tor1 = [[1.0 - (unitE[1]**2 + unitE[2]**2) / (1.0 + unitE[0]), -unitE[1], -unitE[2]],
-              [unitE[1], 1.0 - unitE[1]**2 / (1.0 + unitE[0]), -unitE[1] * unitE[2] / (1.0 + unitE[0])],
-              [unitE[2], -unitE[1] * unitE[2] / (1.0 + unitE[0]), 1.0 - unitE[2]**2 / (1.0 + unitE[0])]];
-
+  //direct (rot) and inverse (tor) rotation matrices
+  let rot1, tor1;
+  if ( Math.abs(1 + unitEres[0]) > TOL )
+  {
+    rot1 = [[1.0 - (unitEres[1]**2 + unitEres[2]**2) / (1.0 + unitEres[0]), unitEres[1], unitEres[2]],
+            [-unitEres[1], 1.0 - unitEres[1]**2 / (1.0 + unitEres[0]), -unitEres[1] * unitEres[2] / (1.0 + unitEres[0])],
+            [-unitEres[2], -unitEres[1] * unitEres[2] / (1.0 + unitEres[0]), 1.0 - unitEres[2]**2 / (1.0 + unitEres[0])]];
+    tor1 = [[1.0 - (unitEres[1]**2 + unitEres[2]**2) / (1.0 + unitEres[0]), -unitEres[1], -unitEres[2]],
+            [unitEres[1], 1.0 - unitEres[1]**2 / (1.0 + unitEres[0]), -unitEres[1] * unitEres[2] / (1.0 + unitEres[0])],
+            [unitEres[2], -unitEres[1] * unitEres[2] / (1.0 + unitEres[0]), 1.0 - unitEres[2]**2 / (1.0 + unitEres[0])]];
+  } else
+  {
+    rot1 = [[-1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, -1.0]];
+    tor1 = [[-1.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, -1.0]];
+  }
+  
   //function to undo the rotation
-  function undoRot(vec)
-  { return matrixDotVector(tor1, vec); }
+  function undoRot(vec) { return matrixDotVector(tor1, vec); }
 
 
   //execute the rotation
-
   //initial velocity unit vector
   let rotunitv0 = matrixDotVector(rot1, unitv0);
 
@@ -582,49 +529,50 @@ function collinearType(qred, m, Ered, Bred, x0, u0, numPts, charTimeFactor)
 
   //characteristic time
   function charT(N)
-  { return (γ0 / snormE) * ( normv0 * (Math.cosh(snormE * PARAM.tau * N / snormB) - 1.0) + Math.sinh(snormE * PARAM.tau * N / snormB) ); }
-  const maxTime = charT(charTimeFactor);
-  const timeStep = maxTime / numPts;
+  {
+    let farg = snormE * τ * N / snormB;
+    return Math.abs( (γ0prop / snormE) * ( v01 * (Math.cosh(farg) - 1.0) + Math.sinh(farg) ) ); //(γ0prop / snormE) * ( v01 * (Math.cosh(farg) - 1.0) + Math.sinh(farg) )
+  }
+  charTime = charT(1);
+  maxTime = charT(charTimeFactor);
+  setTimeStep();
 
   //constant terms involved in the time evolution routine
-  let γ0v0 = γ0 * normv0;
+  let γ0v01 = γ0prop * v01;
 
   //time evolution of position
 
-  function γ0v0PlusEt(t)
-  { return γ0v0 + snormE * t; }
+  function γ0v01PlusEt(t) { return γ0v01 + snormE * t; }
 
-  function sqrtTime(t)
-  { return Math.sqrt( γ0v0PlusEt(t)**2 + γ0**2 * (1.0 - normv0**2) ); }
+  function sqrtTime(t) { return Math.sqrt( γ0v01PlusEt(t)**2 + γ0prop**2 * (1.0 - v01**2) ); }
 
   function timeArg(t)
   {
-    let logArg = ( sqrtTime(t) + γ0v0PlusEt(t) ) / ( γ0 + γ0v0 );
+    let logArg = ( sqrtTime(t) + γ0v01PlusEt(t) ) / ( γ0prop + γ0v01 );
     return snormB * Math.log( logArg ) / snormE;
   }
 
   //compute the rectangular components of position, then undo the rotation, and finally add the initial position
   function xEparM(t)
   {
-    let x1mx10 = (sqrtTime(t) - γ0) / snormE;
-    let x2mx20 = γ0 * ( v03 * ( tfCos( timeArg(t) ) - 1.0 ) + v02 * tfSin( timeArg(t) ) ) / snormB;
-    let x3mx30 = γ0 * (-v02 * ( tfCos( timeArg(t) ) - 1.0 ) + v03 * tfSin( timeArg(t) ) ) / snormB;
+    let x1mx10 = c * (sqrtTime(t) - γ0prop) / snormE;
+    let x2mx20 = c * γ0prop * ( v03 * ( Math.cos( timeArg(t) ) - 1.0 ) + v02 * Math.sin( timeArg(t) ) ) / snormB;
+    let x3mx30 = c * γ0prop * (-v02 * ( Math.cos( timeArg(t) ) - 1.0 ) + v03 * Math.sin( timeArg(t) ) ) / snormB;
     let vecDynSln = undoRot([x1mx10, x2mx20, x3mx30]);
-    return vec3BinOp( x0, "+", vecDynSln );
+    return vecBinOp( x0prop, "+", vecDynSln );
   }
 
-  //COMPUTATION: PROPER FRAME POSITION 4-VECTOR
-  return properFrameComputation(numPts, timeStep, xEparM);
+  return properFrameComputation(xEparM); //COMPUTATION: PROPER FRAME POSITION 4-VECTOR
 }
 
 
-function properFrameComputation(numPts, timeStep, x)
+function properFrameComputation(x)
 {
-  let tempPropPos;
   let propTime = Array.from( {length : numPts}, (v, i) => 0 );
   let propPosx = Array.from( {length : numPts}, (v, i) => 0 );
   let propPosy = Array.from( {length : numPts}, (v, i) => 0 );
   let propPosz = Array.from( {length : numPts}, (v, i) => 0 );
+  let tempPropPos;
 
   for (var i = 0; i < numPts; i++)
   {
@@ -636,4 +584,66 @@ function properFrameComputation(numPts, timeStep, x)
   }
 
   return [propTime, propPosx, propPosy, propPosz];
+}
+
+
+// SYSTEM EVOLUTION
+export function generatePosition()
+{
+  boostToProperFrame(); //SET FIELDS ACCORDING TO SYSTEM INVARIANTS
+  rescaleFields(); //RESCALE FIELDS DEPENDING ON "typeOfField" VARIABLE VALUE
+
+  let properFrame4pos;
+  //POSITION AS SOLUTION TO THE EQUATIONS OF MOTION
+  if (typeOfField === "nullType") {properFrame4pos = nullType();}
+  else if (typeOfField === "electricType") {properFrame4pos = electricType();}
+  else if (typeOfField === "magneticType") {properFrame4pos = magneticType();}
+  else if (typeOfField === "collinearType") {properFrame4pos = collinearType();}
+
+  console.log("The characteristic time for the system is " + FN.expNot(charTime) + "s");
+  console.log("Time step: " + FN.expNot(timeStep) + "s");
+
+  //LAB FRAME POSITION 4-VECTOR COMPONENTS
+  let labTime = Array.from( {length : numPts}, (v, i) => 0 );
+  let labPosx = Array.from( {length : numPts}, (v, i) => 0 );
+  let labPosy = Array.from( {length : numPts}, (v, i) => 0 );
+  let labPosz = Array.from( {length : numPts}, (v, i) => 0 );
+  let tempLabPos4vec = Array.from( {length : 4}, (v, i) => 0 );
+
+  if (isFinite(normβprop) && !isNaN(normβprop) && normβprop > TOL)
+  {
+    console.log("A Lorentz Boost with |β| = " + FN.expNot(normβprop) + " and unit direction " + FN.tripletString(unitβprop.map(x => -x)) + " is going to be performed");
+    for (var i = 0; i < numPts; i++)
+    {
+      let propT = properFrame4pos[0][i], propX = properFrame4pos[1][i], propY = properFrame4pos[2][i], propZ = properFrame4pos[3][i];
+      tempLabPos4vec = LorentzTransf4vec( unitβprop.map(x => -x), normβprop, γprop, [c * propT, propX, propY, propZ] );
+      labTime[i] = tempLabPos4vec[0] / c;
+      labPosx[i] = tempLabPos4vec[1];
+      labPosy[i] = tempLabPos4vec[2];
+      labPosz[i] = tempLabPos4vec[3];
+    }
+  }
+  else
+  {
+    console.log("The lab frame is already a proper frame or the boost parameters are problematic, so no Lorentz boost is performed");
+    labTime = properFrame4pos[0];
+    labPosx = properFrame4pos[1];
+    labPosy = properFrame4pos[2];
+    labPosz = properFrame4pos[3];
+  }
+
+  return [labTime, labPosx, labPosy, labPosz];
+}
+
+function saveToCSV(sLabPath)
+{
+    let csvCntnt = "data:text/csv;charset=utf-8," + "t,x,y,z\n";
+    for (var i = 0; i < numPts; i++)
+    { csvCntnt += sLabPath[0][i] + "," + sLabPath[1][i] + "," + sLabPath[2][i] + "," + sLabPath[3][i] + "\n"; }
+    var encodedUri = encodeURI(csvCntnt);
+    var link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "mydataj.csv");
+    document.body.appendChild(link); // Required for FF
+    link.click(); // This will download the data file named "mydataj.csv".
 }

@@ -15,6 +15,20 @@
 
 body { margin: 1.5625% 1.5625% 1.5625% 1.5625%; }
 
+/* TOP PANEL */
+nav ul
+{
+  margin: 1.5625%;
+  display: inline;
+}
+
+nav ul li
+{
+  display: inline-block;
+  list-style-type: none;
+  padding: 1.5625%;
+}
+
 input, button, select, checkbox, fieldset, legend
 {
   padding: 0.78125%; -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
@@ -64,8 +78,8 @@ td, th { padding: 1.5625vw 1.5625vh; }
   h3 { color: var(--cCol04); }
   h4 { color: var(--cCol05); }
   body { background-color: var(--cCol07); }
-  input, button, select, checkbox, legend {  background-color: var(--cCol06);  }
-  input, button, select, checkbox, table, body { color: var(--cCol02); }
+  input, button, select, checkbox, legend, a {  background-color: var(--cCol06);  }
+  input, button, select, checkbox, table, body, a { color: var(--cCol02); }
   table, td, th fieldset { border: var(--cTableBorderSize) solid var(--cCol02); }
 }
 
@@ -76,8 +90,8 @@ td, th { padding: 1.5625vw 1.5625vh; }
   h3 { color: var(--cCol04); }
   h4 { color: var(--cCol03); }
   body { background-color: var(--cCol01); }
-  input, button, select, checkbox, legend { background-color: var(--cCol02);  }
-  input, button, select, checkbox, table, body { color: var(--cCol06); }
+  input, button, select, checkbox, legend, a { background-color: var(--cCol02);  }
+  input, button, select, checkbox, table, body, a { color: var(--cCol06); }
   table, td, th, fieldset { border: var(--cTableBorderSize) solid var(--cCol06); }
 }
 

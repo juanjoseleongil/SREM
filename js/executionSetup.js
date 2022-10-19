@@ -49,27 +49,7 @@ if ( langsList.includes(userLang) )
 //ADD / HIDE BOOST RAPIDITY SKETCH IF "ANIMATION CUSTOM FRAME" CHECKBOX IS CHECKED / UNCHECKED
 FN.pRndButton("CBprBtn", "cstmBoostFr", null, 0, 1); //PSEUDORANDOM RAPIDITY BUTTON
 const waitBoostSketch = await FN.waitForElm("cCB"); //WAIT UNTIL SKETCH CONTAINER LOADS
+FN.setupCustomBoost();
 
-let cstmBoostCB = document.getElementById("includeCstmFrame");
-let cstmBoostDIV = document.getElementById("cstmBoostDIV");
-let isThereAlreadyTheBoostSketch = false;
-
-cstmBoostCB.addEventListener( "change", () =>
-{
-  if (cstmBoostCB.checked)
-  {
-    if (window.matchMedia("(orientation: landscape)").matches) { document.getElementById("animFeatDiv").style.width = "46.875%"; }
-    cstmBoostDIV.style.display = "block"; //show canvas
-    if (!isThereAlreadyTheBoostSketch)
-    {
-      new unitDirectionSketch("cCB");
-      isThereAlreadyTheBoostSketch = true;
-    } //add sketch
-  }
-  else if (!cstmBoostCB.checked)
-  {
-    document.getElementById("animFeatDiv").style.width = "auto";
-    //document.getElementById("cCB").innerHTML = ""; //remove sketch
-    cstmBoostDIV.style.display = "none"; //hide canvas
-  }
-} );
+//SHOW ANIMATION!
+FN.animButton("animBtn");

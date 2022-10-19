@@ -11,6 +11,9 @@ export const language =
 {
   en:
   {
+    liSimul: "Simulation",
+    lipbts: "Background physics",
+    liCode: "Code",
     selLang: "Select language",
     decSep: ", ",
     cZeroToInf: "[0, ∞)",
@@ -54,8 +57,6 @@ export const language =
     collinearType: 'The electromagnetic field is of "collinear" type; that is, there exists an inertial frame such that both fields are present and they are collinear, i.e., either parallel or antiparallel.',
     neglBoost: "<br>The boost parameter is null or negligible with respect to the scale of the system as given by the chosen parameters.",
     yesBoost: "<br>The boost to such inertial reference frame is characterized by a velocity with the following norm and unit direction:<br>",
-    gfiAlert: "Success! Scroll down to check your input values",
-    bfiAlert: "Check every input and try again",
     SystCharTitle: "System characterization",
     AnimPropLeg: "Animation properties:",
     inptCTFlbl: "Characteristic time factor:",
@@ -66,10 +67,16 @@ export const language =
     includeCstmFrame: "Include animation on custom inertial frame",
     includeNonRelAnim: "Include non-relativistic animation",
     cstmBoostTitle: "Custom boost",
-    cstmBoostFrac: "Input the fraction of the boost speed with respect to the speed of light in vacuum "
+    cstmBoostFrac: "Input the fraction of the boost speed with respect to the speed of light in vacuum ",
+    animBtn: "Show animation",
+    gfiAlert: "Success! Scroll down to see the animation",
+    bfiAlert: "Check every input and try again"
   },
   es:
   {
+    liSimul: "Simulación",
+    lipbts: "Física de fondo",
+    liCode: "Código",
     selLang: "Seleccione el idioma",
     decSep: ", ",
     cZeroToInf: "[0, ∞)",
@@ -113,8 +120,6 @@ export const language =
     collinearType: 'El campo electromagnético es de tipo "colineal"; es decir que existe un marco de referencia inercial tal que ambos campos están presentes y son colineales (paralelos o antiparalelos).',
     neglBoost: "<br>El parámetro de <em>boost</em> es nulo o despreciable respecto a la escala del sistema dada por los parámetros ingresados.",
     yesBoost: "<br>El <em>boost</em> a tal marco de referencia se caracteriza por una velocidad con la siguiente magnitud y dirección:<br>",
-    gfiAlert: "Success! Scroll down to check your input values",
-    bfiAlert: "Check every input and try again",
     SystCharTitle: "Caracterización del sistema",
     AnimPropLeg: "Propiedades de la animación:",
     inptCTFlbl: "Factor de tiempo característico:",
@@ -125,10 +130,16 @@ export const language =
     includeCstmFrame: "Incluir animación en marco personalizado",
     includeNonRelAnim: "Incluir animación no relativista",
     cstmBoostTitle: "<em>Boost</em> personalizado",
-    cstmBoostFrac: "Ingrese la fracción de la rapidez inicial respecto a la rapidez de la luz en el vacío "
+    cstmBoostFrac: "Ingrese la fracción de la rapidez inicial respecto a la rapidez de la luz en el vacío ",
+    animBtn: "Mostrar animación",
+    gfiAlert: "¡Éxito! Desplácese hacia abajo para ver la animación",
+    bfiAlert: "Check every input and try again"
   },
   fr:
   {
+    liSimul: "Simulation",
+    lipbts: "Background physics",
+    liCode: "Code",
     selLang: "Choisir la langue",
     decSep: " ; ",
     cZeroToInf: "[0, ∞[",
@@ -172,8 +183,6 @@ export const language =
     collinearType: "Le champ électromagnétique est de type « colinéaire » ; c'est-à-dire qu'il existe un cadre inertiel tel que les deux champs sont présents et qu'ils sont colinéaires, c'est-à-dire parallèles ou antiparallèles.",
     neglBoost: "<br>Le paramètre <em>boost</em> est nul ou négligeable par rapport à l'échelle du système donnée par les paramètres choisis.",
     yesBoost: "<br> Le <em>boost</em> vers un tel référentiel inertiel est caractérisé par une vitesse avec la norme et la direction unitaire suivantes : <br>",
-    gfiAlert: "Succès! Faites défiler vers le bas pour vérifier vos valeurs d'entrée",
-    bfiAlert: "Vérifiez chaque entrée et réessayez",
     SystCharTitle: "Caractérisation du système",
     AnimPropLeg: "Propriétés des animations :",
     inptCTFlbl: "Facteur temps caractéristique :",
@@ -184,10 +193,16 @@ export const language =
     includeCstmFrame: "Inclure l'animation sur un cadre de référence personnalisé",
     includeNonRelAnim: "Inclure une animation non relativiste",
     cstmBoostTitle: "<em>Boost</em> personnalisé",
-    cstmBoostFrac: "Entrer la fraction de la vitesse du <em>Boost</em> par rapport à la vitesse de la lumière dans le vide "
+    cstmBoostFrac: "Entrer la fraction de la vitesse du <em>Boost</em> par rapport à la vitesse de la lumière dans le vide ",
+    animBtn: "Show animation",
+    gfiAlert: "Succès! Faites défiler vers le bas pour vérifier vos valeurs d'entrée",
+    bfiAlert: "Vérifiez chaque entrée et réessayez"
   },
   it:
   {
+    liSimul: "Simulation",
+    lipbts: "Background physics",
+    liCode: "Code",
     selLang: "Seleziona la lingua",
     decSep: ", ",
     cZeroToInf: "[0, ∞)",
@@ -231,8 +246,6 @@ export const language =
     collinearType: 'The electromagnetic field is of "collinear" type; that is, there exists an inertial frame such that both fields are present and they are collinear, i.e., either parallel or antiparallel.',
     neglBoost: "<br>The boost parameter is null or negligible with respect to the scale of the system as given by the chosen parameters.",
     yesBoost: "<br>The boost to such inertial reference frame is characterized by a velocity with the following norm and unit direction:<br>",
-    gfiAlert: "Success! Scroll down to check your input values",
-    bfiAlert: "Check every input and try again",
     SystCharTitle: "System characterization",
     AnimPropLeg: "Animation properties:",
     inptCTFlbl: "Characteristic time factor:",
@@ -243,10 +256,16 @@ export const language =
     includeCstmFrame: "Include animation on custom inertial frame",
     includeNonRelAnim: "Include non relativistic animation",
     cstmBoostTitle: "Custom boost",
-    cstmBoostFrac: "Input the fraction of the boost speed with respect to the speed of light in vacuum "
+    cstmBoostFrac: "Input the fraction of the boost speed with respect to the speed of light in vacuum ",
+    animBtn: "Show animation",
+    gfiAlert: "Success! Scroll down to see the animation",
+    bfiAlert: "Check every input and try again"
   },
   pt:
   {
+    liSimul: "Simulation",
+    lipbts: "Background physics",
+    liCode: "Code",
     selLang: "Selecione o idioma",
     decSep: ", ",
     cZeroToInf: "[0, ∞)",
@@ -290,8 +309,6 @@ export const language =
     collinearType: 'The electromagnetic field is of "collinear" type; that is, there exists an inertial frame such that both fields are present and they are collinear, i.e., either parallel or antiparallel.',
     neglBoost: "<br>The boost parameter is null or negligible with respect to the scale of the system as given by the chosen parameters.",
     yesBoost: "<br>The boost to such inertial reference frame is characterized by a velocity with the following norm and unit direction:<br>",
-    gfiAlert: "Success! Scroll down to check your input values",
-    bfiAlert: "Check every input and try again",
     SystCharTitle: "System characterization",
     AnimPropLeg: "Animation properties:",
     inptCTFlbl: "Characteristic time factor:",
@@ -302,6 +319,9 @@ export const language =
     includeCstmFrame: "Include animation on custom inertial frame",
     includeNonRelAnim: "Include non relativistic animation",
     cstmBoostTitle: "Custom boost",
-    cstmBoostFrac: "Input the fraction of the boost speed with respect to the speed of light in vacuum "
+    cstmBoostFrac: "Input the fraction of the boost speed with respect to the speed of light in vacuum ",
+    animBtn: "Show animation",
+    gfiAlert: "Success! Scroll down to see the animation",
+    bfiAlert: "Check every input and try again"
   },
 };

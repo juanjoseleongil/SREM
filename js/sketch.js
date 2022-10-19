@@ -1,4 +1,4 @@
-import { tau, revFracStep, signiFigM1 } from "./RMCUEMFparams.js";
+import { τ, revFracStep, signiFigM1 } from "./RMCUEMFparams.js";
 import { tfCos, tfSin } from "./RMCUEMFcompute.js";
 import { language } from "./languageContent.js";
 import { LANGdecSep, getLang, expNot } from "./HTMLfunctions.js";
@@ -117,10 +117,10 @@ export default class unitDirectionSketch
         sk.pop();
 
         //unit direction vector
-        sk.rotateZ(-tau/4);
+        sk.rotateZ(-τ/4);
         sk.push();
-        sk.rotate(tau * sliderTheta.value(), [0, 0, -1]);
-        sk.rotate(tau * sliderPhi.value(), [1, 0, 0]);
+        sk.rotate(τ * sliderTheta.value(), [0, 0, -1]);
+        sk.rotate(τ * sliderPhi.value(), [1, 0, 0]);
         sk.fill(0, 0, 0);
         sk.beginShape();
           sk.translate(0, cH/4, 0);
@@ -132,7 +132,7 @@ export default class unitDirectionSketch
 
         //unit sphere wire frame
         sk.push(); sk.beginShape();
-          sk.rotateX(tau/4);
+          sk.rotateX(τ/4);
           sk.stroke(0); sk.strokeWeight(cW/1024);
           sk.fill(sk.color(255, 255, 255, 1));
           sk.sphere(cW/2, 16, 16);
@@ -200,7 +200,7 @@ export default class unitDirectionSketch
     {
       if ( elemInputTheta.checkValidity() && elemInputPhi.checkValidity() )
       {
-      theta = tau * boxTheta.value(), phi = tau * boxPhi.value();
+      theta = τ * boxTheta.value(), phi = τ * boxPhi.value();
       x = tfCos(phi) * tfCos(theta), y = tfCos(phi) * tfSin(theta), z = tfSin(phi);
       unitVecDiv.html(`(${expNot(x)}` + `${LANGdecSep()}` + `${expNot(y)}` + `${LANGdecSep()}` + `${expNot(z)})`, false);
       }

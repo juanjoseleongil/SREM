@@ -1,26 +1,27 @@
 // CONSTANTS
-export const tau = 6.2831853071795864769252867665590057683943387987502116419498891846156328125724179972560696506842341359642961; //circle constant
+export const τ = 6.2831853071795864769252867665590057683943387987502116419498891846156328125724179972560696506842341359642961; //circle constant
+export const sqrt2 = Math.sqrt(2.0)
 
-export const c = 299792458.0; // m s⁻¹
+export const c = 299792458.0; // s⁻¹ m
 export const e = 1.602176634e-19; // C
 export const εf = 1.129409067373019119565699212926e11; // s⁻² m³ kg C⁻²
 export const μc = 1.25663706212005463974958835407640314e-6; // m kg C⁻²
 
-export const ooc = 3.3356409519815204957557671447491851179258151984597290969874e-9;
-export const coεf = 0.0026544187279929558624;
-export const ooμc = 795774.7150262416446744057792;
+export const ooc = 3.3356409519815204957557671447491851179258151984597290969874e-9; // s m⁻¹
+export const coεf = 0.0026544187279929558624; // s m⁻² kg⁻¹ C²
+export const ooμc = 795774.7150262416446744057792; // m⁻¹ kg⁻¹ C²
 
-//const natEF = 3.767303136680038e02;
-//const natMF = 1.256637062123837e-6;
+//export const natEF = 3.767303136680038e02; // s⁻¹ m⁻¹ C
+//export const natMF = 1.256637062123837e-6; // s⁻¹ m⁻¹ C
 
 // PARAMETERS
-export const TOL = Number.EPSILON; //tolerance for numeric computations
+export const TOL = 2.0 * Number.EPSILON; //tolerance for numeric computations
 
 export const signiFigM1 = 3 - 1; //significant figures (minus one)
 
 export const revFracStep = 1.0 / (2.0**16); //stepsize, fractions of revolution for sketch sliders
 
-export const ptsPerCharTime = 256; //time discretization per pseudocycle, for three.js animations
+export const ptsPerCharTime = 64; //time discretization per pseudocycle, for three.js animations
 
 export const prefixes =
 {

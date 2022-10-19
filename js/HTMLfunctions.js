@@ -1,6 +1,8 @@
-import * as PARAM from "./RMCUEMFparams.js";
+import {τ, sqrt2, c, e, TOL, signiFigM1, prefixes, particles, ptsPerCharTime} from "./RMCUEMFparams.js";
 import * as LANG from "./languageContent.js";
 import * as COMP from "./RMCUEMFcompute.js";
+import unitDirectionSketch from "./sketch.js";
+import * as SIM from "./simulTHREE2.js";
 
 // USER INPUT PLACEHOLDERS
 let initInputs =
@@ -26,53 +28,36 @@ let initInputs =
   cIVinputPhi: [null, null]
 };
 
-let secondPartInputs =
+let cstmBoostInputs =
 {
-  inptChTimeFactor: [null, "oZeroToInf"],
   cstmBoostFr: [null, "cZeroToOne"],
   cCBinputTheta: [null, "cZeroToOne"],
   cCBinputPhi: [null, null]
 };
 
-let animParams =
-{
-  EFvec: null,
-  MFvec: null,
-  IM: null,
-  ECh: null,
-  IPvec: null,
-  IVvec: null,
-  chTimeFactor: null,
-  boostBeta: null
-};
-
 export function getLang() { return document.documentElement.getAttribute("lang"); }
 
-function numToFmtStr(num, decLength = PARAM.signiFigM1)
+function numToFmtStr(num, decLength = signiFigM1)
 { return num.toLocaleString( getLang(), { style: "decimal", minimumFractionDigits: decLength, maximumFractionDigits: decLength } ); }
 
-export function LANGdecSep()
-{ return LANG.language[getLang()]["decSep"]; }
+export function LANGdecSep() { return LANG.language[getLang()]["decSep"]; }
 
-function prefixToPower(prefixString)
-{ return Math.pow(10, parseInt(prefixString)); }
+function prefixToPower(prefixString) { return Math.pow(10, parseInt(prefixString)); }
 
 function angFracsToUV(thetaFr, phiFr)
 {
-  return [COMP.tfCos(PARAM.tau * Number(phiFr)) * COMP.tfCos(PARAM.tau * Number(thetaFr)),
-          COMP.tfCos(PARAM.tau * Number(phiFr)) * COMP.tfSin(PARAM.tau * Number(thetaFr)),
-          COMP.tfSin(PARAM.tau * Number(phiFr))];
+  return [COMP.tfCos(τ * Number(phiFr)) * COMP.tfCos(τ * Number(thetaFr)),
+          COMP.tfCos(τ * Number(phiFr)) * COMP.tfSin(τ * Number(thetaFr)),
+          COMP.tfSin(τ * Number(phiFr))];
 }
 
-function UVtoAngFracs(UV)
-{ return COMP.tfAngs(UV).map( ang => ang / PARAM.tau); }
+function UVtoAngFracs(UV) { return COMP.tfAngs(UV).map( ang => ang / τ); }
 
-function tripletString(compArr)
+export function tripletString(compArr)
 { return `(${expNot(compArr[0])}` + `${LANGdecSep()}` + `${expNot(compArr[1])}` + `${LANGdecSep()}` + `${expNot(compArr[2])})`; }
 
-// Convert signed integer to superscript string
 function sIntToSS(sInt)
-{
+{// Convert signed integer to superscript string
   let out = "";
   let ssDigits = ["⁰", "¹", "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸", "⁹"];
   let strSint = sInt.toString();
@@ -83,9 +68,8 @@ function sIntToSS(sInt)
   return out;
 }
 
-// Exponential notation: write x as " significand × baseᵉˣᵖᵒⁿᵉⁿᵗ "
-export function expNot(x, base = 10, basestr = "10", aap = PARAM.signiFigM1)
-{
+export function expNot(x, base = 10, basestr = "10", aap = signiFigM1)
+{// Exponential notation: write x as " significand × baseᵉˣᵖᵒⁿᵉⁿᵗ "
   let X = Number(x), out = "";
   if (X < 0.0) { out += "-"; X *= -1.0; }
   if (Math.abs(X) == 0.0) { return numToFmtStr(0); }
@@ -103,9 +87,7 @@ function createObjectSelect(options, innerID, hiddenOpt)
   let content = [`<select id = "${innerID}" required>`];
   if (hiddenOpt != null) { content.push(hiddenOpt); }
   for (const [key, value] of Object.entries(options))
-  {
-    content.push(`<option value = "${key}"> ${value} </option>`);
-  }
+  { content.push(`<option value = "${key}"> ${value} </option>`); }
   content.push('</select>');
   let template = document.createElement("template");
   template.innerHTML = content.join("\n");
@@ -129,7 +111,7 @@ function insertLangSelect()
 export function insertPrefSelect(selectSpanID)
 {
   let hiddenOpt = '<option value = "" disabled selected hidden class = "SIPref">Prefix</option>';
-  insertSelect(selectSpanID, [PARAM.prefixes, `sel${selectSpanID}`, hiddenOpt]);
+  insertSelect(selectSpanID, [prefixes, `sel${selectSpanID}`, hiddenOpt]);
 }
 
 export function languageSelector()
@@ -161,7 +143,7 @@ export function languageSelector()
     }
 
     //change second part input placeholders according to language
-    for (const [key, value] of Object.entries(secondPartInputs))
+    for (const [key, value] of Object.entries(cstmBoostInputs))
     { if (!!document.getElementById(key) && value[1] != null)
       { document.getElementById(key).setAttribute("placeholder", language[lan.value][value[1]]); }
     }
@@ -173,7 +155,6 @@ export function languageSelector()
 
 export function populateParticles(presetPartID)
 {
-  let particles = PARAM.particles;
   let particleOpt = document.getElementById(presetPartID).querySelector("#presetPart");
   let options = [];
   for (const [key, value] of Object.entries(particles))
@@ -185,7 +166,6 @@ export function populateParticles(presetPartID)
 
 export function presetParticle(presetPartID, inptMass, inptMassPref, inptCh, inptChPref, inptChU)
 {
-  let particles = PARAM.particles;
   let particleOpt = document.getElementById(presetPartID).querySelector("#presetPart");
   let mass = document.getElementById(inptMass);
   let massPref = document.getElementById(inptMassPref).querySelector(`#sel${inptMassPref}`);
@@ -214,7 +194,7 @@ export function presetParticle(presetPartID, inptMass, inptMassPref, inptCh, inp
   }, false );
 }
 
-//2. This function also took a lot of time to put to work, but apparently it is not needed. FMSW
+//2. This function also took a lot of time to put to work, but apparently it is not needed.
 //function applyProgInput(inpt)
 //{ //to recognize as user input when it is filled by the pr button. Adapted from StackOverflow
 //  let descriptor = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(inpt), "value");
@@ -234,7 +214,7 @@ export function pRndButton(prBtnID, inputID, prefID, minv, maxv)
   //applyProgInput(inpt);
   prBtn.onclick = function()
     {
-      inpt.value = ((maxv - minv) * Math.random() + minv).toPrecision(PARAM.signiFigM1 + 1);
+      inpt.value = ((maxv - minv) * Math.random() + minv).toPrecision(signiFigM1 + 1);
 
       if (prefID != null)
       {
@@ -252,7 +232,7 @@ export function pRndButton(prBtnID, inputID, prefID, minv, maxv)
 }
 
 
-//3. No way. This function is also not necessary or not working. I'm so done with this sh*t
+//3. No way. This function is also not necessary or not working.
 export function waitForElm(selector)
 { //wait for elements to load; taken from stackOverflow
   return new Promise(resolve =>
@@ -270,7 +250,7 @@ export function waitForElm(selector)
   });
 }
 
-//1. This function was so f*cking hard to put to work, but it seems it is not necessary. At least it was useful while debugging
+//1. This function was hard to put to work, but it seems it is not necessary. At least it was useful while debugging
 //export async function waitinitInputs()
 //{
 //  let waiter;
@@ -321,18 +301,13 @@ export async function continueAfterGoodInput()
   let MFdir = angFracsToUV(initInputs["cMFinputTheta"][0], initInputs["cMFinputPhi"][0]);
   let IM = Number(initInputs["IM"][0]) * prefixToPower(initInputs["selIMpref"][0]) / 1000.0; //grams to kilograms
   let ECh = Number(initInputs["ECH"][0]) * prefixToPower(initInputs["selEChpref"][0]), EChC, EChe;
-  if (initInputs["EChUnits"][0] === "C") { EChC = 1.0 * ECh; EChe = ECh / PARAM.e; }
-  else if (initInputs["EChUnits"][0] === "e") { EChC = PARAM.e * ECh; EChe = 1.0 * ECh; }
+  if (initInputs["EChUnits"][0] === "C") { EChC = 1.0 * ECh; EChe = ECh / e; }
+  else if (initInputs["EChUnits"][0] === "e") { EChC = e * ECh; EChe = 1.0 * ECh; }
   let uix0 = Number(initInputs["x0"][0]), uiy0 = Number(initInputs["y0"][0]), uiz0 = Number(initInputs["z0"][0]);
-  let isFraction = Number(initInputs["initSpeedFr"][0]), isInSIunits = PARAM.c * isFraction;
+  let isFraction = Number(initInputs["initSpeedFr"][0]), isInSIunits = c * isFraction;
   let IVdir = angFracsToUV(initInputs["cIVinputTheta"][0], initInputs["cIVinputPhi"][0]);
 
-  animParams["EFvec"] = EFdir.map(x => EF * x);
-  animParams["MFvec"] = MFdir.map(x => MF * x);
-  animParams["IM"] = IM;
-  animParams["ECh"] = EChC;
-  animParams["IPvec"] = [uix0, uiy0, uiz0];
-  animParams["IVvec"] = IVdir.map(x => isInSIunits * x);
+  COMP.setInputs(EFdir, MFdir, EF, MF, [uix0, uiy0, uiz0], IVdir, isFraction, IM, EChC);
 
   document.getElementById("uiEFM").innerHTML = expNot(EF);
   document.getElementById("uiMFM").innerHTML = expNot(MF);
@@ -346,44 +321,41 @@ export async function continueAfterGoodInput()
   document.getElementById("isInMetPerSec").innerHTML = expNot(isInSIunits);
   document.getElementById("uiIVdir").innerHTML = tripletString(IVdir);
 
-  typeOfField(animParams["EFvec"], animParams["MFvec"]);
+  checkTypeOfField();
 }
 
-async function typeOfField(Efvec, Mfvec)
+async function checkTypeOfField()
 {
-  let redEF = COMP.reduceField(Efvec, "electricType"), redMF = COMP.reduceField(Mfvec, "magneticType");
-  let bp = COMP.boostParameters(redEF, redMF);
-  let fType = bp[0], betaVec = bp[1];
-  let betaNorm = COMP.norm3Vec(betaVec), betaDir = COMP.scalTim3Vec(1 / betaNorm, betaVec);
-  let angFracBeta = UVtoAngFracs(betaDir);
+  COMP.boostToProperFrame();
+  let angFracBeta = UVtoAngFracs(COMP.unitβprop);
 
   for (var fieldType of ["nullType", "electricType", "magneticType", "collinearType"])
   {
-    if (fieldType === fType) { document.getElementById(fieldType).style.display = "block"; }
+    if (fieldType === COMP.typeOfField) { document.getElementById(fieldType).style.display = "block"; }
     else { document.getElementById(fieldType).style.display = "none"; }
   }
 
-  if (fType != "nullType")
+  if (COMP.typeOfField != "nullType")
   {
-    if (betaNorm < PARAM.TOL)
+    if (COMP.normβprop <= TOL)
     {
       for (var elem of ["yesBoost", "LaTeXb", "propFrameBoostRap", "LaTeXc", "propFrameBoostSpeed"])
       { document.getElementById(elem).style.display = "none"; }
       document.getElementById("neglBoost").style.display = "block";
       document.getElementById("includeSpecFrame").disabled = true;
     }
-    else if (betaNorm > PARAM.TOL)
+    else if (COMP.normβprop > TOL)
     {
       for (var elem of ["yesBoost", "LaTeXb", "propFrameBoostRap", "LaTeXc", "propFrameBoostSpeed"])
       { document.getElementById(elem).style.display = "inline"; }
-      document.getElementById("propFrameBoostRap").innerHTML = expNot(betaNorm);
-      document.getElementById("propFrameBoostSpeed").innerHTML = expNot(PARAM.c * betaNorm) + " m/s, <br>" + tripletString(betaDir) + " → " + `(${expNot(angFracBeta[0])}` + `${LANGdecSep()}` + `${expNot(angFracBeta[1])}).`;
+      document.getElementById("propFrameBoostRap").innerHTML = expNot(COMP.normβprop);
+      document.getElementById("propFrameBoostSpeed").innerHTML = expNot(c * COMP.normβprop) + " m/s, <br>" + tripletString(COMP.unitβprop) + " → " + `(${expNot(angFracBeta[0])}` + `${LANGdecSep()}` + `${expNot(angFracBeta[1])}).`;
       document.getElementById("neglBoost").style.display = "none";
       document.getElementById("includeSpecFrame").disabled = false;
     }
     document.getElementById("EcB").style.display = "none";
   }
-  else if (fType === "nullType")
+  else if (COMP.typeOfField === "nullType")
   {
     for (var elem of ["neglBoost", "yesBoost", "LaTeXb", "propFrameBoostRap", "LaTeXc", "propFrameBoostSpeed"])
     { document.getElementById(elem).style.display = "none"; }
@@ -393,28 +365,65 @@ async function typeOfField(Efvec, Mfvec)
 
 }
 
+export async function setupCustomBoost()
+{
+  let cstmBoostCB = document.getElementById("includeCstmFrame");
+  let cstmBoostDIV = document.getElementById("cstmBoostDIV");
+  let isThereAlreadyTheBoostSketch = false;
+
+  cstmBoostCB.addEventListener( "change", () =>
+  {
+    if (cstmBoostCB.checked)
+    {
+      if (window.matchMedia("(orientation: landscape)").matches) { document.getElementById("animFeatDiv").style.width = "46.875%"; }
+      cstmBoostDIV.style.display = "block"; //show canvas
+      if (!isThereAlreadyTheBoostSketch)
+      {
+        new unitDirectionSketch("cCB");
+        isThereAlreadyTheBoostSketch = true;
+      } //add sketch
+    }
+    else if (!cstmBoostCB.checked)
+    {
+      document.getElementById("animFeatDiv").style.width = "auto";
+      //document.getElementById("cCB").innerHTML = ""; //remove sketch
+      cstmBoostDIV.style.display = "none"; //hide canvas
+    }
+  } );
+}
+
 async function collectRemainderAnimParams()
 {
-  for (var [key, val] of Object.entries(secondPartInputs)) //store values in second part dictionary
-  { val[0] = document.getElementById(key).value; }
+  COMP.setTimeAndPts( Number( document.getElementById("inptChTimeFactor").value ) ); //set input characteristic time value
 
-  let boostFraction = Number(secondPartInputs["cstmBoostFr"][0]), boostInSIunits = PARAM.c * boostFraction;
-  let boostDir = angFracsToUV(secondPartInputs["cCBinputTheta"][0], secondPartInputs["cCBinputPhi"][0]);
+  if ( document.getElementById("includeCstmFrame").checked )
+  {
+    for (var [key, val] of Object.entries(cstmBoostInputs)) //store values in second part dictionary
+    { val[0] = document.getElementById(key).value; }
 
-  animParams["chTimeFactor"] = Number(secondPartInputs["inptChTimeFactor"][0]);
-  animParams["boostBeta"] = boostDir.map(x => boostInSIunits * x);
+    let boostFraction = Number(cstmBoostInputs["cstmBoostFr"][0]), boostInSIunits = c * boostFraction;
+    let boostDir = angFracsToUV(cstmBoostInputs["cCBinputTheta"][0], cstmBoostInputs["cCBinputPhi"][0]);
+  }
 }
+
 
 async function checkFinalInputs()
 {
   let checker = true;
-  for (var key of Object.keys(secondPartInputs))
-  { checker *= document.getElementById(key).checkValidity(); }
+  
+  if ( document.getElementById("includeCstmFrame").checked )
+  {
+    for (var key of Object.keys(cstmBoostInputs))
+    { checker *= document.getElementById(key).checkValidity(); }
+  }
+  else if ( !document.getElementById("includeCstmFrame").checked )
+  { checker *= document.getElementById("inptChTimeFactor").checkValidity(); }
+  
   if ( Boolean(checker) )
   {
     alert(LANG.language[getLang()]["gfiAlert"]);
     animBtn.disabled = false;
-    goAheadAndAnimate();
+    produceMotion();
   }
   else if ( !Boolean(checker) )
   {
@@ -425,28 +434,61 @@ async function checkFinalInputs()
   }
 }
 
+function scalePosition(path4vec, scaleDim)
+{
+  let posx0 = path4vec[0], posx1 = path4vec[1], posx2 = path4vec[2], posx3 = path4vec[3];
+  //spatial bounds
+  const minx1 = Math.min(...posx1), maxx1 = Math.max(...posx1);
+  const l1 = maxx1 - minx1;
+  const minx2 = Math.min(...posx2), maxx2 = Math.max(...posx2);
+  const l2 = maxx2 - minx2;
+  const minx3 = Math.min(...posx3), maxx3 = Math.max(...posx3);
+  const l3 = maxx3 - minx3;
+
+  const lmax = Math.max(l1, l2, l3);
+
+  let outx1, outx2, outx3;
+
+  if (!isNaN(lmax) && isFinite(lmax) && lmax > TOL)
+  {
+    outx1 = posx1.map(x => scaleDim * (x - minx1) / lmax);
+    outx2 = posx2.map(y => scaleDim * (y - minx2) / lmax);
+    outx3 = posx3.map(z => scaleDim * (z - minx3) / lmax);
+  }
+  else
+  {
+    outx1 = posx1, outx2 = posx2, outx3 = posx3;
+  }
+
+  return [posx0, outx1, outx2, outx3];
+}
+
+async function produceMotion()
+{
+  let labPath = COMP.generatePosition();
+
+  if ( !labPath[0].every(isFinite) || !labPath[1].every(isFinite) || !labPath[2].every(isFinite) || !labPath[3].every(isFinite) )
+  {
+    alert("Some values of the numerical computation evaluate to either 'NaN' (not a number), or ±∞. This could be due to some floating point operations exceding the machine tolerance, Number.EPSILON = ", Number.EPSILON);
+    return;
+  } else
+  {
+    //let containerDiv = document.getElementById("labSimDiv");
+    //let scaleDim = Math.min(containerDiv.innerWidth, containerDiv.innerHeight);
+    let sLabPath = scalePosition(labPath, 1);
+    SIM.simulanimate("c", "lfStartBtn", "lfResetBtn", COMP.numPts, sLabPath);
+    //return sLabPath;
+  }
+}
 
 export function animButton(btnID)
 {
   let animBtn = document.getElementById(btnID);
-  animBtn.onclick = function() { checkFinalInputs(); }
+  let animDiv = document.getElementById("animationDiv");
+  animBtn.onclick = function()
+  {
+    if (animDiv.style.display === "none") { animDiv.style.display = "block"; }
+    collectRemainderAnimParams();
+    checkFinalInputs();
+  }
 }
-
-
-async function goAheadAndAndAnimate()
-{
-}
-
-/*
-let animParams =
-{
-  EFvec = null,
-  MFvec = null,
-  IM = null,
-  ECh = null,
-  IPvec = null,
-  IVvec = null,
-  chTimeFactor = null,
-  boostBeta = null
-}
-*/

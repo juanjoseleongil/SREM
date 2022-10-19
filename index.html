@@ -10,12 +10,29 @@
 
     <!-- <script defer type = "text/javascript" src = "https://livejs.com/live.js"></script> -->
     <script defer type = "text/javascript" src = "https://unpkg.com/p5/lib/p5.min.js"></script>
+    <!-- <script defer type = "module" src = "https://unpkg.com/three/build/three.module.js"></script> -->
 
     <!-- <script defer type = "text/javascript" src = "./js/lib/live.js"></script>
-    <script defer type = "text/javascript" src = "./js/lib/p5.js"></script> -->
+    <script defer type = "text/javascript" src = "./js/lib/p5.min.js"></script>
+
+<!-- Import maps polyfill -->
+<!-- Remove this when import maps will be widely supported -->
+<script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+
+<script type="importmap">
+  {
+    "imports": {
+      "three": "https://unpkg.com/three/build/three.module",
+      "three/": "https://unpkg.com/three/"
+    }
+  }
+</script>
 
     <script defer type = "text/javascript" src = "https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script defer type = "text/javascript" src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id = "MathJax-script"></script>
+    <script type="text/x-mathjax-config">
+  MathJax.Hub.Config({ TeX: {extensions: ["AMSmath.js", "AMSsymbols.js", "euscript.js", "mathtools.js", "bbold.js"]}});
+</script>
 
     <title> Electromagnetism & Special Relativity </title>
     <script defer type = "module" src = "./js/executionSetup.js"></script> <!-- load execution setup for javascript components -->
@@ -23,8 +40,17 @@
   </head>
 
   <body>
-
-    <span id = "langSpan"> </span>
+  
+  <header>
+    <nav>
+      <ul>
+        <li class = "liSimul"> Simulation </li>
+        <li> <a class = "lipbts" href = "pbts/pbts.html"> Background physics </a> </li>
+        <li> <a class = "liCode" href = "https://github.com/juanjoseleongil/SREM.git"> Code </a> </li>
+      </ul>
+      <span id = "langSpan"> </span>
+    </nav>
+  </header>
 
     <h1 class = "mainTitle"> Relativistic motion of a charged and massive particle on a uniform and constant electromagnetic field </h1>
   
@@ -34,7 +60,7 @@
         <h3 class = "EFtitle">Electric field</h3>
         <form id = "ElectricFieldMagnitude">
           <h4 class = "MagnTitle">Norm</h4>
-          <label for = "EFM"> \(\ \lvert {\bf E} \rvert = \) </label>
+          <label for = "EFM"> \(\ \lvert \boldsymbol{E} \rvert = \) </label>
           <input class = "cstmInpt" type = "number" id = "EFM" step = "1.0e-15" placeholder = "[0, ∞)" min = "0" required>
           <span class = "validity"></span> 
           <span id = "EFMpref"></span> V/m
@@ -48,7 +74,7 @@
       <h3 class = "MFtitle">Magnetic field</h3>
         <form id = "MagneticFieldMagnitude">
           <h4 class = "MagnTitle">Norm</h4>
-          <label for = "MFM"> \(\ \lvert {\bf B} \rvert = \) </label>
+          <label for = "MFM"> \(\ \lvert \boldsymbol{B} \rvert = \) </label>
           <input class = "cstmInpt" type = "number" id = "MFM" step = "1.0e-15" placeholder = "[0, ∞)" min = "0" required>
           <span class = "validity"></span>
           <span id = "MFMpref"></span> T
@@ -187,13 +213,17 @@
                  <td> <input type = "color" id = "magneticClr" value = "#ff00ff"> </input> </td> </tr>
           </table> </div> <br>
           
-          <div> <input type = "checkbox" id = "includeSpecFrame">
+          <div> <input type = "checkbox" id = "includeSpecFrame" disabled>
             <label for = "includeSpecFrame" class = "includeSpecFrame"> Include animation on special frame </label> </div> <br>
-          <div> <input type = "checkbox" id = "includeCstmFrame">
+          <div> <input type = "checkbox" id = "includeCstmFrame" disabled>
             <label for = "includeCstmFrame" class = "includeCstmFrame"> Include animation on custom inertial frame </label> </div> <br>
-          <div> <input type = "checkbox" id = "includeNonRelAnim">
+          <div> <input type = "checkbox" id = "includeNonRelAnim" disabled>
             <label for = "includeNonRelAnim" class = "includeNonRelAnim"> Include non relativistic animation </label> </div>
+
+          <div class = "container"> <button type = "button" id = "animBtn" class = "animBtn"> Show animation </button> </div>
+
         </fieldset>
+        
         </div>
 
         <div id = "cstmBoostDIV" class = "adaptDiv" style = "display: none;"> <!-- start div class "adaptDiv" for CUSTOM BOOST -->
@@ -210,6 +240,32 @@
           <div id = "cCB" style = "position: relative;"></div>
           </fieldset>
         </div>  <!-- end div class "adaptDiv" for CUSTOM BOOST -->
+      </div>
+
+    </div>
+
+    <div id = "animationDiv" style = "display: none;"> <!-- -->
+      <h2 class = "simulationTitle"> Simulation </h2>
+
+      <div class = "container">
+        <div id = "labSimDiv" class = "adaptDiv">
+        <h3> Laboratory frame </h3>
+        <div class = "container"> <button type = "button" id = "lfStartBtn" class = "startBtn"> Start </button> <button type = "button" id = "lfResetBtn" class = "resetBtn"> Reset </button> </div>
+        <div class = "container" id="tim"></div>
+        <div class = "container" style = "width: 46.875%; ">  <canvas id="c" style = "width: 46.875%; "></canvas> </div>
+        </div>
+        <div id = "specSimDiv" class = "adaptDiv" style = "width: auto; display: none;">
+        <h3> Special frame </h3>
+        <div class = "container"> <button type = "button" id = "sfStartBtn" class = "startBtn"> Start </button> <button type = "button" id = "sfResetBtn" class = "resetBtn"> Reset </button> </div>
+        </div>
+        <div id = "cstmSimDiv" class = "adaptDiv" style = "width: auto; display: none;">
+        <h3> Custom frame </h3>
+        <div class = "container"> <button type = "button" id = "cfStartBtn" class = "startBtn"> Start </button> <button type = "button" id = "cfResetBtn" class = "resetBtn"> Reset </button> </div>
+        </div>
+        <div id = "nonrSimDiv" class = "adaptDiv" style = "width: auto; display: none;">
+        <h3> Non-relativistic frame </h3>
+        <div class = "container"> <button type = "button" id = "nrfStartBtn" class = "startBtn"> Start </button> <button type = "button" id = "nrfResetBtn" class = "resetBtn"> Reset </button> </div>
+        </div>
       </div>
 
     </div>

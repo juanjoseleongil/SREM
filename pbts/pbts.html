@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang = "en">
+
+  <head>
+    <meta charset = "utf-8">
+    <meta http-equiv = "X-UA-Compatible" content = "IE = edge">
+    <meta name = "viewport" content = "width = device-width, initial-scale = 1">
+    <link rel = "stylesheet" type = "text/css" href = "../css/style.css">
+    <link defer rel = "icon" type = "image/svg" href = "../icon/favicon.svg">
+
+    <script defer type = "text/javascript" src = "https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script defer type = "text/javascript" src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id = "MathJax-script"></script>
+    <script type="text/x-mathjax-config">
+      MathJax.Hub.Config({ TeX: {extensions: ["AMSmath.js", "AMSsymbols.js", "euscript.js", "mathtools.js", "bbold.js"]}});
+    </script>
+
+    <title> Electromagnetism & Special Relativity </title>
+  </head>
+
+  <body>
+
+    <script defer type = "module" src = "./pbtsExecutionSetup.js"> </script>
+
+    <header>
+      <nav>
+        <ul>
+          <li> <a class = "liSimul" href = "../index.html"> Simulation </a> </li>
+          <li class = "lipbts"> Background physics </li>
+          <li> <a class = "liCode" href = "https://github.com/juanjoseleongil/SREM.git"> Code </a> </li>
+        </ul>
+        <span id = "langSpan"> </span>
+      </nav>
+    </header>
+
+    <div style = "display: none;"> <!-- LaTeX preamble, commands for custom symbols -->
+      \( \newcommand{\Elec}{E} %character for the electric quantities
+      \newcommand{\Magn}{B} %character for the electric quantities
+
+      \newcommand{\Efield}{\mathsf{\Elec}}
+      \newcommand{\Mfield}{\mathsf{\Magn}}
+      \newcommand{\subE}{{_\Efield}}
+      \newcommand{\subM}{{_\Mfield}}
+      \newcommand{\Evec}{\boldsymbol{\mathsf{\Elec}}}
+      \newcommand{\Mvec}{\boldsymbol{\mathsf{\Magn}}}
+
+      \newcommand{\diff}{\mathrm{d}}
+      \newcommand{\Diff}{\boldsymbol{\partial}}
+      \newcommand{\UnitV}{\boldsymbol{\mathsf{{u}}}}
+
+      %REDUCED AND NON-REDUCED QUANTITIES
+      \newcommand{\qred}{q_\subE}
+      \newcommand{\Ered}{\mathcal{\Elec}}
+      \newcommand{\Mred}{\mathcal{\Magn}}
+      \newcommand{\Fred}{\mathcal{F}}
+      \newcommand{\Eorig}{\boldsymbol{\Elec}}
+      \newcommand{\Morig}{\boldsymbol{\Magn}}
+
+      \newcommand{\uzscaled}{\boldsymbol{\mathcal{U}}_0} %ELECTRIC-LIKE SCALED VELOCITY
+      \newcommand{\Focvec}{\boldsymbol{\mathcal{F}}} %ELECTRIC-LIKE SCALED FIELD
+
+      \newcommand{\Omvec}{\boldsymbol{\Omega}} %MAGNETIC-LIKE ANGULAR FREQUENCY SCALED VECTOR \)
+    </div>
+
+<!-- <span class = "en">  </span> <span class = "es" style = "display: none;">  </span> <span class = "fr" style = "display: none;">  </span> <span class = "it" style = "display: none;">  </span> <span class = "pt" style = "display: none;">  </span> -->
+
+    <h1> <span class = "en"> Relativistic motion of a charged and massive particle on a uniform and constant electromagnetic field </span> <span class = "es" style = "display: none;"> Movimiento relativista de una partícula cargada y masiva en un campo electromagnético uniforme y constante </span> <span class = "fr" style = "display: none;"> Mouvement relativiste d'une particule chargée et massive sur un champ électromagnétique uniforme et constant </span> <span class = "it" style = "display: none;"> Moto relativistico di una particella carica e massiccia su un campo elettromagnetico uniforme e costante </span> <span class = "pt" style = "display: none;"> Movimento relativístico de uma partícula carregada e massiva em um campo eletromagnético uniforme e constante </span> </h1>
+
+    <h2> <span class = "en"> Overview </span> <span class = "es" style = "display: none;"> Generalidades </span> <span class = "fr" style = "display: none;"> Overview </span> <span class = "it" style = "display: none;"> Overview </span> <span class = "pt" style = "display: none;"> Overview </span> </h2>
+
+    <span class = "en"> This animation shows the motion of a particle characterized by the following parameters: </span>
+    <span class = "es" style = "display: none;"> Esta animación muestra el movimiento de una partícula caracterizada por los siguientes parámetros: </span>
+    <span class = "fr" style = "display: none;"> This animation shows the motion of a particle characterized by the following parameters: </span>
+    <span class = "it" style = "display: none;"> This animation shows the motion of a particle characterized by the following parameters: </span>
+    <span class = "pt" style = "display: none;"> This animation shows the motion of a particle characterized by the following parameters: </span>
+    <ul> 
+      <li> <span class = "en"> mass \( m \), measured in kilograms (kg) </span> <span class = "es" style = "display: none;"> masa \( m \), medida en kilogramos (kg) </span> <span class = "fr" style = "display: none;"> mass \( m \), measured in kilograms (kg) </span> <span class = "it" style = "display: none;"> mass \( m \), measured in kilograms (kg) </span> <span class = "pt" style = "display: none;"> mass \( m \), measured in kilograms (kg) </span> </li>
+      <li> <span class = "en"> electric charge \( q_e \) measured in coulombs (C) </span> <span class = "es" style = "display: none;"> carga eléctrica \( q_e \) medida en coulombs (C) </span> <span class = "fr" style = "display: none;"> electric charge \( q_e \) measured in coulombs (C) </span> <span class = "it" style = "display: none;"> electric charge \( q_e \) measured in coulombs (C) </span> <span class = "pt" style = "display: none;"> electric charge \( q_e \) measured in coulombs (C) </span> </li>
+      <li> <span class = "en"> initial position \( (x_0, y_0, z_0) \), with each component measured in meters (m) </span> <span class = "es" style = "display: none;"> posición inicial \( (x_0, y_0, z_0) \), con cada componente medida en metros (m) </span> <span class = "fr" style = "display: none;"> initial position \( (x_0, y_0, z_0) \), with each component measured in meters (m) </span> <span class = "it" style = "display: none;"> initial position \( (x_0, y_0, z_0) \), with each component measured in meters (m) </span> <span class = "pt" style = "display: none;"> initial position \( (x_0, y_0, z_0) \), with each component measured in meters (m) </span> </li>
+      <li> <span class = "en"> initial velocity \( \boldsymbol{u}_0 \), with each component measured in meters per second (m/s) </span> <span class = "es" style = "display: none;"> velocidad inicial \( \boldsymbol{u}_0 \), con cada componente medida en metros sobre segundo (m/s) </span> <span class = "fr" style = "display: none;"> initial velocity \( \boldsymbol{u}_0 \), with each component measured in meters per second (m/s) </span> <span class = "it" style = "display: none;"> initial velocity \( \boldsymbol{u}_0 \), with each component measured in meters per second (m/s) </span> <span class = "pt" style = "display: none;"> initial velocity \( \boldsymbol{u}_0 \), with each component measured in meters per second (m/s) </span> </li>
+    </ul>
+
+    <span class = "en"> The uniform (not changing through space) and constant (not evolving in time) electromagnetic field is described by: </span> <span class = "es" style = "display: none;"> El campo electromagnético uniforme (no cambia en el espacio) y constante (no evoluciona en el tiempo) está descrito por: </span> <span class = "fr" style = "display: none;"> The uniform (not changing through space) and constant (not evolving in time) electromagnetic field is described by: </span> <span class = "it" style = "display: none;"> The uniform (not changing through space) and constant (not evolving in time) electromagnetic field is described by: </span> <span class = "pt" style = "display: none;"> The uniform (not changing through space) and constant (not evolving in time) electromagnetic field is described by: </span>
+    <ul> 
+      <li> <span class = "en"> the electric field \( \Eorig \), measured in volts per meter (V/m), or equivalently in newtons per coulomb (N/C) </span> <span class = "es" style = "display: none;"> el campo eléctrico \( \Eorig \), medido en volts sobre metro (V/m), o de forma equivalente en newtons sobre coulomb (N/C) </span> <span class = "fr" style = "display: none;"> the electric field \( \Eorig \), measured in volts per meter (V/m), or equivalently in newtons per coulomb (N/C) </span> <span class = "it" style = "display: none;"> the electric field \( \Eorig \), measured in volts per meter (V/m), or equivalently in newtons per coulomb (N/C) </span> <span class = "pt" style = "display: none;"> the electric field \( \Eorig \), measured in volts per meter (V/m), or equivalently in newtons per coulomb (N/C) </span> </li>
+      <li> <span class = "en"> the magnetic field \( \Morig \), measured in teslas (T) </span> <span class = "es" style = "display: none;"> el campo magnético \( \Morig \), medido en teslas (T) </span> <span class = "fr" style = "display: none;"> the magnetic field \( \Morig \), measured in teslas (T) </span> <span class = "it" style = "display: none;"> the magnetic field \( \Morig \), measured in teslas (T) </span> <span class = "pt" style = "display: none;"> the magnetic field \( \Morig \), measured in teslas (T) </span> </li>
+    </ul>
+      
+    <h3> <span class = "en"> How does this simulation work? </span> <span class = "es" style = "display: none;"> ¿Cómo funciona esta simulación? </span> <span class = "fr" style = "display: none;"> How does this simulation work? </span> <span class = "it" style = "display: none;"> How does this simulation work? </span> <span class = "pt" style = "display: none;"> How does this simulation work? </span> </h3>
+      
+    <span class = "en"> The code for this simulation executes the following steps: </span> <span class = "es" style = "display: none;"> El código para esta simulación ejecuta los siguientes pasos: </span> <span class = "fr" style = "display: none;"> The code for this simulation executes the following steps: </span> <span class = "it" style = "display: none;"> The code for this simulation executes the following steps: </span> <span class = "pt" style = "display: none;"> The code for this simulation executes the following steps: </span>
+    <ol>
+      <li> <span class = "en"> Receive and store user input (fields and particle properties). These are considered the "laboratory" values </span> <span class = "es" style = "display: none;"> Recibir y guardar los valores ingresados por el usuario (campos y propiedades de la partícula). Estos son considerados los valores de "laboratorio" </span> <span class = "fr" style = "display: none;"> Receive and store user input (fields and particle properties). These are considered the "laboratory" values </span> <span class = "it" style = "display: none;"> Receive and store user input (fields and particle properties). These are considered the "laboratory" values </span> <span class = "pt" style = "display: none;"> Receive and store user input (fields and particle properties). These are considered the "laboratory" values </span> </li>
+      <li> <span class = "en"> Characterize the system. The system can be of <em>null</em> type, <em>electric</em> type, <em>magnetic</em> type or <em>collinear</em> type, depending on the magnitude and direction of the electric and magnetic fields </span> <span class = "es" style = "display: none;"> Caracterizar el sistema. Este puede ser de tipo <em>nulo</em>, de tipo <em>eléctrico</em>, de tipo <em>magnético</em> o de tipo <em>colineal</em>, dependiendo de la magnitud y dirección de los campos eléctrico y magnético </span> <span class = "fr" style = "display: none;"> Characterize the system. The system can be of <em>null</em> type, <em>electric</em> type, <em>magnetic</em> type or <em>collinear</em> type, depending on the magnitude and direction of the electric and magnetic fields </span> <span class = "it" style = "display: none;"> Characterize the system. The system can be of <em>null</em> type, <em>electric</em> type, <em>magnetic</em> type or <em>collinear</em> type, depending on the magnitude and direction of the electric and magnetic fields </span> <span class = "pt" style = "display: none;"> Characterize the system. The system can be of <em>null</em> type, <em>electric</em> type, <em>magnetic</em> type or <em>collinear</em> type, depending on the magnitude and direction of the electric and magnetic fields </span> </li>
+      <li> <span class = "en"> Move to a frame of reference in which the equations of motion can be solved analitically: a "proper frame" for the system, which depends on the type of field </span> <span class = "es" style = "display: none;"> Moverse a un marco de referencia en el que las ecuaciones de movimiento puedan ser solucionadas analíticamente: un "marco propio" para el sistema, que depende del tipo de campo </span> <span class = "fr" style = "display: none;"> Move to a frame of reference in which the equations of motion can be solved analitically: a "proper frame" for the system, which depends on the type of field </span> <span class = "it" style = "display: none;"> Move to a frame of reference in which the equations of motion can be solved analitically: a "proper frame" for the system, which depends on the type of field </span> <span class = "pt" style = "display: none;"> Move to a frame of reference in which the equations of motion can be solved analitically: a "proper frame" for the system, which depends on the type of field </span> </li>
+      <li> <span class = "en"> Solve the equations of motion in the proper frame </span> <span class = "es" style = "display: none;"> Resolver las ecuaciones de movimiento en el marco propio </span> <span class = "fr" style = "display: none;"> Solve the equations of motion in the proper frame </span> <span class = "it" style = "display: none;"> Solve the equations of motion in the proper frame </span> <span class = "pt" style = "display: none;"> Solve the equations of motion in the proper frame </span> </li>
+      <li> <span class = "en"> Bring back the solution to the laboratory frame </span> <span class = "es" style = "display: none;"> Traer de regreso la solución al marco de laboratorio </span> <span class = "fr" style = "display: none;"> Bring back the solution to the laboratory frame </span> <span class = "it" style = "display: none;"> Bring back the solution to the laboratory frame </span> <span class = "pt" style = "display: none;"> Bring back the solution to the laboratory frame </li>
+      <li> <span class = "en"> Set up and show the animation </span> <span class = "es" style = "display: none;"> Configurar y mostrar la animación </span> <span class = "fr" style = "display: none;"> Set up and show the animation </span> <span class = "it" style = "display: none;"> Set up and show the animation </span> <span class = "pt" style = "display: none;"> Set up and show the animation </span> </li>
+    </ol>
+
+    <h2> <span class = "en"> Physics in detail </span> <span class = "es" style = "display: none;"> Física en detalle </span> <span class = "fr" style = "display: none;"> Physics in detail </span> <span class = "it" style = "display: none;"> Physics in detail </span> <span class = "pt" style = "display: none;"> Physics in detail </span> </h2>
+
+    Some quantities need to be redefined, as it is convenient for the purposes of this work. These are:
+    <ul> 
+      <li> Reduced electric charge: \( \qred = \dfrac{q_e}{\epsilon_0} \), with dimensions of \( \dfrac{\mbox{(mass)}}{\mbox{(time)}^2\ \mbox{(length)}^3\ \mbox{(charge)}} \) </li> <br>
+      <li> Reduced electric field: \( \Evec = c\ \epsilon_0\ \Eorig \), with dimensions of \( \dfrac{\mbox{(charge)}}{\mbox{(time)}\ \mbox{(length)}} \) </li> <br>
+      <li> Reduced magnetic field: \( \Mvec = \dfrac{\Morig}{\mu_0} \), with dimensions of \( \dfrac{\mbox{(charge)}}{\mbox{(time)}\ \mbox{(length)}} \) </li>
+    </ul>
+
+    In special relativity, quantities can be observed from different inertial frames of reference. To change from one frame to another, a <em>Lorentz transformation</em> is used. This transformation can perform a translation, a rotation and/or a change in velocity (boost). Two particular cases of this transformation (a Lorentz boost with rapidity \( \boldsymbol{\beta} \) and gamma factor \( \gamma = (1 - \beta^2)^{-1/2} \) ) are important in this simulation: <br>
+
+    <ul>
+      <li>The time and position coordinates transform as follows:</li>
+      <ul>
+        <li> \( c t\prime = \gamma c t - \gamma \boldsymbol{\beta} \cdot \boldsymbol{x} \) </li>
+        <li> \( \boldsymbol{x}\prime = \boldsymbol{x} -\gamma \boldsymbol{\beta} c t + (\gamma - 1) \UnitV_\beta \UnitV_\beta \cdot \boldsymbol{x} \) </li>
+      </ul> <br>
+      <li>The electromagnetic field transforms as follows:</li>
+      <ul>
+        <li> \( \Evec \rightarrow \Evec\prime = \gamma \left( \Evec - \Mvec \times \boldsymbol{\beta} \right) - (\gamma - 1) \UnitV_\beta \UnitV_\beta \cdot \Evec \) </li>
+        <li> \( \Mvec \rightarrow \Mvec\prime = \gamma \left( \Mvec + \Evec \times \boldsymbol{\beta} \right) - (\gamma - 1) \UnitV_\beta \UnitV_\beta \cdot \Mvec \) </li>
+      </ul>
+    </ul>
+
+    The relativistic equations of motion read:
+    <ul>
+      <li> \( \dfrac{m c^2}{\qred} \dfrac{\diff}{\diff t} \left[ \gamma \right] = \Evec \cdot \dfrac{\boldsymbol{u}}{c} \) </li> <br>
+      <li> \( \dfrac{m c^2}{\qred} \dfrac{\diff}{\diff t} \left[ \gamma \dfrac{\boldsymbol{u}}{c} \right] = \Evec - \Mvec \times \dfrac{\boldsymbol{u}}{c} \) </li>
+    </ul>
+    
+    Subject to the initial conditions:
+    <ul>
+      <li> \( \boldsymbol{x}(t = 0) = \boldsymbol{x}_0 \) </li>
+      <li> \( \boldsymbol{u}(t = 0) = \boldsymbol{u}_0, \qquad \gamma_0 = \gamma \left( \boldsymbol{u}_0 \right) \) </li>
+    </ul>
+
+  To solve this equations, we first compute two quantities, the <em> scalar invariant </em> \( \mathsf{I_s} \) and the <em> pseudoscalar invariant </em> \( \mathsf{I_p} \). These have the same value in every inertial frame of reference (up to a sign in the case of \( \mathsf{I_p} \)):
+    <ul>
+      <li> \( \mathsf{I_s} = - \Efield^2 + \Mfield^2 \) </li> <br>
+      <li> \( \mathsf{I_p} = - \Evec \cdot \Mvec \) </li>
+    </ul>
+
+    Depending on the value of \( \mathsf{I_s} \) and \( \mathsf{I_p} \), one of the following cases apply:
+    <ol>
+      <li> If \( \Evec \cdot \Mvec = 0 \) and </li>
+      <ol>
+        <li> if \(-\Efield^2 + \Mfield^2 = 0\), then \(\Evec \perp \Mvec\) and \(\Efield = \Mfield\) for all inertial frames. In this case the electromagnetic field is of <em>null</em> type. </li> <br>
+        <li> if \(-\Efield^2 + \Mfield^2 < 0\), then there exists a Lorentz boost such that \(\Evec\prime \ne \boldsymbol{0}\) and \(\Mvec\prime = \boldsymbol{0}\). In this case the electromagnetic field is of <em>electric</em> type. The relevant parameters of the transformation are:</li>
+        <ul>
+          <li> \( \boldsymbol{\beta} = \dfrac{\Evec \times \Mvec}{ \Efield^2 } \) </li>
+          <li> \( \gamma = \Efield \left( \Efield^2 - \Mfield^2 \right)^{-1/2} \) </li>
+          <li> \( \Evec\prime = \left( \Efield^2 - \Mfield^2 \right)^{1/2} \UnitV_{_\Efield} \) </li>
+        </ul> <br>
+        <li> if \(-\Efield^2 + \Mfield^2 > 0\), then there exists a Lorentz boost such that \(\Evec\prime = \boldsymbol{0}\) and \(\Mvec\prime \ne \boldsymbol{0}\). In this case the electromagnetic field is of <em>magnetic</em> type. The relevant parameters of the transformation are:</li>
+        <ul>
+          <li> \( \boldsymbol{\beta} = \dfrac{\Evec \times \Mvec}{ \Mfield^2 } \) </li>
+          <li> \( \gamma = \Mfield \left( \Mfield^2 - \Efield^2 \right)^{-1/2} \) </li>
+          <li> \( \Mvec\prime = \left( \Mfield^2 - \Efield^2 \right)^{1/2} \UnitV_{_\Mfield} \) </li>
+        </ul>
+      </ol> <br>
+      <li> If \( \Evec \cdot \Mvec \ne 0 \), then there exists a Lorentz boost such that \(\Evec\prime\) and \(\Mvec\prime\) are either parallel or antiparallel; no Lorentz boost can make either \(\Evec\prime = \boldsymbol{0}\) or \(\Mvec\prime = \boldsymbol{0}\). In this case the electromagnetic field is of <em>collinear</em> type. The relevant parameters of the transformation are:</li>
+        <ul>
+          <li> \( \boldsymbol{\beta} = \dfrac{ \Efield^2 + \Mfield^2 - R }{ 2 \left( \left(\Efield\Mfield\right)^2 - \left( \Evec \cdot \Mvec\right )^2 \right)} \Evec \times \Mvec \) </li>
+          <li> \( \gamma = \left( \dfrac{ 2 \left( \left( \Efield \Mfield \right)^2 - \left( \Evec \cdot \Mvec\right )^2 \right) }{ R \left( \Efield^2 + \Mfield^2 - R \right) } \right)^{1/2} \) </li>
+          <li> \( \Evec\prime = \left( \dfrac{ 2 \left( \left( \Efield \Mfield \right)^2 - \left( \Evec \cdot \Mvec\right )^2 \right) }{ R \left( \Efield^2 + \Mfield^2 - R \right) } \right)^{1/2} \Evec + \left( \dfrac{ \Efield^2 + \Mfield^2 - R }{ 2 R \left( \left( \Efield \Mfield \right)^2 - \left( \Evec \cdot \Mvec \right )^2 \right) } \right)^{1/2} \left( \left( \Evec \cdot \Mvec \right) \Mvec - \Mfield^2 \Evec \right) \) </li>
+          <li> \( \Mvec\prime = \left( \dfrac{ 2 \left( \left( \Efield \Mfield \right)^2 - \left( \Evec \cdot \Mvec\right )^2 \right) }{ R \left( \Efield^2 + \Mfield^2 - R \right) } \right)^{1/2} \Mvec + \left( \dfrac{ \Efield^2 + \Mfield^2 - R }{ 2 R \left( \left( \Efield \Mfield \right)^2 - \left( \Evec \cdot \Mvec \right )^2 \right) } \right)^{1/2} \left( \left( \Evec \cdot \Mvec \right) \Evec - \Efield^2 \Mvec \right) \) </li>
+        </ul> <br>
+        where \( R = \left( \left( -\Efield^2 + \Mfield^2 \right)^2 + 4 \left( \Evec \cdot \Mvec \right)^2 \right)^{1/2} \)
+    </ol>
+    
+    <h3> Solution for the <em>Null</em> type field </h3>
+    
+    Rescaling of the fields:
+    <ul>
+      <li> \( \Evec \rightarrow \boldsymbol{\Ered} = \dfrac{\qred}{m c^2} \Evec \) </li> <br>
+      <li> \( \Mvec \rightarrow \boldsymbol{\Mred} = \dfrac{\qred}{m c^2} \Mvec \) </li> <br>
+      <li> \( \boldsymbol{u} \rightarrow \boldsymbol{v} = \dfrac{\boldsymbol{u}}{c} \) </li>
+    </ul>
+    
+    Being the two fields perpendicular and equal in magnitude, two specific unit directions are chosen so that they align with the vector fields \(\boldsymbol{\Ered}\) and \(\boldsymbol{\Mred}\), equating their magnitudes to a common value \(\Fred\): <br>
+
+    \(\boldsymbol{\Ered} = \UnitV_1 \Fred, \quad \boldsymbol{\Mred} = \UnitV_2 \Fred \) <br>
+
+    and a third unit direction \(\UnitV_3\) completes a right-handed coordinate system: \(\UnitV_1 \times \UnitV_2 = \UnitV_3\). <br>
+
+    The solution is given by
+    
+    <ul>
+    <li> \( x_1(t) = K_1 + \dfrac{\gamma_0 c}{\Fred} \dfrac{2 \left( 1 - v_{30} \right) - v_{10}^2}{1 - v_{30}} \dfrac{1}{1 - \cos \left( \phi \right)} \) </li>
+    <li> \( x_2(t) = K_2 + \dfrac{\gamma_0 c v_{20}}{\Fred} \dfrac{\left( 2 \left( 1 - v_{30} \right) - v_{10}^2 \right)^{1/2}}{1 - v_{30}} \dfrac{\sin \left( \phi \right)}{1 - \cos \left( \phi \right)} \) </li>
+    <li> \( x_3(t) = K_3 + \dfrac{1 - v_{30}^2 - v_{10}^2}{2 \left( 1 - v_{30} \right) - v_{10}^2} c t - \dfrac{\gamma_0 c}{\Fred} \left( 2 \left( 1 - v_{30} \right) - v_{10}^2 \right)^{1/2} \dfrac{\sin \left( \phi \right) \left[ 1 - 2 \cos \left( \phi \right) \right]}{3 \left[ 1 - \cos \left( \phi \right) \right]^2} \) </li>
+    </ul>
+    
+    with \( K_1 \), \( K_2 \) and \( K_3 \) constants such that the initial conditions are satisfied, and
+    
+    <ul>
+    <li> \( \dfrac{1}{1 - \cos \left( \phi \right)} = \dfrac{1}{2} + \dfrac{2T^2}{\left( 1 + r_{_+} + r_{_-} \right)^2} \) </li>
+    <li> \( \dfrac{\sin \left( \phi \right)}{1 - \cos \left( \phi \right)} = \dfrac{2T}{ 1 + r_{_+} + r_{_-} } \) </li>
+    <li> \( \dfrac{\sin \left( \phi \right) \left[ 1 - 2 \cos \left( \phi \right) \right]}{3 \left[ 1 - \cos \left( \phi \right) \right]^2} = \dfrac{T}{1 + r_{_+} + r_{_-}} - \dfrac{4T^3}{3 \left( 1 + r_{_+} + r_{_-} \right)^3} \) </li>
+    </ul>
+    
+    where
+    <ul>
+    <li> \( r_{_+} = \left( 1 + 2T \left( 1 + T^2 \right)^{1/2} + 2T^2 \right)^{1/3} \) </li>
+    <li> \( r_{_-} = \left( 1 - 2T \left( 1 + T^2 \right)^{1/2} + 2T^2 \right)^{1/3} \) </li>
+    </ul>
+    
+    \( T \) is the <em>characteristic time</em> of the system, and is given by <br>
+    
+    \( T = \left( 2 \left( 1 - v_{30} \right) - v_{10}^2 \right)^{-3/2} \left[ v_{10} \left( 3 \left( 1 - v_{30} \right) - v_{10}^2 \right) + \dfrac{3 \Fred}{\gamma_0} \left( 1 - v_{30} \right)^2 t \right] \)
+    
+    <h3> Solution for the <em>Electric</em> type field </h3>
+    
+    Rescaling of the initial velocity and the electric field:
+    <ul>
+      <li> \( \boldsymbol{u}_0 \longrightarrow \uzscaled = \gamma_0 \dfrac{\boldsymbol{u}_0}{c} \) </li> <br>
+      <li> \( \Evec \longrightarrow \Focvec = \dfrac{\qred}{m c^2} \Evec \) </li>
+    </ul>
+    
+    \( \Focvec \) is called the <em>focal vector</em> because the solution of the equations of motion corresponds to an hyperbola with focal length \( 2^{1/2}\ c\ / \lvert \Focvec \rvert \). The solution is given by <br>
+    
+    \( \boldsymbol{x}(t) = \boldsymbol{x}_0 + \dfrac{c}{|\Focvec|} \left[ \left( \left[ 1 + \left( \uzscaled + \Focvec t \right)^2 \right]^{1/2} - \left[ 1 + \uzscaled^2 \right]^{1/2} \right) \UnitV_{_{\Focvec}} + \ln \left( \dfrac{ |\Focvec| \left[ 1 + \left( \uzscaled + \Focvec t \right)^2 \right]^{1/2} + \Focvec \cdot \left( \uzscaled + \Focvec t \right) }{ |\Focvec| \left[ 1 + \uzscaled^2 \right]^{1/2} + \Focvec \cdot \uzscaled } \right) \left( \uzscaled - \UnitV_{_{\Focvec}} \UnitV_{_{\Focvec}} \cdot \uzscaled \right) \right] \) <br>
+    
+    The <em>characteristic time</em> of the system is given by <br>
+    
+    \( \mathcal{T}_\subE = \dfrac{1}{\lvert \Focvec \rvert} = \dfrac{m c^2}{\qred \Efield} \)
+
+    <h3> Solution for the <em>Magnetic</em> type field </h3>
+    
+    Rescaling of the magnetic field:
+    <ul>
+      <li> \( \Mvec \longrightarrow \Omvec = \dfrac{\qred}{\gamma m c^2} \Mvec \) </li>
+    </ul>
+    
+    \( \Omvec \) is called the <em>angular frequency vector</em>. The solution is given by <br> <br>
+    
+    \( \boldsymbol{x}(t) = \boldsymbol{x}_0 + \omega_{\boldsymbol{x}}(t) \boldsymbol{u}_0 \) <br> <br>
+    
+    with <br>
+    
+    \( \omega_{\boldsymbol{x}}(t) = 
+\begin{pmatrix}
+\lambda_1^2 & \lambda_1 \lambda_2 & \lambda_1 \lambda_3 \\
+\lambda_1 \lambda_2 & \lambda_2^2 & \lambda_2 \lambda_3 \\
+\lambda_1 \lambda_3 & \lambda_2 \lambda_3 & \lambda_3^2
+\end{pmatrix} t
++ \dfrac{1}{|\Omvec|}
+\begin{pmatrix}
+\lambda_{23} & 0 & 0 \\
+0 & \lambda_{31} & 0 \\
+0 & 0 & \lambda_{12}
+\end{pmatrix}
+\left[
+\begin{pmatrix}
+1 & -\cos\left(\vartheta_1\right) & \cos\left(\vartheta_1+\vartheta_3\right) \\
+-\cos\left(\vartheta_1\right) & 1 & -\cos\left(\vartheta_3\right) \\
+\cos\left(\vartheta_1+\vartheta_3\right) & -\cos\left(\vartheta_3\right) & 1
+\end{pmatrix}
+\sin\left(|\Omvec|t\right) +  \right. \\ \left.
+\begin{pmatrix}
+0 & \sin\left(\vartheta_1\right) & -\sin\left(\vartheta_1+\vartheta_3\right) \\
+-\sin\left(\vartheta_1\right) & 0 & \sin\left(\vartheta_3\right) \\
+\sin\left(\vartheta_1+\vartheta_3\right) & -\sin\left(\vartheta_3\right) & 0
+\end{pmatrix}
+\left(1 - \cos\left(|\Omvec|t\right)\right)
+\right]
+\begin{pmatrix}
+\lambda_{23} & 0 & 0 \\
+0 & \lambda_{31} & 0 \\
+0 & 0 & \lambda_{12}
+\end{pmatrix} \) <br> <br>
+
+    where \( \lambda_i = \cos\left(\theta_i\right) \) and \( \lambda_{ij} = \cos\left(\theta_{ij}\right)\), being \( \theta_i \) and \( \theta_{ij} \) the <em>main direction angles</em> and <em>secondary direction angles</em>, respectively. \( \vartheta_j \) are auxiliar angles, and all of them are defined according to the following schemes: <br> <br>
+    
+    <picture> <source media = "(prefers-color-scheme: dark)" srcset = "./img/mainDirAngDM.svg" /> <img src = "./img/mainDirAng.svg" alt = "Main direction angles of the angular frequency vector" width = "45%"> </picture> &emsp;
+    <img src = "./img/secDirAng.svg" alt = "Secondary direction angles of the angular frequency vector" width = "45%"> <br>
+    <img src = "./img/Triangle3123.svg" alt = "First geometric relation between the components of the angular frequency vector" width = "45%"> &emsp;
+    <img src = "./img/Triangle1231.svg" alt = "Second geometric relation between the components of the angular frequency vector" width = "45%"> <br> <br>
+    
+    The <em>characteristic time</em> of the system is given by <br>
+    
+    \( \mathcal{T}_\subM = \dfrac{\tau}{\lvert \Omvec \rvert} = \dfrac{\tau \gamma m c^2}{\qred \lvert \Mvec \rvert} \) <br>
+    
+    where \( \tau = 2 \pi \).
+    
+    <h3> Solution for the <em>Collinear</em> type field </h3>
+    
+Rescaling of the fields: the same as in the null-type case. <br> <br>
+    
+    A specific unit direction is chosen explicitly to describe the fields, writing: <br>
+
+    \( \boldsymbol{\Ered} = \UnitV_\parallel \Ered, \quad \boldsymbol{\Mred} = \UnitV_\parallel \Mred \) <br> <br>
+
+    where \(\Ered\) and \(\Mred\) are allowed to be signed, in order to consider both cases in which the fields are either parallel or antiparallel. The particular direction \(\UnitV_\parallel\) is chosen as the \(\UnitV_1\) axis, and the unit directions \(\UnitV_2\) and \(\UnitV_3\) form a right-handed coordinate system (\(\UnitV_1 \times \UnitV_2 = \UnitV_3\)). The solution is given by
+    
+    <ul>
+    <li> \( x_1(t) = x_{10} + \dfrac{c}{\Ered} \left[ -\gamma_0 + \left( \gamma_0^2 (1 - v_{10}^2) + \left( \gamma_0 v_{10} + \Ered t \right)^2 \right)^{1/2} \right] \) </li>
+    <li> \( x_2(t) = x_{20} + \dfrac{\gamma_0 c}{\Mred} \left[ v_{30} \left( \cos \left( \dfrac{\Mred}{\Ered} \phi \right) - 1 \right) + v_{20} \sin \left( \dfrac{\Mred}{\Ered} \phi \right) \right] \) </li>
+    <li> \( x_3(t) = x_{30} + \dfrac{\gamma_0 c}{\Mred} \left[ -v_{20} \left( \cos \left( \dfrac{\Mred}{\Ered} \phi \right) - 1 \right) + v_{30} \sin \left( \dfrac{\Mred}{\Ered} \phi \right) \right] \) </li>
+    </ul> <br>
+
+    where <br>
+
+    \( \phi = \ln \left( \dfrac{ \gamma_0 v_{10} + \Ered t + \left( \gamma_0^2 (1 - v_{10}^2) + \left( \gamma_0 v_{10} + \Ered t \right)^2 \right)^{1/2} }{ \gamma_0 \left( 1 + v_{10}\right) } \right) \) <br> <br>
+    
+    The <em>characteristic time</em> \(\mathcal{T}_c(N)\) is a function of \(N\), the number of pseudo-cycles of motion: <br> <br>
+    
+    \( \mathcal{T}_c(N) = \dfrac{\gamma_0}{\Ered} \left[ v_0 \left( \cosh \left( \dfrac{\Ered}{\Mred} N \tau \right) - 1 \right) + \sinh \left( \dfrac{\Ered}{\Mred} N \tau \right) \right] \)
+    
+    <h3> Additional transformations needed to solve the equations of motion </h3>
+
+    In the <em>null</em> and <em>collinear</em> cases, an additional coordinate transformation (a rotation) is needed in order to achieve the solutions to the equations of motion. In general, the rotation operator \( R \) which transforms the unit vector \( \UnitV_s \) into the unit vector \( \UnitV_r \) can be written as <br>
+
+    \( R = \mathbb{1} + \left( \UnitV_s \times \UnitV_r \right) \times + \dfrac{1}{1 + \UnitV_s \cdot \UnitV_r} \left[ \left( \UnitV_s \times \UnitV_r \right) \times \right]^2 \) <br> <br>
+
+    and the inverse transformation \( R^{-1} \) is achieved by interchanging \( \UnitV_s \) and \( \UnitV_r \). <br> <br>
+
+    The only case in which the expression above is not valid is when \( \UnitV_s \cdot \UnitV_r = -1 \), i.e., when \( \UnitV_s \) and \( \UnitV_r \) are antiparallel. In this case, the transformation operator is an inversion, \( R = -\mathbb{1} \). <br> <br>
+
+    In the particular cases needed for this work, the following expressions are used:
+
+    <ul>
+      <li> When the field is of <em>null</em> type, a first rotation is performed in order to align \( (u_1, u_2, u_3) \), the unit direction of \( \Evec \times \Mvec \), with the \( x_3 \) axis, in which case the rotation matrix \( R_3 \) reads <br>
+      \( R_3 = \begin{pmatrix}
+               1 - \dfrac{u_1^2}{1 + u_3} & -\dfrac{u_1 u_2}{1 + u_3} & -u_1 \\
+               -\dfrac{u_1 u_2}{1 + u_3} & 1 - \dfrac{u_2^2}{1 + u_3} & -u_2 \\
+               u_1 & u_2 & 1 - \dfrac{u_1^2 + u_2^2}{1 + u_3}
+             \end{pmatrix} \) <br> <br>
+       and a second rotation is performed to align \( (u_1, u_2, u_3) \), the unit direction of the just-transformed \( \Evec \), with the \( x_1 \) axis, in which case the rotation matrix \( R_1 \) reads <br>
+      \( R_1 = \begin{pmatrix}
+               1 - \dfrac{u_2^2 + u_3^2}{1 + u_1} & u_2 & u_3 \\
+               -u_2 & 1 - \dfrac{u_2^2}{1 + u_1} & -\dfrac{u_2 u_3}{1 + u_1} \\
+               -u_3 & -\dfrac{u_2 u_3}{1 + u_1} & 1 - \dfrac{u_3^2}{1 + u_1}
+             \end{pmatrix} \) <br> <br>
+      </li> <br>
+      <li> When the field is of <em>collinear</em> type, a single rotation is performed to align the \( \Evec \) field with the \( x_1 \) axis; the transformation matrix is \( R_1 \), with the same expression as the one shown above. </li>
+    </ul>
+
+  </body>
+
+</html>
