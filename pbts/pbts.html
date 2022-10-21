@@ -174,13 +174,15 @@
       <li> \( \Evec \rightarrow \boldsymbol{\Ered} = \dfrac{\qred}{m c^2} \Evec \) </li> <br>
       <li> \( \Mvec \rightarrow \boldsymbol{\Mred} = \dfrac{\qred}{m c^2} \Mvec \) </li> <br>
       <li> \( \boldsymbol{u} \rightarrow \boldsymbol{v} = \dfrac{\boldsymbol{u}}{c} \) </li>
-    </ul>
+    </ul> <br>
+    
+    Both \( \boldsymbol{\Ered} \) and \( \boldsymbol{\Mred} \) have dimensions of inverse time. <br>
     
     Being the two fields perpendicular and equal in magnitude, two specific unit directions are chosen so that they align with the vector fields \(\boldsymbol{\Ered}\) and \(\boldsymbol{\Mred}\), equating their magnitudes to a common value \(\Fred\): <br>
 
-    \(\boldsymbol{\Ered} = \UnitV_1 \Fred, \quad \boldsymbol{\Mred} = \UnitV_2 \Fred \) <br>
+    \(\boldsymbol{\Ered} = \UnitV_1 \Fred, \quad \boldsymbol{\Mred} = \UnitV_2 \Fred \) <br> <br>
 
-    and a third unit direction \(\UnitV_3\) completes a right-handed coordinate system: \(\UnitV_1 \times \UnitV_2 = \UnitV_3\). <br>
+    and a third unit direction \(\UnitV_3\) completes a right-handed coordinate system: \(\UnitV_1 \times \UnitV_2 = \UnitV_3\). <br> <br>
 
     The solution is given by
     
@@ -204,9 +206,13 @@
     <li> \( r_{_-} = \left( 1 - 2T \left( 1 + T^2 \right)^{1/2} + 2T^2 \right)^{1/3} \) </li>
     </ul>
     
-    \( T \) is the <em>characteristic time</em> of the system, and is given by <br>
+    \( T \) is an adimensional rescaling of time:
     
     \( T = \left( 2 \left( 1 - v_{30} \right) - v_{10}^2 \right)^{-3/2} \left[ v_{10} \left( 3 \left( 1 - v_{30} \right) - v_{10}^2 \right) + \dfrac{3 \Fred}{\gamma_0} \left( 1 - v_{30} \right)^2 t \right] \)
+    
+    And the <em>characteristic time</em> of the system \(\mathcal{T}_c\) is the value of \( t \) for which \( T = 1 \). In general, \(\mathcal{T}_c(N)\) is a function of \( N \), the number of pseudo-cycles of motion: <br> <br>
+    
+    \( \mathcal{T}_c(N) = \dfrac{ \gamma_0 }{ 3 \Fred \left( 1 - v_{30} \right)^2 } \left[ - \gamma_0 v_{10} \left( 3 \left( 1 - v_{30} \right) + \left( 2 \left( 1 - v_{30} \right) - v_{10}^2 \right)^{3/2} N \right] \)
     
     <h3> Solution for the <em>Electric</em> type field </h3>
     
@@ -214,7 +220,9 @@
     <ul>
       <li> \( \boldsymbol{u}_0 \longrightarrow \uzscaled = \gamma_0 \dfrac{\boldsymbol{u}_0}{c} \) </li> <br>
       <li> \( \Evec \longrightarrow \Focvec = \dfrac{\qred}{m c^2} \Evec \) </li>
-    </ul>
+    </ul> <br>
+    
+    \( \Focvec \) has dimensions of inverse time. <br>
     
     \( \Focvec \) is called the <em>focal vector</em> because the solution of the equations of motion corresponds to an hyperbola with focal length \( 2^{1/2}\ c\ / \lvert \Focvec \rvert \). The solution is given by <br>
     
@@ -229,10 +237,10 @@
     Rescaling of the magnetic field:
     <ul>
       <li> \( \Mvec \longrightarrow \Omvec = \dfrac{\qred}{\gamma m c^2} \Mvec \) </li>
-    </ul>
-    
-    \( \Omvec \) is called the <em>angular frequency vector</em>. The solution is given by <br> <br>
-    
+    </ul> <br>
+
+    \( \Omvec \) is called the <em>angular frequency vector</em> and it has dimensions of inverse time. The solution is given by <br> <br>
+
     \( \boldsymbol{x}(t) = \boldsymbol{x}_0 + \omega_{\boldsymbol{x}}(t) \boldsymbol{u}_0 \) <br> <br>
     
     with <br>
