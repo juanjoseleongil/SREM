@@ -19,13 +19,13 @@
 
   <body>
 
-    <script defer type = "module" src = "./pbtsExecutionSetup.js"> </script>
+    <script defer type = "module" src = "./bgpExecutionSetup.js"> </script>
 
     <header>
       <nav>
         <ul>
           <li> <a class = "liSimul" href = "../index.html"> Simulation </a> </li>
-          <li class = "lipbts"> Background physics </li>
+          <li class = "liBgp"> Background physics </li>
           <li> <a class = "liCode" href = "https://github.com/juanjoseleongil/SREM.git"> Code </a> </li>
         </ul>
         <span id = "langSpan"> </span>
@@ -101,7 +101,7 @@
 
     Some quantities need to be redefined, as it is convenient for the purposes of this work. These are:
     <ul> 
-      <li> Reduced electric charge: \( \qred = \dfrac{q_e}{\epsilon_0} \), with dimensions of \( \dfrac{\mbox{(mass)}}{\mbox{(time)}^2\ \mbox{(length)}^3\ \mbox{(charge)}} \) </li> <br>
+      <li> Reduced electric charge: \( \qred = \dfrac{q_e}{\epsilon_0} \), with dimensions of \( \dfrac{\mbox{(length)}^3\ \mbox{(mass)}}{\mbox{(time)}^2\ \mbox{(charge)}} \) </li> <br>
       <li> Reduced electric field: \( \Evec = c\ \epsilon_0\ \Eorig \), with dimensions of \( \dfrac{\mbox{(charge)}}{\mbox{(time)}\ \mbox{(length)}} \) </li> <br>
       <li> Reduced magnetic field: \( \Mvec = \dfrac{\Morig}{\mu_0} \), with dimensions of \( \dfrac{\mbox{(charge)}}{\mbox{(time)}\ \mbox{(length)}} \) </li>
     </ul>
@@ -245,36 +245,36 @@
     with <br>
     
     \( \omega_{\boldsymbol{x}}(t) = 
-\begin{pmatrix}
-\lambda_1^2 & \lambda_1 \lambda_2 & \lambda_1 \lambda_3 \\
-\lambda_1 \lambda_2 & \lambda_2^2 & \lambda_2 \lambda_3 \\
-\lambda_1 \lambda_3 & \lambda_2 \lambda_3 & \lambda_3^2
-\end{pmatrix} t
-+ \dfrac{1}{|\Omvec|}
-\begin{pmatrix}
-\lambda_{23} & 0 & 0 \\
-0 & \lambda_{31} & 0 \\
-0 & 0 & \lambda_{12}
-\end{pmatrix}
-\left[
-\begin{pmatrix}
-1 & -\cos\left(\vartheta_1\right) & \cos\left(\vartheta_1+\vartheta_3\right) \\
--\cos\left(\vartheta_1\right) & 1 & -\cos\left(\vartheta_3\right) \\
-\cos\left(\vartheta_1+\vartheta_3\right) & -\cos\left(\vartheta_3\right) & 1
-\end{pmatrix}
-\sin\left(|\Omvec|t\right) +  \right. \\ \left.
-\begin{pmatrix}
-0 & \sin\left(\vartheta_1\right) & -\sin\left(\vartheta_1+\vartheta_3\right) \\
--\sin\left(\vartheta_1\right) & 0 & \sin\left(\vartheta_3\right) \\
-\sin\left(\vartheta_1+\vartheta_3\right) & -\sin\left(\vartheta_3\right) & 0
-\end{pmatrix}
-\left(1 - \cos\left(|\Omvec|t\right)\right)
-\right]
-\begin{pmatrix}
-\lambda_{23} & 0 & 0 \\
-0 & \lambda_{31} & 0 \\
-0 & 0 & \lambda_{12}
-\end{pmatrix} \) <br> <br>
+       \begin{pmatrix}
+         \lambda_1^2 & \lambda_1 \lambda_2 & \lambda_1 \lambda_3 \\
+         \lambda_1 \lambda_2 & \lambda_2^2 & \lambda_2 \lambda_3 \\
+         \lambda_1 \lambda_3 & \lambda_2 \lambda_3 & \lambda_3^2
+         \end{pmatrix} t
+       + \dfrac{1}{|\Omvec|}
+       \begin{pmatrix}
+         \lambda_{23} & 0 & 0 \\
+         0 & \lambda_{31} & 0 \\
+         0 & 0 & \lambda_{12}
+       \end{pmatrix}
+       \left[
+       \begin{pmatrix}
+         1 & -\cos\left(\vartheta_1\right) & \cos\left(\vartheta_1+\vartheta_3\right) \\
+         -\cos\left(\vartheta_1\right) & 1 & -\cos\left(\vartheta_3\right) \\
+         \cos\left(\vartheta_1+\vartheta_3\right) & -\cos\left(\vartheta_3\right) & 1
+       \end{pmatrix}
+       \sin\left(|\Omvec|t\right) +  \right. \\ \left.
+       \begin{pmatrix}
+         0 & \sin\left(\vartheta_1\right) & -\sin\left(\vartheta_1+\vartheta_3\right) \\
+         -\sin\left(\vartheta_1\right) & 0 & \sin\left(\vartheta_3\right) \\
+         \sin\left(\vartheta_1+\vartheta_3\right) & -\sin\left(\vartheta_3\right) & 0
+       \end{pmatrix}
+       \left(1 - \cos\left(|\Omvec|t\right)\right)
+       \right]
+       \begin{pmatrix}
+         \lambda_{23} & 0 & 0 \\
+         0 & \lambda_{31} & 0 \\
+         0 & 0 & \lambda_{12}
+       \end{pmatrix} \) <br> <br>
 
     where \( \lambda_i = \cos\left(\theta_i\right) \) and \( \lambda_{ij} = \cos\left(\theta_{ij}\right)\), being \( \theta_i \) and \( \theta_{ij} \) the <em>main direction angles</em> and <em>secondary direction angles</em>, respectively. \( \vartheta_j \) are auxiliar angles, and all of them are defined according to the following schemes: <br> <br>
     

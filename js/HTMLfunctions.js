@@ -2,7 +2,7 @@ import {τ, sqrt2, c, e, TOL, signiFigM1, prefixes, particles, ptsPerCharTime} f
 import * as LANG from "./languageContent.js";
 import * as COMP from "./RMCUEMFcompute.js";
 import unitDirectionSketch from "./sketch.js";
-import * as SIM from "./simulTHREE2.js";
+import * as SIM from "./simulTHREE.js";
 
 // USER INPUT PLACEHOLDERS
 let initInputs =
@@ -469,7 +469,7 @@ async function produceMotion()
 
   if ( !labPath[0].every(isFinite) || !labPath[1].every(isFinite) || !labPath[2].every(isFinite) || !labPath[3].every(isFinite) )
   {
-    alert("Some values of the numerical computation evaluate to either 'NaN' (not a number), or ±∞. This could be due to some floating point operations exceding the machine tolerance, Number.EPSILON = ", Number.EPSILON);
+    alert("Some values of the numerical computation evaluate to either 'NaN' (not a number), or ±∞. This could be due to some floating point operations exceding the machine tolerance, Number.EPSILON = " + Number.EPSILON);
     return;
   } else
   {

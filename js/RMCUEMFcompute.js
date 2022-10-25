@@ -6,13 +6,12 @@ export var unitE = [0.0, 0.0, 0.0], unitB = [0.0, 0.0, 0.0], normE = 1.0, normB 
 export var x0 = [0.0, 0.0, 0.0], unitu0 = [0.0, 0.0, 0.0], normu0oc = 1.0, normu0 = 1.0; //initial position and velocity
 export var γ0 = 1.0, m = 1.0, q = 1.0 //initial gamma factor, mass and electric charge
 export var normEred = 1.0, normBred = 1.0; //reduced field magnitudes (in s⁻¹ m⁻¹ C)
-export var qred = 1.0; //reduced electric charge
+export var qred = 1.0; //reduced electric charge (in s⁻² m⁻³ kg C⁻¹)
 export var typeOfField = "", γprop = 1.0, unitβprop = [0.0, 0.0, 0.0], normβprop = 0.0; //field parameters depending on relativistic invariants
 export var unitEprop = [0.0, 0.0, 0.0], unitBprop = [0.0, 0.0, 0.0], normEprop = 1.0, normBprop = 1.0; //for proper frame computation
 export var x0prop = [0.0, 0.0, 0.0], unitu0prop = [0.0, 0.0, 0.0], normu0ocprop = 1.0, normu0prop = 1.0, γ0prop = 1.0;
 export var unitEres = [0.0, 0.0, 0.0], unitBres = [0.0, 0.0, 0.0], normEres = 1.0, normBres = 1.0; //rescaled proper frame fields
 export var charTimeFactor = 1.0, numPts = 1.0; //animation parameters
-export var boostDone = false, rescaleDone = false;
 
 export var charTime = 1.0, maxTime = 1.0, timeStep = 1.0;
 export function setTimeStep() { timeStep = maxTime / numPts; }
@@ -21,17 +20,17 @@ export function setInputs(inptUnitE, inptUnitB, inptNormE, inptNormB, inptx0, in
 {
   unitE = inptUnitE, unitB = inptUnitB, normE = inptNormE, normB = inptNormB;
   x0 = inptx0, unitu0 = inptUnitu0, normu0oc = inptNormu0oc;
-  γ0 = 1.0 / Math.sqrt(1.0 - Math.pow(normu0oc, 2)); //gamma factor related to the initial velocity
+  γ0 = Math.pow((1.0 - Math.pow(normu0oc, 2)), -0.5); //gamma factor related to the initial velocity
   normu0 = c * normu0oc;
   m = inptm, q = inptq;
   reduceChargeAndFields();
 
-  console.log("particle mass: " + FN.expNot(m) + " kg, \tcharge: " + FN.expNot(q) + " C");
-  console.log("\nInitial position: " + FN.tripletString(x0) + " m");
-  console.log("Initial velocity: " + FN.expNot(normu0) + " s⁻¹ m, \tβ = " + FN.expNot(normu0oc) + ", \tunit direction " + FN.tripletString(unitu0));
+  console.log("particle mass: " + FN.expNot(m) + " kg, \ncharge: " + FN.expNot(q) + " C");
+  console.log("Initial position: " + FN.tripletString(x0) + " m");
+  console.log("Initial velocity: " + FN.expNot(normu0) + " s⁻¹ m, \nβ = " + FN.expNot(normu0oc) + ", \nunit direction " + FN.tripletString(unitu0));
   console.log("Relativistic γ factor: " + FN.expNot(γ0));
-  console.log("\nElectric field: " + FN.expNot(normE) + " m⁻¹ V, \tunit direction " + FN.tripletString(unitE));
-  console.log("Magnetic field: " + FN.expNot(normB) + " T, \tunit direction " + FN.tripletString(unitB));
+  console.log("Electric field: " + FN.expNot(normE) + " m⁻¹ V, \nunit direction " + FN.tripletString(unitE));
+  console.log("Magnetic field: " + FN.expNot(normB) + " T, \nunit direction " + FN.tripletString(unitB));
 }
 
 export function setTimeAndPts(inptCharTimeFactor)
@@ -102,17 +101,14 @@ function matrixDotVector(M, v)
   let out = Array.from( {length : rows}, (v, i) => 0 );
   for (var i = 0; i < rows; i++)
   {
-    for (var j = 0; j < cols; j++)
-    {
-      out[i] += M[i][j] * v[j];
-    }
+    for (var j = 0; j < cols; j++) { out[i] += M[i][j] * v[j]; }
   }
   return out;
 }
 
 
 function γofβ(β)
-{ return 1.0 / Math.sqrt( 1.0 - dot(β, β) ); }
+{ return Math.pow( 1.0 - dot(β, β), -0.5 ); }
 
 
 function LorentzTransf4vec(unitβ, normβ, γ, fourVector)
@@ -129,7 +125,7 @@ function LorentzTransf4vec(unitβ, normβ, γ, fourVector)
 
 function LorentzTransfEBfields(γ, β, E, B, field)
 { //Lorentz transformation on (reduced) fields. Hopefully this function won't be needed
-  let outField, crossProd, dotProd, firstTerm, secondTerm, uβ = scalMultVec(1 / norm3Vec(β), β);
+  let outField, crossProd, dotProd, firstTerm, secondTerm, uβ = scalMultVec(1.0 / norm3Vec(β), β);
   if (field === "E")
   {
     crossProd = cross(B, β), dotProd = dot(uβ, E);
@@ -151,68 +147,73 @@ function LorentzTransfEBfields(γ, β, E, B, field)
 export function boostToProperFrame()
 { // boost reduced fields, initial position and initial velocity to proper frame according to relativistic invariants
   let dotProdU = dot(unitE, unitB), crossProdU = cross(unitE, unitB);
-  console.log("unit cross vector prod norm:" + FN.tripletString(crossProdU))
   let normCrossProdU = Math.hypot(crossProdU[0], crossProdU[1], crossProdU[2]);
-  console.log("unit cross vector prod uvec:" + FN.expNot(normCrossProdU));
   let unitCrossProdU;
-  if (!isNaN(normCrossProdU) && isFinite(normCrossProdU) && normCrossProdU > TOL) {console.log("unit vector can be normalized"); unitCrossProdU = crossProdU.map(x => x / normCrossProdU);}
-  let En = normEred, Bn = normBred, Esq = Math.pow(normEred, 2), Bsq = Math.pow(normBred, 2);
+  if (!isNaN(normCrossProdU) && isFinite(normCrossProdU) && normCrossProdU > TOL) {unitCrossProdU = crossProdU.map(x => x / normCrossProdU);}
+  let En = 1.0 * normEred, Bn = 1.0 * normBred, Esq = Math.pow(normEred, 2), Bsq = Math.pow(normBred, 2);
   let Is = -Esq + Bsq, Ip = En * Bn * dotProdU;
   let Is2 = Math.pow(Is, 2), Ip2 = Math.pow(Ip, 2);
   let EoB = 1.0, BoE = 1.0;
   console.log("En: " + FN.expNot(En));
   console.log("Bn: " + FN.expNot(Bn));
-  if (!isNaN(Bn) && isFinite(Bn) && Bn > TOL) {console.log("Bn can be denominator"); EoB = En / Bn; console.log("EoB = " + FN.expNot(EoB));}
-  if (!isNaN(En) && isFinite(En) && En > TOL) {console.log("En can be denominator"); BoE = Bn / En; console.log("BoE = " + FN.expNot(BoE));}
+  if (!isNaN(Bn) && isFinite(Bn) && Bn > TOL) {EoB = En / Bn; console.log("EoB = " + FN.expNot(EoB));}
+  if (!isNaN(En) && isFinite(En) && En > TOL) {BoE = Bn / En; console.log("BoE = " + FN.expNot(BoE));}
 
   //initialization of unit vectors and norms on the proper frame
   unitEprop = [...unitE], normEprop = 1.0 * normEred; //electric field
   unitBprop = [...unitB], normBprop = 1.0 * normBred; //magnetic field
-  if (!isNaN(normCrossProdU) && isFinite(normCrossProdU) && normCrossProdU > TOL) {console.log("unit beta vector can be assigned"); unitβprop = [...unitCrossProdU];} else {console.log("error with beta unit vector");} //β unit direction
+  if (!isNaN(normCrossProdU) && isFinite(normCrossProdU) && normCrossProdU > TOL) { unitβprop = [...unitCrossProdU]; } //β unit direction
 
   if ( Math.abs(dotProdU) <= TOL || En <= TOL || Bn <= TOL ) //null pseudoscalar invariant
   {
-    if (En - Bn > TOL) //electric-like case
+    if (En > Bn) //electric-like case
     {
       typeOfField = "electricType";
-      if (Bn > 0.0)
+      if (Bn > TOL)
       {
-        γprop = En / Math.sqrt( -Is );
+        console.log("electric type with non vanishing magnetic field");
         normβprop = BoE * Math.sqrt( 1.0 - Math.pow(dotProdU, 2) );
+        γprop = En / Math.sqrt( -Is );
         normEprop = Math.sqrt( -Is ), normBprop = 0.0;
       }
-      else {} //the lab field is already electric-like, no Lorentz Boost needed
+      else { console.log("electric type with vanishing magnetic field"); } //the lab field is already electric-like, no Lorentz Boost needed
     }
-    else if (Bn - En > TOL) //magnetic-like case
+    else if (Bn > En) //magnetic-like case
     {
       typeOfField = "magneticType";
-      if (En > 0.0)
+      if (En > TOL)
       {
-        γprop = Bn / Math.sqrt( Is );
+        console.log("magnetic type with non vanishing electric field");
         normβprop = EoB * Math.sqrt( 1.0 - Math.pow(dotProdU, 2) );
+        γprop = Bn / Math.sqrt( Is );
         normEprop = 0.0, normBprop = Math.sqrt( Is );
       }
-      else {} //the lab field is already magnetic-like, no Lorentz Boost needed
+      else { console.log("magnetic type with vanishing electric field"); } //the lab field is already magnetic-like, no Lorentz Boost needed
     }
-    else {typeOfField = "nullType";} //else if ( fabs(En - Bn) <= TOL ) //null-like case
+    else {typeOfField = "nullType"; console.log("null type"); } //else if ( fabs(En - Bn) <= TOL ) //null-like case
   }
-  else // if ( Math.abs(dotProdU) > TOL && En > TOL && Bn > TOL ) //pseudoscalar invariant different from zero
+  else if ( Math.abs(dotProdU) > TOL && En > TOL && Bn > TOL ) //pseudoscalar invariant different from zero
   {
+    console.log("collinear type");
     typeOfField = "collinearType";
     let fIs = -EoB + BoE, fIp = dotProdU //fractional scalar and pseudoscalar
     let fIs2 = Math.pow(fIs, 2), fIp2 = Math.pow(fIp, 2);
-    let s = Math.sqrt( fIs2 + 4.0 * fIp2 );
-    γprop = sqrt2 * Math.sqrt(1.0 - fIp2) / Math.sqrt( s * (EoB + BoE - s) );
-    normβprop = (EoB + BoE - s) / (2 * Math.sqrt(1.0 - fIp2));
-    normEprop = Math.sqrt( En * Bn * ( s - fIs ) / 2.0 ), normBprop = Math.sqrt( En * Bn * ( s + fIs ) / 2.0 );
-    unitEprop = unitE.map( x => x * (sqrt2 / Math.sqrt(s) ) * ( EoB * Math.sqrt(1.0 - fIp2) / Math.sqrt( s - fIs - 2.0 * EoB * fIp2 ) ) );
-    unitEprop = vecBinOp( unitB.map(x => fIp * x), "-", unitE );
-    unitEprop = unitEprop.map( x => x * (sqrt2 / Math.sqrt(s) ) * ( BoE / Math.sqrt( s - fIs + 2.0 * BoE * fIp2 ) ) );
-    unitBprop = unitB.map( x => x * (sqrt2 / Math.sqrt(s) ) * ( BoE * Math.sqrt(1.0 - fIp2) / Math.sqrt( s + fIs - 2.0 * BoE * fIp2 ) ) );
-    unitBprop = vecBinOp( unitE.map(x => fIp * x), "-", unitB );
-    unitBprop = unitBprop.map( x => x * (sqrt2 / Math.sqrt(s) ) * ( EoB / Math.sqrt( s + fIs + 2.0 * EoB * fIp2 ) ) );
+    let R = Math.pow( fIs2 + 4.0 * fIp2, 0.5 );
+    console.log("fIs: " + FN.expNot(fIs));
+    console.log("fIp: " + FN.expNot(fIp));
+    console.log("R: " + FN.expNot(R));
+    normβprop = (EoB + BoE - R) * Math.pow( 2 * Math.pow(1.0 - fIp2, 0.5), -1.0);
+    γprop = Math.pow( 2.0 * (1.0 - fIp2) * Math.pow( R * (EoB + BoE - R), -1.0 ), 0.5);
+    normEprop = Math.pow( 0.5 * En * Bn * ( R - fIs ), 0.5 ), normBprop = Math.pow( 0.5 * En * Bn * ( R + fIs ), 0.5 );
+    let fstTermE = unitE.map( x => x * EoB * Math.pow( 2.0 * (1.0 - fIp2) / (R * ( R - fIs - 2.0 * EoB * fIp2 ) ), 0.5 ) );
+    let sndTermE = vecBinOp( unitB.map(x => fIp * x), "-", unitE ).map( x => x * BoE * Math.pow( 2.0 / (R * ( R - fIs + 2.0 * BoE * fIp2 ) ), 0.5 ) );
+    unitEprop = vecBinOp(fstTermE, "+", sndTermE);
+    let fstTermB = unitB.map( x => x * BoE * Math.pow( 2.0 * (1.0 - fIp2) / (R * ( R + fIs - 2.0 * BoE * fIp2 ) ), 0.5 ) );
+    let sndTermB = vecBinOp( unitE.map(x => fIp * x), "-", unitB ).map( x => x * EoB * Math.pow( 2.0 / (R * ( R + fIs + 2.0 * EoB * fIp2 ) ), 0.5 ) );
+    unitBprop = vecBinOp(fstTermB, "+", sndTermB);
   }
-    
+  if (!isFinite(γprop) || isNaN(γprop) || γprop < 1.0) { γprop = Math.pow(1.0 - Math.pow(normβprop, 2), -0.5); }
+
   //boost initial position and velocity
   let lbx0 = LorentzTransf4vec(unitβprop, normβprop, γprop, [0.0, x0[0], x0[1], x0[2]]);
   let lbu0 = LorentzTransf4vec(unitβprop, normβprop, γprop, [γ0 * c, γ0 * normu0 * unitu0[0], γ0 * normu0 * unitu0[1], γ0 * normu0 * unitu0[2]]);
@@ -225,8 +226,8 @@ export function boostToProperFrame()
   console.log("\nProper boost parameters:");
   console.log("Invariants: Scalar: " + FN.expNot(Is) + "\t Pseudoscalar: " + FN.expNot(Ip));
   console.log("Type of field: " + typeOfField );
-  console.log("γ: " + FN.expNot(γprop));
   console.log("β: norm " + FN.expNot(normβprop) + ", direction " + FN.tripletString(unitβprop));
+  console.log("γ: " + FN.expNot(γprop));
   console.log("E: norm " + FN.expNot(normEprop) + " s⁻¹ m⁻¹ C, direction " + FN.tripletString(unitEprop));
   console.log("B: norm " + FN.expNot(normBprop) + " s⁻¹ m⁻¹ C, direction " + FN.tripletString(unitBprop));
   console.log("u0: norm " + FN.expNot(normu0prop) + " s⁻¹ m, direction " + FN.tripletString(unitu0prop));
@@ -373,7 +374,7 @@ function electricType()
 
   //constant quantities appearing on the time evolution function
   let uFdotU0 = dot(unitF, U0);
-  let perProjU0overF = vecBinOp(U0, "-", scalMultVec(uFdotU0, unitF));
+  let rejecOfU0overF = vecBinOp(U0, "-", scalMultVec(uFdotU0, unitF));
   let sqrt1PlusU0sqrd = Math.sqrt( 1.0 + Math.pow(γ0prop * normu0oc, 2) );
 
   //Time evolution function: returns position array
@@ -386,7 +387,7 @@ function electricType()
     let perpenF = c * Math.log( (normF * sqrt1PlusU0PlusFtsqrd + dot(F, U0PlusFt)) / (normF * (sqrt1PlusU0sqrd + uFdotU0) ) ) / normF;
 
     let parallTerm = scalMultVec(parallF, unitF);
-    let perpenTerm = scalMultVec(perpenF, perProjU0overF);
+    let perpenTerm = scalMultVec(perpenF, rejecOfU0overF);
 
     let dynamicTerm = vecBinOp(parallTerm, "+", perpenTerm);
 
@@ -533,8 +534,7 @@ function collinearType()
     let farg = snormE * τ * N / snormB;
     return Math.abs( (γ0prop / snormE) * ( v01 * (Math.cosh(farg) - 1.0) + Math.sinh(farg) ) ); //(γ0prop / snormE) * ( v01 * (Math.cosh(farg) - 1.0) + Math.sinh(farg) )
   }
-  charTime = charT(1);
-  maxTime = charT(charTimeFactor);
+  charTime = charT(1), maxTime = charT(charTimeFactor);
   setTimeStep();
 
   //constant terms involved in the time evolution routine

@@ -45,7 +45,7 @@
     <nav>
       <ul>
         <li class = "liSimul"> Simulation </li>
-        <li> <a class = "lipbts" href = "pbts/pbts.html"> Background physics </a> </li>
+        <li> <a class = "liBgp" href = "bgp/bgp.html"> Background physics </a> </li>
         <li> <a class = "liCode" href = "https://github.com/juanjoseleongil/SREM.git"> Code </a> </li>
       </ul>
       <span id = "langSpan"> </span>
@@ -249,21 +249,21 @@
 
       <div class = "container">
         <div id = "labSimDiv" class = "adaptDiv">
-        <h3> Laboratory frame </h3>
-        <div class = "container"> <button type = "button" id = "lfStartBtn" class = "startBtn"> Start </button> <button type = "button" id = "lfResetBtn" class = "resetBtn"> Reset </button> </div>
-        <div class = "container" id="tim"></div>
-        <div class = "container" style = "width: 46.875%; ">  <canvas id="c" style = "width: 46.875%; "></canvas> </div>
+          <h3> Laboratory frame </h3>
+          <div class = "container"> <button type = "button" id = "lfStartBtn" class = "startBtn"> Start </button> <button type = "button" id = "lfResetBtn" class = "resetBtn"> Reset </button> </div>
+          <div class = "container" > \(t =\ \) <span id="tim"></span> </div>
+          <div class = "container" style = "width: 46.875%; ">  <canvas id="c" style = "width: 46.875%; "></canvas> </div>
         </div>
         <div id = "specSimDiv" class = "adaptDiv" style = "width: auto; display: none;">
-        <h3> Special frame </h3>
-        <div class = "container"> <button type = "button" id = "sfStartBtn" class = "startBtn"> Start </button> <button type = "button" id = "sfResetBtn" class = "resetBtn"> Reset </button> </div>
+          <h3> Special frame </h3>
+          <div class = "container"> <button type = "button" id = "sfStartBtn" class = "startBtn"> Start </button> <button type = "button" id = "sfResetBtn" class = "resetBtn"> Reset </button> </div>
         </div>
         <div id = "cstmSimDiv" class = "adaptDiv" style = "width: auto; display: none;">
-        <h3> Custom frame </h3>
-        <div class = "container"> <button type = "button" id = "cfStartBtn" class = "startBtn"> Start </button> <button type = "button" id = "cfResetBtn" class = "resetBtn"> Reset </button> </div>
+          <h3> Custom frame </h3>
+          <div class = "container"> <button type = "button" id = "cfStartBtn" class = "startBtn"> Start </button> <button type = "button" id = "cfResetBtn" class = "resetBtn"> Reset </button> </div>
         </div>
-        <div id = "nonrSimDiv" class = "adaptDiv" style = "width: auto; display: none;">
-        <h3> Non-relativistic frame </h3>
+          <div id = "nonrSimDiv" class = "adaptDiv" style = "width: auto; display: none;">
+          <h3> Non-relativistic frame </h3>
         <div class = "container"> <button type = "button" id = "nrfStartBtn" class = "startBtn"> Start </button> <button type = "button" id = "nrfResetBtn" class = "resetBtn"> Reset </button> </div>
         </div>
       </div>

@@ -12,7 +12,7 @@ export const language =
   en:
   {
     liSimul: "Simulation",
-    lipbts: "Background physics",
+    liBgp: "Background physics",
     liCode: "Code",
     selLang: "Select language",
     decSep: ", ",
@@ -75,7 +75,7 @@ export const language =
   es:
   {
     liSimul: "Simulación",
-    lipbts: "Física de fondo",
+    liBgp: "Física de fondo",
     liCode: "Código",
     selLang: "Seleccione el idioma",
     decSep: ", ",
@@ -138,7 +138,7 @@ export const language =
   fr:
   {
     liSimul: "Simulation",
-    lipbts: "Background physics",
+    liBgp: "Background physics",
     liCode: "Code",
     selLang: "Choisir la langue",
     decSep: " ; ",
@@ -201,7 +201,7 @@ export const language =
   it:
   {
     liSimul: "Simulation",
-    lipbts: "Background physics",
+    liBgp: "Background physics",
     liCode: "Code",
     selLang: "Seleziona la lingua",
     decSep: ", ",
@@ -264,7 +264,7 @@ export const language =
   pt:
   {
     liSimul: "Simulation",
-    lipbts: "Background physics",
+    liBgp: "Background physics",
     liCode: "Code",
     selLang: "Selecione o idioma",
     decSep: ", ",
