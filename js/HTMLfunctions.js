@@ -70,6 +70,7 @@ function sIntToSS(sInt)
 
 export function expNot(x, base = 10, basestr = "10", aap = signiFigM1)
 {// Exponential notation: write x as " significand × baseᵉˣᵖᵒⁿᵉⁿᵗ "
+  if ( !isFinite(x) || isNaN(x) ) { return x; }
   let X = Number(x), out = "";
   if (X < 0.0) { out += "-"; X *= -1.0; }
   if (Math.abs(X) == 0.0) { return numToFmtStr(0); }
@@ -447,20 +448,22 @@ function scalePosition(path4vec, scaleDim)
 
   const lmax = Math.max(l1, l2, l3);
 
-  let outx1, outx2, outx3;
+  let outx1, outx2, outx3, scaledOrigin;
 
   if (!isNaN(lmax) && isFinite(lmax) && lmax > TOL)
   {
     outx1 = posx1.map(x => scaleDim * (x - minx1) / lmax);
     outx2 = posx2.map(y => scaleDim * (y - minx2) / lmax);
     outx3 = posx3.map(z => scaleDim * (z - minx3) / lmax);
+    scaledOrigin = [scaleDim * (0 - minx1) / lmax, scaleDim * (0 - minx2) / lmax, scaleDim * (0 - minx3) / lmax];
   }
   else
   {
     outx1 = posx1, outx2 = posx2, outx3 = posx3;
+    scaledOrigin = [0, 0, 0];
   }
 
-  return [posx0, outx1, outx2, outx3];
+  return [[posx0, outx1, outx2, outx3], scaledOrigin];
 }
 
 async function produceMotion()
@@ -473,11 +476,9 @@ async function produceMotion()
     return;
   } else
   {
-    //let containerDiv = document.getElementById("labSimDiv");
-    //let scaleDim = Math.min(containerDiv.innerWidth, containerDiv.innerHeight);
-    let sLabPath = scalePosition(labPath, 1);
-    SIM.simulanimate("c", "lfStartBtn", "lfResetBtn", COMP.numPts, sLabPath);
-    //return sLabPath;
+    let sLabPathAndOrigin = scalePosition(labPath, 1);
+    let sLabPath = sLabPathAndOrigin[0], sOrigin = sLabPathAndOrigin[1];
+    SIM.simulanimate("c", "lfStartBtn", "lfResetBtn", sLabPath, sOrigin);
   }
 }
 

@@ -1,231 +1,269 @@
-///THREE.JS ANIMATION
+import {TOL, ptsPerCharTime, qVec} from "./RMCUEMFparams.js";
+import {numPts, unitE, unitB, normEred, normBred} from "./RMCUEMFcompute.js";
 import {expNot} from "./HTMLfunctions.js";
+
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
-import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
-import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
-import { UnrealBloomPass } from "three/examples/jsm/postprocessing/UnrealBloomPass.js";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+//import Stats from "three/examples/jsm/libs/stats.module.js";
+//import GPUStatsPanel from "three/examples/jsm/utils/GPUStatsPanel.js";
+//import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 
-var camera, scene, renderer, geometry, material, mesh;
-// Boolean for start and restart
-var initAnim = true;
-var runAnim = false;
-var isPlay = false;
-var i = 0; //index counter
-var qPts = 1;
-var cnv, startButton, sbID, resetButton, rbID;
-let ta, xa, ya, za;
+//VARIABLES
+var cnv, cnvfactor = 15.0 / 16.0, startButton, sbID, resetButton, rbID;
+var camera, scene, renderer, radius, partGeom, partMate, partMesh, controls, xyzAxes;
+var cyliGeom, coneGeom, cyliMesh, coneMesh, arrow, fieldMate, efDummy = new THREE.Object3D(), bfDummy = new THREE.Object3D();
+var qVec3 = Math.pow(qVec, 3), vecSize, locVx, locVy, locVz, countItem;
+var animStarted, animRunning;
+var i = 0, step = 1, animPace = ptsPerCharTime / 4.0;
+var ta, xa, ya, za, orig;
+var sound, listener, audioLoader, soundStartedAt = 0, soundPausedAt = 0;
+var minWinDim = Math.min(window.innerWidth, window.innerHeight);
+const clock = new THREE.Clock(); var renderTime, renderDelta;
+//var panel, stats, gpuPanel;
 
-var controls;
-
-var xyzAxes;
-var sound, listener, audioLoader;
-
-var renderScene, bloomPass, bloomComposer;
-
-export function simulanimate(canv, startBtn, resetBtn, qP, txyzAr)
+export function simulanimate(canv, startBtnID, resetBtnID, txyzAr, sOrigin)
 {
-  cnv = canv, sbID = startBtn, rbID = resetBtn;
-  qPts = qP;
+  cnv = canv, sbID = startBtnID, rbID = resetBtnID;
   ta = txyzAr[0], xa = txyzAr[1], ya = txyzAr[2], za = txyzAr[3];
+  orig = sOrigin;
   init();
   render();
+  startButton.click(); resetButton.click();
 }
 
 function init()
 {
+  //SET UP START (PLAY, PAUSE, RESUME) AND RESET BUTTONS
   startButton = document.getElementById(sbID);
   resetButton = document.getElementById(rbID);
-  resetButton.hidden = false;
-  startButton.hidden = false;
+  startButton.onclick = playPauseResumeAnim;
+  resetButton.onclick = resetAnim;
 
- // Start Button
-  startButton.onclick = function StartAnimation()
-  {
-    if (initAnim)
-    {
-      initAnim = false;
-      runAnim = true;
-      i = 0;
-      sound.play();
-    }
-    // Start and Pause
-    if (runAnim)
-    {
-      startButton.innerHTML = 'Pause';
-      runAnim = false;
-      isPlay = true;
-      animate();
-      sound.play();
-    }
-    else if (!runAnim)
-    {
-      runAnim = true;
-      isPlay = false;
-      //sound.pause();
-    }
-    resetButton.hidden = true;
-  }
- // Reset Button
-   resetButton.onclick = function ResetParameters()
-   {
-     // Set StartButton to Start
-     startButton.innerHTML = 'Start';
-     startButton.hidden = false;
-     resetButton.hidden = true;
-     // Boolean for Stop Animation
-     initAnim = true;
-     runAnim = false;
-     i = 0;
-     isPlay = false;
-     cameraPos(camera); //initial camera position
-     render();
-   }
-
-  ////////
-
+  //SET UP ELEMENTS
   const canvas = document.getElementById(cnv);
-  const minDim = Math.min( window.innerWidth, window.innerHeight );
-  canvas.width = minDim, canvas.height = minDim;
-  renderer = new THREE.WebGLRenderer({canvas, preserveDrawingBuffer : false, antialias: true}); //
-  renderer.autoClearColor = false;
+  renderer = new THREE.WebGLRenderer({canvas});
+  renderer.setSize(cnvfactor * minWinDim, cnvfactor * minWinDim);
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.shadowMap.enabled = true;
+  document.body.appendChild(renderer.domElement);
 
-  //create a camera (define the frustum)
-  const fov = 75; // 75/360 = 5/24 of a revolution
-  const aspect = 1;
-  const near = 0.125;
-  const far = 4;
+  //CREATE A CAMERA
+  const fov = (5.0 / 24.0) * 360.0, aspect = 1.0, near = 1.0 / 8.0, far = 4.0;
   camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+  setInitCamPos(camera); //set camera's initial position
 
-  cameraPos(camera); //camera position
+  scene = new THREE.Scene(); //MAKE A SCENE
+  scene.background = new THREE.Color(window.getComputedStyle(document.body, null).getPropertyValue("background-color")); //SET BACKGROUND COLOR
 
-  //make a scene
-  scene = new THREE.Scene();
-
-  //set background color
-  scene.background = new THREE.Color(window.getComputedStyle(document.body, null).getPropertyValue("background-color"));
+  controls = new OrbitControls(camera, renderer.domElement); //ORBIT CONTROLS
+  controls.enableDamping = true;
+  controls.dampingFactor = 1.0 / 8.0;
   
-  //controls = new OrbitControls(camera, renderer.domElement);
+  //{//STATS
+    //stats = new Stats();
+    //document.body.appendChild(stats.dom);
+    //gpuPanel = new GPUStatsPanel( renderer.getContext() );
+    //stats.addPanel(gpuPanel);
+    //stats.showPanel(0); stats.showPanel(1); stats.showPanel(2); \\stats.showPanel(3);
+  //}
   
-  xyzAxes = new THREE.AxesHelper();
-  xyzAxes.position.x = xa[0], xyzAxes.position.y = ya[0], xyzAxes.position.z = za[0];
-  scene.add( xyzAxes );
+  {//XYZ AXES
+    xyzAxes = new THREE.AxesHelper();
+    xyzAxes.position.set(orig[0], orig[1], orig[2]);
+    scene.add(xyzAxes);
+  }
 
-  //ilumination
-  {
-    const ilumColour = 0xFFFFFF;
-    const intensity = 15 / 16;
-    const light1 = new THREE.DirectionalLight(ilumColour, intensity);
-    light1.position.set(0, 0, 0);
+  {//XY, YZ AND ZX PLANES
+    const longside = 2.0, shortside = 1.0 / 64.0;
+    const xygeo = new THREE.BoxGeometry(longside, longside, shortside);
+    const yzgeo = new THREE.BoxGeometry(shortside, longside, longside);
+    const zxgeo = new THREE.BoxGeometry(longside, shortside, longside);
+    const planesMat = new THREE.MeshPhongMaterial({ side: THREE.DoubleSide, });
+    planesMat.transparent = true, planesMat.opacity = 1.0 / 16.0;
+    const xyplane = new THREE.Mesh(xygeo, planesMat);
+    const yzplane = new THREE.Mesh(yzgeo, planesMat);
+    const zxplane = new THREE.Mesh(zxgeo, planesMat);
+    for (var ob of [xyplane, yzplane, zxplane])
+    { ob.position.set(orig[0], orig[1], orig[2]); }
+    scene.add(xyplane);
+    scene.add(yzplane);
+    scene.add(zxplane);
+  }
+
+  {//ILLUMINATION
+    const lightColour = 0xFFFFFF;
+    const intensity = 15.0 / 16.0;
+    const light1 = new THREE.DirectionalLight(lightColour, intensity);
+    light1.position.set(orig[0] - 1, orig[1] - 1, orig[2] - 1);
     scene.add(light1);
-    const light2 = new THREE.DirectionalLight(ilumColour, intensity);
-    light2.position.set(1, 1, 1);
+    const light2 = new THREE.DirectionalLight(lightColour, intensity);
+    light2.position.set(orig[0] + 1, orig[1] + 1, orig[2] + 1);
     scene.add(light2);
   }
 
+  //// SOUND SETUP ////
   // create an AudioListener and add it to the camera
   listener = new THREE.AudioListener();
-  camera.add( listener );
+  camera.add(listener);
 
   // create the PositionalAudio object (passing in the listener)
-  sound = new THREE.PositionalAudio( listener );
+  sound = new THREE.PositionalAudio(listener);
 
   // load a sound and set it as the PositionalAudio object's buffer
   audioLoader = new THREE.AudioLoader();
-  audioLoader.load( "sounds/destination.mp3", function( buffer )
+  audioLoader.load("sounds/destination.mp3", function(buffer)
   {
     sound.setBuffer( buffer );
     sound.setRefDistance( 20 );
     sound.hasPlaybackControl = true;
-    //sound.play();
   });
 
-  //create a sphere geometry
-  const radius = (1/2**16) * (window.innerWidth + window.innerHeight);
-  const res1 = 16;
-  const res2 = 16;
-  geometry = new THREE.SphereGeometry(radius, res1, res2);
+  //// PARTICLE SETUP ////
+  radius = (1.0 / 2.0**16) * (window.innerWidth + window.innerHeight);
+  const res1 = 16, res2 = 16;
+  partGeom = new THREE.SphereGeometry(radius, res1, res2); //create a sphere geometry
+  partMate = new THREE.MeshPhongMaterial({color : new THREE.Color(document.getElementById("prtclClr").value)}); //create a basic material and set its color
+  partMesh = new THREE.Mesh(partGeom, partMate); //create a mesh for the particle
+  scene.add(partMesh); //add the particle mesh to the scene
+  partMesh.add(sound); //add the sound to the particle mesh
+  setParticlePos(0); //particle's initial position
 
-  //create a basic material and set its color
-  material = new THREE.MeshPhongMaterial({color : 0x44aa88});
-
-  //create a mesh
-  mesh = new THREE.Mesh(geometry, material);
-
-  //add the mesh to the scene
-  scene.add(mesh);
+    //// VECTOR FIELDS ////
+  const maxF = Math.max(normEred, normBred);
+  const Er = normEred / maxF;
+  const Br = normBred / maxF;
+  vecSize = 1.0 / qVec;
   
-  // finally add the sound to the mesh
-  mesh.add(sound);
+  cyliGeom = new THREE.CylinderGeometry(vecSize / 32.0, vecSize / 32.0, 0.5 * vecSize);
+  coneGeom = new THREE.ConeGeometry(vecSize / 16.0, 0.5 * vecSize);
+  cyliGeom.translate(0, 0.25 * vecSize, 0);
+  coneGeom.translate(0, 0.75 * vecSize, 0);
+  fieldMate = new THREE.MeshPhongMaterial();
 
-  mesh.position.x = xa[0];
-  mesh.position.y = ya[0];
-  mesh.position.z = za[0];
+  if (!isNaN(Er) && isFinite(Er) && Er > TOL)
+  { createVecFieldMesh(efDummy, unitE, Er, new THREE.Color(document.getElementById("electricClr").value)); }
 
-  ////////
-  //bloom renderer
-renderScene = new RenderPass(scene, camera);
-bloomPass = new UnrealBloomPass(
-  new THREE.Vector2(window.innerWidth, window.innerHeight),
-  1.5,
-  0.4,
-  0.85
-);
-bloomPass.threshold = 0;
-bloomPass.strength = 2; //intensity of glow
-bloomPass.radius = 0;
-bloomComposer = new EffectComposer(renderer);
-bloomComposer.setSize(window.innerWidth, window.innerHeight);
-bloomComposer.renderToScreen = true;
-bloomComposer.addPass(renderScene);
-bloomComposer.addPass(bloomPass);
-  ////////
+  if (!isNaN(Br) && isFinite(Br) && Br > TOL)
+  { createVecFieldMesh(bfDummy, unitB, Br, new THREE.Color(document.getElementById("magneticClr").value)); }
   
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
+  //// PANEL ////
+  //panel = new GUI( { width: 0.25 * cnvfactor * minWinDim } );
+
 }
 
-function cameraPos(cam)
-{ //initial camera position
-  cam.position.x = 5/4;
-  cam.position.y = 5/4;
-  cam.position.z = 5/4;
-  cam.lookAt(0, 0, 0);
+function createVecFieldMesh(dummy, unit, relSize, col)
+{
+  cyliMesh = new THREE.InstancedMesh(cyliGeom, fieldMate, qVec3);
+  coneMesh = new THREE.InstancedMesh(coneGeom, fieldMate, qVec3);
+  arrow = new THREE.Group();
+  arrow.add(coneMesh); arrow.add(cyliMesh);
+  countItem = 0;
+  
+  dummy.scale.set(1, relSize, 1); //sets the scale for the length of the arrow
+
+  for (var ix = 0; ix < qVec; ix++)
+  {
+    for (var iy = 0; iy < qVec; iy++)
+    {
+      for (var iz = 0; iz < qVec; iz++)
+      {
+        locVx = xa[0] - 1 + 2 * ix / (qVec - 1);
+        locVy = ya[0] - 1 + 2 * iy / (qVec - 1);
+        locVz = za[0] - 1 + 2 * iz / (qVec - 1);
+
+        dummy.position.set(locVx, locVy, locVz);
+        dummy.lookAt(locVx + 2 * vecSize * unit[0], locVy + 2 * vecSize * unit[1], locVz + 2 * vecSize * unit[2]);
+        dummy.updateMatrix();
+
+        for (var obj of [cyliMesh, coneMesh])
+        {
+          obj.setMatrixAt(countItem, dummy.matrix);
+          obj.setColorAt(countItem, col);
+        }
+        countItem += 1;
+      }
+    }
+  }
+
+  scene.add(arrow);
+
+  for (var obj of [coneMesh, cyliMesh])
+  {
+    obj.instanceMatrix.needsUpdate = true;
+    obj.instanceColor.needsUpdate = true;
+    scene.add(obj);
+  }
+}
+
+function playPauseResumeAnim()
+{
+  if (!animStarted)
+  {
+    animStarted = true; soundPausedAt = 0.001 * Date.now();
+  }
+
+  if (!animRunning)
+  {
+    animRunning = true; animate();
+    soundStartedAt = 0.001 * Date.now();
+    startButton.innerHTML = "Pause";
+    //if (!sound.isPlaying) { sound.play(soundStartedAt - soundPausedAt); }
+  }
+  else if (animRunning)
+  {
+    animRunning = false;
+    startButton.innerHTML = "Resume";
+    //soundPausedAt = 0.001 * Date.now(); if (sound.isPlaying) { sound.pause(); }
+  }
+}
+
+function resetAnim()
+{
+  animStarted = false, animRunning = false;
+  startButton.innerHTML = "Start"; startButton.disabled = false;
+  if (sound.isPlaying) { sound.stop(); } //soundStartedAt = 0.001 * Date.now(); soundPausedAt = 0.001 * Date.now(), 
+  i = 0, renderTime = 0, setInitCamPos(camera);
+  setParticlePos(0);
 }
 
 function animate()
 {
-  //console.log(runAnim);
-  if (!isPlay || i >= qPts - 1)
+  renderDelta = clock.getDelta();
+  if (!animRunning || i >= numPts - 1 || renderTime >= numPts - 1)
   {
-    if (!isPlay) {startButton.innerHTML = 'Resume';}
-    if (i >= qPts - 1)
-    {
-      startButton.hidden = true;
-      resetButton.hidden = false;
-    }
-    sound.stop();
-    return;
+    //if (animStarted && i < numPts - 1) { soundPausedAt = 0.001 * Date.now(); sound.pause(); }
+    //else
+    //{
+    //  if (sound.isPlaying) { sound.stop(); }
+    //  startButton.disabled = true;
+    //}
+    step = 0; 
   }
+  else { step = 1; }
+  renderTime += animPace * step * renderDelta;
+  i = parseInt(Math.round(renderTime)); //i += step;
   requestAnimationFrame(animate);
-  i += 1;
   render();
-  bloomComposer.render();
+  controls.update();
+  //stats.update();
 }
 
+function setParticlePos(index)
+{
+  partMesh.position.set(xa[index], ya[index], za[index]);
+  var timeText;
+  if (i === 0) {timeText = "0 s";} else {timeText = expNot(ta[index]) + " s";}
+  document.getElementById("tim").innerHTML = timeText;
+}
 
 function render()
 {
   if (resizeRendererToDisplaySize(renderer))
   {
-    const canvas = renderer.domElement;
-    camera.aspect = canvas.clientWidth / canvas.clientHeight;
+    camera.aspect = 1.0;
     camera.updateProjectionMatrix();
   }
-  mesh.position.x = xa[i];
-  mesh.position.y = ya[i];
-  mesh.position.z = za[i];
-  document.getElementById("tim").innerHTML = expNot(ta[i]) + " s";
+  setParticlePos(i);
   renderer.render(scene, camera);
 }
 
@@ -233,13 +271,17 @@ function render()
 function resizeRendererToDisplaySize(renderer) //solve pixelation
 {
   const canvas = renderer.domElement;
-  const width = canvas.clientWidth;
-  const height = canvas.clientHeight;
-  const needResize = canvas.width != width || canvas.height != height;
+  const minDim = Math.min(canvas.clientWidth, canvas.clientHeight);
+  const needResize = Math.min(canvas.width, canvas.height) != minDim;
   if (needResize)
   {
-    renderer.setSize(width, height, false);
-    bloomComposer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setSize(cnvfactor * minDim, cnvfactor * minDim, false);
   }
   return needResize;
+}
+
+function setInitCamPos(cam)
+{ //initial camera position
+  cam.position.set(xa[0] + 5.0 / 4.0, ya[0] + 5.0 / 4.0, za[0] + 5.0 / 4.0);
+  cam.lookAt(xa[0], ya[0], za[0]);
 }

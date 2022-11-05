@@ -171,30 +171,27 @@ export function boostToProperFrame()
       typeOfField = "electricType";
       if (Bn > TOL)
       {
-        console.log("electric type with non vanishing magnetic field");
         normβprop = BoE * Math.sqrt( 1.0 - Math.pow(dotProdU, 2) );
         γprop = En / Math.sqrt( -Is );
         normEprop = Math.sqrt( -Is ), normBprop = 0.0;
       }
-      else { console.log("electric type with vanishing magnetic field"); } //the lab field is already electric-like, no Lorentz Boost needed
+      else {} //the lab field is already electric-like, no Lorentz Boost needed
     }
     else if (Bn > En) //magnetic-like case
     {
       typeOfField = "magneticType";
       if (En > TOL)
       {
-        console.log("magnetic type with non vanishing electric field");
         normβprop = EoB * Math.sqrt( 1.0 - Math.pow(dotProdU, 2) );
         γprop = Bn / Math.sqrt( Is );
         normEprop = 0.0, normBprop = Math.sqrt( Is );
       }
-      else { console.log("magnetic type with vanishing electric field"); } //the lab field is already magnetic-like, no Lorentz Boost needed
+      else {} //the lab field is already magnetic-like, no Lorentz Boost needed
     }
-    else {typeOfField = "nullType"; console.log("null type"); } //else if ( fabs(En - Bn) <= TOL ) //null-like case
+    else {typeOfField = "nullType";} //else if ( fabs(En - Bn) <= TOL ) //null-like case
   }
   else if ( Math.abs(dotProdU) > TOL && En > TOL && Bn > TOL ) //pseudoscalar invariant different from zero
   {
-    console.log("collinear type");
     typeOfField = "collinearType";
     let fIs = -EoB + BoE, fIp = dotProdU //fractional scalar and pseudoscalar
     let fIs2 = Math.pow(fIs, 2), fIp2 = Math.pow(fIp, 2);
@@ -202,6 +199,7 @@ export function boostToProperFrame()
     console.log("fIs: " + FN.expNot(fIs));
     console.log("fIp: " + FN.expNot(fIp));
     console.log("R: " + FN.expNot(R));
+
     normβprop = (EoB + BoE - R) * Math.pow( 2 * Math.pow(1.0 - fIp2, 0.5), -1.0);
     γprop = Math.pow( 2.0 * (1.0 - fIp2) * Math.pow( R * (EoB + BoE - R), -1.0 ), 0.5);
     normEprop = Math.pow( 0.5 * En * Bn * ( R - fIs ), 0.5 ), normBprop = Math.pow( 0.5 * En * Bn * ( R + fIs ), 0.5 );
@@ -211,7 +209,29 @@ export function boostToProperFrame()
     let fstTermB = unitB.map( x => x * BoE * Math.pow( 2.0 * (1.0 - fIp2) / (R * ( R + fIs - 2.0 * BoE * fIp2 ) ), 0.5 ) );
     let sndTermB = vecBinOp( unitE.map(x => fIp * x), "-", unitB ).map( x => x * EoB * Math.pow( 2.0 / (R * ( R + fIs + 2.0 * EoB * fIp2 ) ), 0.5 ) );
     unitBprop = vecBinOp(fstTermB, "+", sndTermB);
+
+    //let RR = Math.pow(Is2 + 4.0 * Ip2, 0.5);
+    //console.log("RR: " + RR);
+    //normβprop = ( Esq + Bsq - Math.pow(Is2 + 4.0 * Ip2, 0.5) ) / ( 2.0 * Math.pow(Esq * Bsq - Ip2, 0.5) );
+    //γprop = Math.pow( 2.0 * (Esq * Bsq - Ip2) / ( RR * (Esq + Bsq - RR) ), 0.5);
+    //normEprop = Math.pow(0.5 * (RR - Is), 0.5), normBprop = Math.pow(0.5 * (RR + Is), 0.5);
+    //let fstTermE = unitE.map( x => x * En * Math.pow( (Esq * Bsq - Ip2) / ( Bsq * (RR - Is) - 2.0 * Ip2 ), 0.5 ) );
+    //let sndTermE = vecBinOp( unitB.map(x => Ip * Bn * x), "-", unitE.map( x => x * Bsq * En ) ).map( x => x / Math.pow( ( Esq * (RR - Is) + 2.0 * Ip2 ), 0.5 ) );
+    //unitEprop = vecBinOp(fstTermE, "+", sndTermE);
+    //let fstTermB = unitB.map( x => x * Bn * Math.pow( (Esq * Bsq - Ip2) / ( Esq * (RR + Is) - 2.0 * Ip2 ), 0.5 ) );
+    //let sndTermB = vecBinOp( unitE.map(x => Ip * En * x), "-", unitB.map( x => x * Esq * Bn ) ).map( x => x / Math.pow( ( Bsq * (RR + Is) + 2.0 * Ip2 ), 0.5 ) );
+    //unitBprop = vecBinOp(fstTermB, "+", sndTermB);
   }
+  
+  //check if unit vectors are numerically valid
+  let tempMagnUE = Math.hypot(unitEprop[0], unitEprop[1], unitEprop[2]), tempMagnUB = Math.hypot(unitBprop[0], unitBprop[1], unitBprop[2]);
+  console.log("tempMagnUE: " + FN.expNot(tempMagnUE));
+  console.log("tempMagnUB: " + FN.expNot(tempMagnUB));
+  if ( Math.abs(tempMagnUE - 1) > TOL ) { unitEprop = unitEprop.map(x => x / tempMagnUE); }
+  if ( Math.abs(tempMagnUB - 1) > TOL ) { unitBprop = unitBprop.map(x => x / tempMagnUB); }
+  if (!isFinite(tempMagnUE) || isNaN(tempMagnUE) || tempMagnUE < TOL) { unitEprop = unitBprop.map(x => x * Math.sign(dotProdU)); }
+  if (!isFinite(tempMagnUB) || isNaN(tempMagnUB) || tempMagnUB < TOL) { unitBprop = unitEprop.map(x => x * Math.sign(dotProdU)); }
+
   if (!isFinite(γprop) || isNaN(γprop) || γprop < 1.0) { γprop = Math.pow(1.0 - Math.pow(normβprop, 2), -0.5); }
 
   //boost initial position and velocity
@@ -224,7 +244,7 @@ export function boostToProperFrame()
   unitu0prop = u0prop.map(x => x / normu0prop), normu0ocprop = normu0prop / c;
 
   console.log("\nProper boost parameters:");
-  console.log("Invariants: Scalar: " + FN.expNot(Is) + "\t Pseudoscalar: " + FN.expNot(Ip));
+  console.log("Invariants: Scalar: " + FN.expNot(Is) + ", Pseudoscalar: " + FN.expNot(Ip));
   console.log("Type of field: " + typeOfField );
   console.log("β: norm " + FN.expNot(normβprop) + ", direction " + FN.tripletString(unitβprop));
   console.log("γ: " + FN.expNot(γprop));

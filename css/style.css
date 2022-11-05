@@ -47,6 +47,8 @@ h2 { font-size: calc(1.75*var(--cFontSize)); }
 h3 { font-size: calc(1.50*var(--cFontSize)); }
 h4 { font-size: calc(1.25*var(--cFontSize)); }
 
+figcaption { font-size: calc(0.5*var(--cFontSize)); }
+
 .MagnTitle, .nullType, .electricType, .magneticType, .collinearType { margin-top: 0; }
 .MagnTitle, .UnitDirTitle { margin-bottom: 0; }
 

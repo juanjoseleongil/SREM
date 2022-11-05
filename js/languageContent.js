@@ -69,7 +69,7 @@ export const language =
     cstmBoostTitle: "Custom boost",
     cstmBoostFrac: "Input the fraction of the boost speed with respect to the speed of light in vacuum ",
     animBtn: "Show animation",
-    gfiAlert: "Success! Scroll down to see the animation",
+    gfiAlert: "Scroll down to see the animation",
     bfiAlert: "Check every input and try again"
   },
   es:
@@ -132,7 +132,7 @@ export const language =
     cstmBoostTitle: "<em>Boost</em> personalizado",
     cstmBoostFrac: "Ingrese la fracción de la rapidez inicial respecto a la rapidez de la luz en el vacío ",
     animBtn: "Mostrar animación",
-    gfiAlert: "¡Éxito! Desplácese hacia abajo para ver la animación",
+    gfiAlert: "Desplácese hacia abajo para ver la animación",
     bfiAlert: "Check every input and try again"
   },
   fr:
@@ -195,7 +195,7 @@ export const language =
     cstmBoostTitle: "<em>Boost</em> personnalisé",
     cstmBoostFrac: "Entrer la fraction de la vitesse du <em>Boost</em> par rapport à la vitesse de la lumière dans le vide ",
     animBtn: "Show animation",
-    gfiAlert: "Succès! Faites défiler vers le bas pour vérifier vos valeurs d'entrée",
+    gfiAlert: "Faites défiler vers le bas pour voir l'animation",
     bfiAlert: "Vérifiez chaque entrée et réessayez"
   },
   it:
@@ -258,7 +258,7 @@ export const language =
     cstmBoostTitle: "Custom boost",
     cstmBoostFrac: "Input the fraction of the boost speed with respect to the speed of light in vacuum ",
     animBtn: "Show animation",
-    gfiAlert: "Success! Scroll down to see the animation",
+    gfiAlert: "Scroll down to see the animation",
     bfiAlert: "Check every input and try again"
   },
   pt:
@@ -321,7 +321,7 @@ export const language =
     cstmBoostTitle: "Custom boost",
     cstmBoostFrac: "Input the fraction of the boost speed with respect to the speed of light in vacuum ",
     animBtn: "Show animation",
-    gfiAlert: "Success! Scroll down to see the animation",
+    gfiAlert: "Scroll down to see the animation",
     bfiAlert: "Check every input and try again"
   },
 };

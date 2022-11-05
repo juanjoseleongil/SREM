@@ -21,7 +21,9 @@ export const signiFigM1 = 3 - 1; //significant figures (minus one)
 
 export const revFracStep = 1.0 / (2.0**16); //stepsize, fractions of revolution for sketch sliders
 
-export const ptsPerCharTime = 128; //time discretization per pseudocycle, for three.js animations
+export const ptsPerCharTime = 256; //time discretization per pseudocycle, for three.js animation
+
+export const qVec = 5; //quantity of vector field arrows per linear dimension, for three.js animation
 
 export const prefixes =
 {
