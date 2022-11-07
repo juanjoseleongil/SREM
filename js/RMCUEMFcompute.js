@@ -18,19 +18,19 @@ export function setTimeStep() { timeStep = maxTime / numPts; }
 
 export function setInputs(inptUnitE, inptUnitB, inptNormE, inptNormB, inptx0, inptUnitu0, inptNormu0oc, inptm, inptq)
 {
-  unitE = inptUnitE, unitB = inptUnitB, normE = inptNormE, normB = inptNormB;
-  x0 = inptx0, unitu0 = inptUnitu0, normu0oc = inptNormu0oc;
+  unitE = [...inptUnitE], unitB = [...inptUnitB], normE = inptNormE, normB = inptNormB;
+  x0 = inptx0, unitu0 = [...inptUnitu0], normu0oc = inptNormu0oc;
   γ0 = Math.pow((1.0 - Math.pow(normu0oc, 2)), -0.5); //gamma factor related to the initial velocity
   normu0 = c * normu0oc;
   m = inptm, q = inptq;
   reduceChargeAndFields();
 
-  console.log("particle mass: " + FN.expNot(m) + " kg, \ncharge: " + FN.expNot(q) + " C");
-  console.log("Initial position: " + FN.tripletString(x0) + " m");
-  console.log("Initial velocity: " + FN.expNot(normu0) + " s⁻¹ m, \nβ = " + FN.expNot(normu0oc) + ", \nunit direction " + FN.tripletString(unitu0));
-  console.log("Relativistic γ factor: " + FN.expNot(γ0));
-  console.log("Electric field: " + FN.expNot(normE) + " m⁻¹ V, \nunit direction " + FN.tripletString(unitE));
-  console.log("Magnetic field: " + FN.expNot(normB) + " T, \nunit direction " + FN.tripletString(unitB));
+  //console.log("particle mass: " + FN.expNot(m) + " kg, \ncharge: " + FN.expNot(q) + " C");
+  //console.log("Initial position: " + FN.tripletString(x0) + " m");
+  //console.log("Initial velocity: " + FN.expNot(normu0) + " s⁻¹ m, \nβ = " + FN.expNot(normu0oc) + ", \nunit direction " + FN.tripletString(unitu0));
+  //console.log("Relativistic γ factor: " + FN.expNot(γ0));
+  //console.log("Electric field: " + FN.expNot(normE) + " m⁻¹ V, \nunit direction " + FN.tripletString(unitE));
+  //console.log("Magnetic field: " + FN.expNot(normB) + " T, \nunit direction " + FN.tripletString(unitB));
 }
 
 export function setTimeAndPts(inptCharTimeFactor)
@@ -154,10 +154,10 @@ export function boostToProperFrame()
   let Is = -Esq + Bsq, Ip = En * Bn * dotProdU;
   let Is2 = Math.pow(Is, 2), Ip2 = Math.pow(Ip, 2);
   let EoB = 1.0, BoE = 1.0;
-  console.log("En: " + FN.expNot(En));
-  console.log("Bn: " + FN.expNot(Bn));
-  if (!isNaN(Bn) && isFinite(Bn) && Bn > TOL) {EoB = En / Bn; console.log("EoB = " + FN.expNot(EoB));}
-  if (!isNaN(En) && isFinite(En) && En > TOL) {BoE = Bn / En; console.log("BoE = " + FN.expNot(BoE));}
+  //console.log("En: " + FN.expNot(En));
+  //console.log("Bn: " + FN.expNot(Bn));
+  if (!isNaN(Bn) && isFinite(Bn) && Bn > TOL) {EoB = En / Bn;} //console.log("EoB = " + FN.expNot(EoB));}
+  if (!isNaN(En) && isFinite(En) && En > TOL) {BoE = Bn / En;} //console.log("BoE = " + FN.expNot(BoE));}
 
   //initialization of unit vectors and norms on the proper frame
   unitEprop = [...unitE], normEprop = 1.0 * normEred; //electric field
@@ -195,23 +195,34 @@ export function boostToProperFrame()
     typeOfField = "collinearType";
     let fIs = -EoB + BoE, fIp = dotProdU //fractional scalar and pseudoscalar
     let fIs2 = Math.pow(fIs, 2), fIp2 = Math.pow(fIp, 2);
-    let R = Math.pow( fIs2 + 4.0 * fIp2, 0.5 );
-    console.log("fIs: " + FN.expNot(fIs));
-    console.log("fIp: " + FN.expNot(fIp));
-    console.log("R: " + FN.expNot(R));
+    let r = Math.pow( fIs2 + 4.0 * fIp2, 0.5 );
+    //let R = Math.pow( fIs2 + 4.0 * fIp2, 0.5 );
+    //console.log("fIs: " + FN.expNot(fIs));
+    //console.log("fIp: " + FN.expNot(fIp));
+    //console.log("R: " + FN.expNot(R));
 
-    normβprop = (EoB + BoE - R) * Math.pow( 2 * Math.pow(1.0 - fIp2, 0.5), -1.0);
-    γprop = Math.pow( 2.0 * (1.0 - fIp2) * Math.pow( R * (EoB + BoE - R), -1.0 ), 0.5);
-    normEprop = Math.pow( 0.5 * En * Bn * ( R - fIs ), 0.5 ), normBprop = Math.pow( 0.5 * En * Bn * ( R + fIs ), 0.5 );
-    let fstTermE = unitE.map( x => x * EoB * Math.pow( 2.0 * (1.0 - fIp2) / (R * ( R - fIs - 2.0 * EoB * fIp2 ) ), 0.5 ) );
-    let sndTermE = vecBinOp( unitB.map(x => fIp * x), "-", unitE ).map( x => x * BoE * Math.pow( 2.0 / (R * ( R - fIs + 2.0 * BoE * fIp2 ) ), 0.5 ) );
+    //normβprop = (EoB + BoE - R) * Math.pow( 2 * Math.pow(1.0 - fIp2, 0.5), -1.0);
+    //γprop = Math.pow( 2.0 * (1.0 - fIp2) * Math.pow( R * (EoB + BoE - R), -1.0 ), 0.5);
+    //normEprop = Math.pow( 0.5 * En * Bn * ( R - fIs ), 0.5 ), normBprop = Math.pow( 0.5 * En * Bn * ( R + fIs ), 0.5 );
+    //let fstTermE = unitE.map( x => x * EoB * Math.pow( 2.0 * (1.0 - fIp2) / (R * ( R - fIs - 2.0 * EoB * fIp2 ) ), 0.5 ) );
+    //let sndTermE = vecBinOp( unitB.map(x => fIp * x), "-", unitE ).map( x => x * BoE * Math.pow( 2.0 / (R * ( R - fIs + 2.0 * BoE * fIp2 ) ), 0.5 ) );
+    //unitEprop = vecBinOp(fstTermE, "+", sndTermE);
+    //let fstTermB = unitB.map( x => x * BoE * Math.pow( 2.0 * (1.0 - fIp2) / (R * ( R + fIs - 2.0 * BoE * fIp2 ) ), 0.5 ) );
+    //let sndTermB = vecBinOp( unitE.map(x => fIp * x), "-", unitB ).map( x => x * EoB * Math.pow( 2.0 / (R * ( R + fIs + 2.0 * EoB * fIp2 ) ), 0.5 ) );
+    //unitBprop = vecBinOp(fstTermB, "+", sndTermB);
+
+    normβprop = (EoB + BoE - r) / ( 2 * Math.pow(1.0 - fIp2, 0.5) );
+    γprop = Math.pow( 2.0 * (1.0 - fIp2) / ( r * (EoB + BoE - r) ), 0.5);
+    normEprop = Math.pow( 0.5 * En * Bn * ( r - fIs ), 0.5 ), normBprop = Math.pow( 0.5 * En * Bn * ( r + fIs ), 0.5 );
+    let fstTermE = unitE.map( x => x * EoB * Math.pow( (1.0 - fIp2) / ( r - fIs - 2.0 * EoB * fIp2 ), 0.5 ) );
+    let sndTermE = vecBinOp( unitB.map(x => fIp * x), "-", unitE ).map( x => x * BoE * Math.pow( 1.0 / ( r - fIs + 2.0 * BoE * fIp2 ), 0.5 ) );
     unitEprop = vecBinOp(fstTermE, "+", sndTermE);
-    let fstTermB = unitB.map( x => x * BoE * Math.pow( 2.0 * (1.0 - fIp2) / (R * ( R + fIs - 2.0 * BoE * fIp2 ) ), 0.5 ) );
-    let sndTermB = vecBinOp( unitE.map(x => fIp * x), "-", unitB ).map( x => x * EoB * Math.pow( 2.0 / (R * ( R + fIs + 2.0 * EoB * fIp2 ) ), 0.5 ) );
+    let fstTermB = unitB.map( x => x * BoE * Math.pow( (1.0 - fIp2) / ( r + fIs - 2.0 * BoE * fIp2 ), 0.5 ) );
+    let sndTermB = vecBinOp( unitE.map(x => fIp * x), "-", unitB ).map( x => x * EoB * Math.pow( 1.0 / ( r + fIs + 2.0 * EoB * fIp2 ), 0.5 ) );
     unitBprop = vecBinOp(fstTermB, "+", sndTermB);
 
     //let RR = Math.pow(Is2 + 4.0 * Ip2, 0.5);
-    //console.log("RR: " + RR);
+    ////console.log("RR: " + RR);
     //normβprop = ( Esq + Bsq - Math.pow(Is2 + 4.0 * Ip2, 0.5) ) / ( 2.0 * Math.pow(Esq * Bsq - Ip2, 0.5) );
     //γprop = Math.pow( 2.0 * (Esq * Bsq - Ip2) / ( RR * (Esq + Bsq - RR) ), 0.5);
     //normEprop = Math.pow(0.5 * (RR - Is), 0.5), normBprop = Math.pow(0.5 * (RR + Is), 0.5);
@@ -225,8 +236,8 @@ export function boostToProperFrame()
   
   //check if unit vectors are numerically valid
   let tempMagnUE = Math.hypot(unitEprop[0], unitEprop[1], unitEprop[2]), tempMagnUB = Math.hypot(unitBprop[0], unitBprop[1], unitBprop[2]);
-  console.log("tempMagnUE: " + FN.expNot(tempMagnUE));
-  console.log("tempMagnUB: " + FN.expNot(tempMagnUB));
+  //console.log("tempMagnUE: " + FN.expNot(tempMagnUE));
+  //console.log("tempMagnUB: " + FN.expNot(tempMagnUB));
   if ( Math.abs(tempMagnUE - 1) > TOL ) { unitEprop = unitEprop.map(x => x / tempMagnUE); }
   if ( Math.abs(tempMagnUB - 1) > TOL ) { unitBprop = unitBprop.map(x => x / tempMagnUB); }
   if (!isFinite(tempMagnUE) || isNaN(tempMagnUE) || tempMagnUE < TOL) { unitEprop = unitBprop.map(x => x * Math.sign(dotProdU)); }
@@ -243,14 +254,14 @@ export function boostToProperFrame()
   normu0prop = Math.hypot(u0prop[0], u0prop[1], u0prop[2]);
   unitu0prop = u0prop.map(x => x / normu0prop), normu0ocprop = normu0prop / c;
 
-  console.log("\nProper boost parameters:");
-  console.log("Invariants: Scalar: " + FN.expNot(Is) + ", Pseudoscalar: " + FN.expNot(Ip));
-  console.log("Type of field: " + typeOfField );
-  console.log("β: norm " + FN.expNot(normβprop) + ", direction " + FN.tripletString(unitβprop));
-  console.log("γ: " + FN.expNot(γprop));
-  console.log("E: norm " + FN.expNot(normEprop) + " s⁻¹ m⁻¹ C, direction " + FN.tripletString(unitEprop));
-  console.log("B: norm " + FN.expNot(normBprop) + " s⁻¹ m⁻¹ C, direction " + FN.tripletString(unitBprop));
-  console.log("u0: norm " + FN.expNot(normu0prop) + " s⁻¹ m, direction " + FN.tripletString(unitu0prop));
+  //console.log("\nProper boost parameters:");
+  //console.log("Invariants: Scalar: " + FN.expNot(Is) + ", Pseudoscalar: " + FN.expNot(Ip));
+  //console.log("Type of field: " + typeOfField );
+  //console.log("β: norm " + FN.expNot(normβprop) + ", direction " + FN.tripletString(unitβprop));
+  //console.log("γ: " + FN.expNot(γprop));
+  //console.log("E: norm " + FN.expNot(normEprop) + " s⁻¹ m⁻¹ C, direction " + FN.tripletString(unitEprop));
+  //console.log("B: norm " + FN.expNot(normBprop) + " s⁻¹ m⁻¹ C, direction " + FN.tripletString(unitBprop));
+  //console.log("u0: norm " + FN.expNot(normu0prop) + " s⁻¹ m, direction " + FN.tripletString(unitu0prop));
 }
 
 function nullType()
@@ -261,7 +272,7 @@ function nullType()
   //Rotation to align the cross product unitE × unitB with the x_3 axis
   let crossProd = cross(unitEres, unitBres);
   let ncp = Math.hypot(crossProd[0], crossProd[1], crossProd[2]);
-  console.log("cross product: " + FN.tripletString(crossProd));
+  //console.log("cross product: " + FN.tripletString(crossProd));
 
   //components of the unit direction vector
   let d1 = crossProd[0] / ncp, d2 = crossProd[1] / ncp, d3 = crossProd[2] / ncp;
@@ -284,11 +295,11 @@ function nullType()
 
 
   //execute the first rotation
-  let rot3E = matrixDotVector(rot3, unitE);
-  let rot3B = matrixDotVector(rot3, unitB);
+  let rot3E = matrixDotVector(rot3, unitEres);
+  let rot3B = matrixDotVector(rot3, unitBres);
   let rot3unitv0 = matrixDotVector(rot3, unitv0);
-  console.log("rot3E: " + FN.expNot(rot3E));
-  console.log("rot3B: " + FN.expNot(rot3B));
+  //console.log("rot3E: " + FN.expNot(rot3E));
+  //console.log("rot3B: " + FN.expNot(rot3B));
 
 
   //Rotation to align the unit vector rot3E with the x_1 axis
@@ -514,8 +525,8 @@ function collinearType()
   //electric and magnetic field vector norms and unit directions
   let snormE = 1.0 * normEres, snormB = normBres * Math.sign( dot(unitEres, unitBres) ); //new B norm: older norm times sign of dot product
 
-  console.log("snormE: " + FN.expNot(snormE));
-  console.log("snormB: " + FN.expNot(snormB));
+  //console.log("snormE: " + FN.expNot(snormE));
+  //console.log("snormB: " + FN.expNot(snormB));
 
   //rescaled initial velocity
   let normv0 = 1.0 * normu0ocprop, unitv0 = [...unitu0prop];
@@ -610,7 +621,7 @@ function properFrameComputation(x)
 // SYSTEM EVOLUTION
 export function generatePosition()
 {
-  boostToProperFrame(); //SET FIELDS ACCORDING TO SYSTEM INVARIANTS
+  //boostToProperFrame(); //SET FIELDS ACCORDING TO SYSTEM INVARIANTS. ALREADY DONE IN "async function checkTypeOfField()", FILE "HTMLfunctions.js", LINE 330
   rescaleFields(); //RESCALE FIELDS DEPENDING ON "typeOfField" VARIABLE VALUE
 
   let properFrame4pos;
@@ -620,8 +631,8 @@ export function generatePosition()
   else if (typeOfField === "magneticType") {properFrame4pos = magneticType();}
   else if (typeOfField === "collinearType") {properFrame4pos = collinearType();}
 
-  console.log("The characteristic time for the system is " + FN.expNot(charTime) + "s");
-  console.log("Time step: " + FN.expNot(timeStep) + "s");
+  //console.log("The characteristic time for the system is " + FN.expNot(charTime) + "s");
+  //console.log("Time step: " + FN.expNot(timeStep) + "s");
 
   //LAB FRAME POSITION 4-VECTOR COMPONENTS
   let labTime = Array.from( {length : numPts}, (v, i) => 0 );
@@ -632,7 +643,7 @@ export function generatePosition()
 
   if (isFinite(normβprop) && !isNaN(normβprop) && normβprop > TOL)
   {
-    console.log("A Lorentz Boost with |β| = " + FN.expNot(normβprop) + " and unit direction " + FN.tripletString(unitβprop.map(x => -x)) + " is going to be performed");
+    //console.log("A Lorentz Boost with |β| = " + FN.expNot(normβprop) + " and unit direction " + FN.tripletString(unitβprop.map(x => -x)) + " is going to be performed");
     for (var i = 0; i < numPts; i++)
     {
       let propT = properFrame4pos[0][i], propX = properFrame4pos[1][i], propY = properFrame4pos[2][i], propZ = properFrame4pos[3][i];
@@ -645,7 +656,7 @@ export function generatePosition()
   }
   else
   {
-    console.log("The lab frame is already a proper frame or the boost parameters are problematic, so no Lorentz boost is performed");
+    //console.log("The lab frame is already a proper frame or the boost parameters are problematic, so no Lorentz boost is performed");
     labTime = properFrame4pos[0];
     labPosx = properFrame4pos[1];
     labPosy = properFrame4pos[2];

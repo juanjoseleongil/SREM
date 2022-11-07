@@ -468,17 +468,32 @@ function scalePosition(path4vec, scaleDim)
 
 async function produceMotion()
 {
+  let anDiv = document.getElementById("animationDiv");
+  while (anDiv.firstChild) { anDiv.removeChild(anDiv.lastChild); }
+  anDiv.innerHTML = '<h2 class = "simulationTitle"> Simulation </h2>';
+  
   let labPath = COMP.generatePosition();
 
   if ( !labPath[0].every(isFinite) || !labPath[1].every(isFinite) || !labPath[2].every(isFinite) || !labPath[3].every(isFinite) )
   {
-    alert("Some values of the numerical computation evaluate to either 'NaN' (not a number), or ±∞. This could be due to some floating point operations exceding the machine tolerance, Number.EPSILON = " + Number.EPSILON);
+    alert("Some values of the numerical computation evaluate to either 'NaN' (not a number), or ±∞. This could be due to some floating point operations exceding the machine tolerance, Number.EPSILON = " + Number.EPSILON + ". You can try again with |E| ~ 10² V/m, |B| ~ 10⁻⁶ T, and one of the preset particles.");
     return;
   } else
   {
     let sLabPathAndOrigin = scalePosition(labPath, 1);
     let sLabPath = sLabPathAndOrigin[0], sOrigin = sLabPathAndOrigin[1];
-    SIM.simulanimate("c", "lfStartBtn", "lfResetBtn", sLabPath, sOrigin);
+
+    let lsd = document.createElement("div");
+    lsd.id = "labSimDiv", lsd.style.cssText = "position: relative;";
+    lsd.style.width = "100%";
+    let tsc = document.createElement("canvas");
+    tsc.id = "c"; tsc.style.cssText = "position: absolute; margin: auto;";
+    tsc.style.width = "100%";
+    document.getElementById("animationDiv").appendChild(lsd);
+    let waiter1 = await waitForElm("labSimDiv");
+    document.getElementById("labSimDiv").appendChild(tsc);
+    let waiter2 = await waitForElm("c");
+    SIM.simulanimate("labSimDiv", "c", sLabPath, sOrigin);
   }
 }
 

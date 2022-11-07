@@ -32,8 +32,8 @@
     <script defer type = "text/javascript" src = "https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script defer type = "text/javascript" src = "https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js" id = "MathJax-script"></script>
     <script type="text/x-mathjax-config">
-  MathJax.Hub.Config({ TeX: {extensions: ["AMSmath.js", "AMSsymbols.js", "euscript.js", "mathtools.js", "bbold.js"]}});
-</script>
+      MathJax.Hub.Config({ TeX: {extensions: ["AMSmath.js", "AMSsymbols.js", "euscript.js", "mathtools.js", "bbold.js"]}});
+    </script>
 
     <title> Electromagnetism & Special Relativity </title>
     <script defer type = "module" src = "./js/executionSetup.js"></script> <!-- load execution setup for javascript components -->
@@ -202,7 +202,7 @@
             <input class = "cstmInpt" type = "number" id = "inptChTimeFactor" step = "1.0e-15" placeholder = "(0, ∞)" min = "1.0e-15" required>
             <span class = "validity"></span> </div> <br>
 
-          <div> <table id = "colorInputTable">
+          <!-- <div> <table id = "colorInputTable">
             <tr> <td rowspan = "4"> <span class = "Colours"> Colours </span> </td>
                  <td> <span class = "prtcl"> Particle </span> </td>
                  <td> <input type = "color" id = "prtclClr" value = "#ffffff"> </input> </td> </tr>
@@ -212,9 +212,9 @@
                  <td> <input type = "color" id = "electricClr" value = "#00ffff"> </input> </td> </tr>
             <tr> <td> <span class = "MFtitle"> Magnetic field </span> </td>
                  <td> <input type = "color" id = "magneticClr" value = "#ff00ff"> </input> </td> </tr>
-          </table> </div> <br>
+          </table> </div> <br> -->
 
-          <div style = "display: none";>
+          <div style = "display: none;"> <!-- THIS IS NOT YET FULLY IMPLEMENTED -->
           <div> <input type = "checkbox" id = "includeSpecFrame" disabled>
             <label for = "includeSpecFrame" class = "includeSpecFrame"> Include animation on special frame </label> </div> <br>
           <div> <input type = "checkbox" id = "includeCstmFrame" disabled>
@@ -247,30 +247,13 @@
 
     </div>
 
-    <div id = "animationDiv" style = "display: none;"> <!-- -->
-      <h2 class = "simulationTitle"> Simulation </h2>
-
+    <div id = "animationDiv" style = "display: none;">
+      <!-- <h2 class = "simulationTitle"> Simulation </h2>
       <div class = "container">
-        <div id = "labSimDiv" class = "adaptDiv">
-          <h3> Laboratory frame </h3>
-          <div class = "container"> <button type = "button" id = "lfStartBtn" class = "startBtn"> Start </button> <button type = "button" id = "lfResetBtn" class = "resetBtn"> Reset </button> </div>
-          <div class = "container" > \(t =\ \) <span id = "tim"></span> </div>
-          <div class = "container" style = "width: 46.875%; "> <canvas id = "c"></canvas> </div>
+        <div id = "labSimDiv" style = "position: relative;">
+          <canvas id = "c" style = "position: absolute; margin: auto;"></canvas>
         </div>
-        <div id = "specSimDiv" class = "adaptDiv" style = "width: auto; display: none;">
-          <h3> Special frame </h3>
-          <div class = "container"> <button type = "button" id = "sfStartBtn" class = "startBtn"> Start </button> <button type = "button" id = "sfResetBtn" class = "resetBtn"> Reset </button> </div>
-        </div>
-        <div id = "cstmSimDiv" class = "adaptDiv" style = "width: auto; display: none;">
-          <h3> Custom frame </h3>
-          <div class = "container"> <button type = "button" id = "cfStartBtn" class = "startBtn"> Start </button> <button type = "button" id = "cfResetBtn" class = "resetBtn"> Reset </button> </div>
-        </div>
-          <div id = "nonrSimDiv" class = "adaptDiv" style = "width: auto; display: none;">
-          <h3> Non-relativistic frame </h3>
-        <div class = "container"> <button type = "button" id = "nrfStartBtn" class = "startBtn"> Start </button> <button type = "button" id = "nrfResetBtn" class = "resetBtn"> Reset </button> </div>
-        </div>
-      </div>
-
+      </div> -->
     </div>
 
   </body>
