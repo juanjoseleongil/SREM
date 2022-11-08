@@ -12,7 +12,7 @@ import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 var parentDiv, canvas, cnvfactor, startButton, resetButton, frameTitle, timeSpan;
 var camera, scene, renderer, controls, xyzAxes, trailCamera;
 var radius, partGeom, partMate, partMesh;
-var trailPoints, trailSpline, extrudeSettings, trailGeom, trailMate, trailMesh;
+var trailPoints, trailSpline, trailGeom, trailMate, trailMesh;
 var cyliGeom, coneGeom, elecFieldArr, magnFieldArr, fieldMate;
 var qVec3, vecSize, locVx, locVy, locVz, countItem;
 var animStarted, animRunning;
@@ -20,9 +20,10 @@ var i, step, animPace;
 var ta, xa, ya, za, orig;
 var sound, listener, audioLoader, soundStartedAt, soundPausedAt;
 var clock, renderTime, renderDelta;
-var stats, guiPanel;
+var stats, statsPanels, guiPanel;
 var ptclClr, traiClr, elecClr, magnClr, resDefC;
 var props;
+const soundsLocation = "/sounds", soundsList = await getDirFileNames(soundsLocation);
 
 export function simulanimate(parDiv, canv, txyzAr, sOrigin)
 {
@@ -30,7 +31,7 @@ export function simulanimate(parDiv, canv, txyzAr, sOrigin)
   parentDiv = null, canvas = null, cnvfactor = 15.0 / 16.0, startButton = null, resetButton = null, frameTitle = null, timeSpan = null;
   camera = null, scene = null, renderer = null, controls = null, xyzAxes = null, trailCamera = null;
   radius = null, partGeom = null, partMate = null, partMesh = null;
-  trailPoints = null, trailSpline = null, extrudeSettings = null, trailGeom = null, trailMate = null, trailMesh = null;
+  trailPoints = null, trailSpline = null, trailGeom = null, trailMate = null, trailMesh = null;
   cyliGeom = null, coneGeom = null, elecFieldArr = new THREE.Group(), magnFieldArr = new THREE.Group(), fieldMate = null;
   qVec3 = Math.pow(qVec, 3), vecSize = null, locVx = null, locVy = null, locVz = null, countItem = null;
   animStarted = false, animRunning = false;
@@ -38,7 +39,7 @@ export function simulanimate(parDiv, canv, txyzAr, sOrigin)
   ta = null, xa = null, ya = null, za = null, orig = null;
   sound = null, listener = null, audioLoader = null, soundStartedAt = 0, soundPausedAt = 0;
   clock = new THREE.Clock(), renderTime = 0, renderDelta = 0;
-  stats = null, guiPanel = null;
+  stats = null, statsPanels = null, guiPanel = null;
   ptclClr = null, traiClr = null, elecClr = null, magnClr = null, resDefC = null;
   props = {Start: playPauseResumeAnim,
            Reset: resetAnim,
@@ -54,7 +55,14 @@ export function simulanimate(parDiv, canv, txyzAr, sOrigin)
                         for (var obj of elecFieldArr.children) { obj.material.color.set("#ff00ff"); };
                         for (var obj of magnFieldArr.children) { obj.material.color.set("#ffff00"); };
                       },
-           followParticle: false };
+           followParticle: false,
+           showPerformance: false,
+           onLoadCallback: function(buffer)
+                           {
+                             sound.setBuffer(buffer); sound.setRefDistance(1);
+                             sound.hasPlaybackControl = true; sound.setLoop(true);
+                           },
+           soundSource: "sounds/destination.mp3" };
 
   parentDiv = document.getElementById(parDiv);
   canvas = document.getElementById(canv);
@@ -83,12 +91,18 @@ function init()
   {//CAMERA
     const fov = (5.0 / 24.0) * 360.0, aspect = 1.0, near = 1.0 / 8.0, far = 4.0;
     camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-    setInitCamPos(camera); //set camera's initial position
     trailCamera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+    setInitCamsPos(); //set cameras' initial position
   }
 
   scene = new THREE.Scene(); //MAKE A SCENE
   scene.background = new THREE.Color(window.getComputedStyle(document.body, null).getPropertyValue("background-color")); //SET BACKGROUND COLOR
+
+  {//TEXT DOM ELEMENTS INSIDE CANVAS
+    frameTitle.innerHTML = "Laboratory frame";
+    frameTitle.style.cssText += "position: absolute; margin-top: 0%; margin-left: 12.5%; z-index: 1;";
+    timeSpan.style.cssText += "position: absolute; margin-top: 6.125%; margin-left: 12.5%; z-index: 1;";
+  }
 
   {//ORBIT CONTROLS
     controls = new OrbitControls(camera, renderer.domElement);
@@ -122,63 +136,50 @@ function init()
   }
 
   {//SOUND SETUP
-    //create an AudioListener and add it to the camera
-    listener = new THREE.AudioListener();
-    camera.add(listener);
-
-    //create the PositionalAudio object (passing in the listener)
-    sound = new THREE.PositionalAudio(listener);
-
-    //load a sound and set it as the PositionalAudio object's buffer
-    audioLoader = new THREE.AudioLoader();
-    audioLoader.load("sounds/destination.mp3", function(buffer)
-    {
-      sound.setBuffer( buffer );
-      sound.setRefDistance( 1 );
-      sound.hasPlaybackControl = true;
-    });
+    listener = new THREE.AudioListener(); //create an AudioListener
+    camera.add(listener); //add the AudioListener to the main camera
+    sound = new THREE.PositionalAudio(listener); //create the positional audio object (passing in the listener)
+    audioLoader = new THREE.AudioLoader(); //create an audio loader
+    audioLoader.load(props.soundSource, props.onLoadCallback); //load a sound and set it as the PositionalAudio object's buffer
   }
 
   {//PARTICLE SETUP
     radius = (1.0 / 2.0**16) * (window.innerWidth + window.innerHeight);
-    const res1 = 16, res2 = 16;
+    const res1 = 32, res2 = 32;
     partGeom = new THREE.SphereGeometry(radius, res1, res2); //create a sphere geometry
     partMate = new THREE.MeshPhongMaterial({color : new THREE.Color(props.particleClr)}); //create a basic material and set its color
     partMesh = new THREE.Mesh(partGeom, partMate); //create a mesh for the particle
-    partMate.needsUpdate = true;
+    partMate.needsUpdate = true; //required if color is updated
     scene.add(partMesh); //add the particle mesh to the scene
     partMesh.add(sound); //add the sound to the particle mesh
-    partMesh.add(trailCamera);
+    partMesh.add(trailCamera); //add the trail camera to the particle mesh
     setParticlePos(0); //particle's initial position
   }
   
   {//TRAIL SETUP
-  trailPoints = [];
-  for (var ipt = 0; ipt < numPts; ipt++) { trailPoints.push( new THREE.Vector3(xa[ipt], ya[ipt], za[ipt]) ); }
-  trailSpline = new THREE.CatmullRomCurve3(trailPoints);
+    trailPoints = [];
+    for (var ipt = 0; ipt < numPts; ipt++) { trailPoints.push( new THREE.Vector3(xa[ipt], ya[ipt], za[ipt]) ); }
+    trailSpline = new THREE.CatmullRomCurve3(trailPoints);
 
-  extrudeSettings = { steps: numPts, bevelEnabled: false, extrudePath: trailSpline };
-
-  trailGeom = new THREE.TubeGeometry(trailSpline, numPts, 0.125 * radius);
-  trailMate = new THREE.MeshPhongMaterial( { color: props.trailClr, wireframe: false } );
-  trailMate.transparent = true, trailMate.opacity = 1.0 / 2.0;
-  trailMesh = new THREE.Mesh( trailGeom, trailMate );
-  scene.add( trailMesh );
+    trailGeom = new THREE.TubeGeometry(trailSpline, numPts, 0.125 * radius);
+    trailMate = new THREE.MeshPhongMaterial( { color: props.trailClr, wireframe: false } );
+    trailMate.transparent = true, trailMate.opacity = 1.0 / 2.0;
+    trailMesh = new THREE.Mesh(trailGeom, trailMate);
+    scene.add(trailMesh);
   }  
 
   {//VECTOR FIELDS
     const maxF = Math.max(normEred, normBred);
-    const Er = normEred / maxF;
-    const Br = normBred / maxF;
+    const Er = normEred / maxF, Br = normBred / maxF;
     vecSize = 1.0 / qVec;
     //console.log("Er = " + Er);
     //console.log("Br = " + Br);
   
-    cyliGeom = new THREE.CylinderGeometry(vecSize / 32.0, vecSize / 32.0, 0.5 * vecSize);
-    coneGeom = new THREE.ConeGeometry(vecSize / 16.0, 0.5 * vecSize);
+    cyliGeom = new THREE.CylinderGeometry(vecSize / 32.0, vecSize / 32.0, 0.5 * vecSize); //arrow body
+    coneGeom = new THREE.ConeGeometry(vecSize / 16.0, 0.5 * vecSize); //arrow head
     cyliGeom.translate(0, 0.25 * vecSize, 0); coneGeom.translate(0, 0.75 * vecSize, 0); //correct placement
     cyliGeom.rotateX( Math.PI / 2 ); coneGeom.rotateX( Math.PI / 2 ); //correct orientation
-    fieldMate = new THREE.MeshPhongMaterial();
+    fieldMate = new THREE.MeshPhongMaterial(); //arrow material
 
     if (!isNaN(Er) && isFinite(Er) && Er > TOL) { createVecFieldMesh(elecFieldArr, unitE, Er, props.electricClr); }
     if (!isNaN(Br) && isFinite(Br) && Br > TOL) { createVecFieldMesh(magnFieldArr, unitB, Br, props.magneticClr); }
@@ -189,11 +190,11 @@ function init()
     stats.addPanel( new GPUStatsPanel( renderer.getContext() ) ); //include GPU stats panel
     parentDiv.appendChild(stats.domElement);
     stats.domElement.setAttribute("style", "position: absolute; z-index: 1;");
-    var childs = stats.domElement.children;
-    for (var statsPan of childs)
+    statsPanels = stats.domElement.children;
+    for (var panel of statsPanels)
     {
-      statsPan.setAttribute("style", "display: block; top: 0%; left: 0%;"); //show every panel
-      statsPan.addEventListener("click", function (event) { event.stopPropagation(); }, true); //removes function that cycles between panels and hides the other ones
+      panel.setAttribute("style", "display: none; top: 0%; left: 0%;"); //initially, don't show any panel, but set their locations
+      panel.addEventListener("click", function (event) { event.stopPropagation(); }, true); //remove function that cycles between panels and hides the other ones
     }
   }
 
@@ -201,9 +202,8 @@ function init()
     guiPanel = new GUI( { autoPlace: true } );
     parentDiv.appendChild(guiPanel.domElement);
     guiPanel.domElement.style.cssText = "position: relative; width: 25%; margin-left: 75%; margin-top: 0%; z-index: 1;";
-    const folder1 = guiPanel.addFolder( "Animation status" );
-    const folder2 = guiPanel.addFolder( "Colors" );
-    const folder3 = guiPanel.addFolder( "Camera" );
+    const folder1 = guiPanel.addFolder("Animation status");
+    const folder2 = guiPanel.addFolder("Colors");
 
     startButton = folder1.add(props, "Start");
     resetButton = folder1.add(props, "Reset");
@@ -219,16 +219,52 @@ function init()
     elecClr.onChange( function() { for (var obj of elecFieldArr.children) { obj.material.color.set(props.electricClr); }; } );
     magnClr.onChange( function() { for (var obj of magnFieldArr.children) { obj.material.color.set(props.magneticClr); }; } );
 
-    folder3.add( props, "followParticle" ).name("Follow particle").listen().onChange( function() { if (props.followParticle) {trailCamera.add(listener); camera.remove(listener);} else if (!props.followParticle) {trailCamera.remove(listener); camera.add(listener);} } );
-  }
-  
-  {//TEXT DOM ELEMENTS INSIDE CANVAS
-    frameTitle.innerHTML = "Laboratory frame";
-    frameTitle.style.cssText += "position: absolute; margin-top: 0%; margin-left: 12.5%; z-index: 1;";
-    timeSpan.style.cssText += "position: absolute; margin-top: 6.125%; margin-left: 12.5%; z-index: 1;";
+    guiPanel.add(props, "followParticle")
+      .name("Follow particle")
+      .listen()
+      .onChange( function()
+        {
+          if (props.followParticle) {trailCamera.add(listener); camera.remove(listener); controls.enable = false; }
+          else if (!props.followParticle) {trailCamera.remove(listener); camera.add(listener); controls.enable = true; }
+        } );
+
+    guiPanel.add(props, "showPerformance")
+      .name("Performance monitor")
+      .listen()
+      .onChange( function()
+        {
+          if (props.showPerformance) {for (var panel of statsPanels) {panel.style.display = "block"};}
+          else if (!props.showPerformance) {for (var panel of statsPanels) {panel.style.display = "none"};}
+        } );
+
+    const folder3 = guiPanel.addFolder("Sound");
+    //folder3.add(props, "soundSource").name("Source")
   }
 
 }
+
+//ADDITIONAL FUNCTIONS
+
+async function getDirFileNames(dirLocation)
+{//adapted from "abalter/listdir.js" (https://gist.github.com/abalter/b5357657311349e06bc5b32222f37030), to work with vanilla JS, no jQuery
+
+  let namesContainer;
+  function parseDirectoryListing(text)
+  {
+    namesContainer = text
+      .match(/href="([\w]+)\.\w{2,}/g) //pull out the hrefs
+      .map((x) => x.replace('href="', '')); //clean up
+  }
+
+  await fetch(dirLocation)
+    .then( (response) => { if (response.ok) {return response.text();}
+                           else {throw new Error(response.status);} })
+    .then( (data) => parseDirectoryListing(data) )
+    .catch( err => console.error(err) );
+
+  return namesContainer;
+}
+
 
 function createAndPosLight(colour, intensity, pos)
 {
@@ -298,7 +334,7 @@ function resetAnim()
   animStarted = false, animRunning = false;
   startButton.name("Start");
   if (sound.isPlaying) { sound.stop(); } soundStartedAt = 0.001 * Date.now(); soundPausedAt = 0.001 * Date.now(), 
-  i = 0, renderTime = 0, setInitCamPos(camera);
+  i = 0, renderTime = 0, setInitCamsPos();
   setParticlePos(0);
 }
 
@@ -310,6 +346,7 @@ function animate()
     if (animStarted && i < numPts - 1) { soundPausedAt = 0.001 * Date.now(); sound.pause(); }
     else
     {
+      startButton.name("Start");
       if (sound.isPlaying) { sound.stop(); }
     }
     step = 0;
@@ -317,7 +354,7 @@ function animate()
   else
   {
     step = 1; setParticlePos(i);
-      trailCamera.position.set(xa[i] - 0.5, ya[i] - 0.5, za[i] - 0.5);
+      trailCamera.position.set(xa[i] - 0.125, ya[i] - 0.125, za[i] - 0.125);
       trailCamera.lookAt(xa[i], ya[i], za[i]);
   }
 
@@ -364,8 +401,10 @@ function resizeRendererToDisplaySize(renderer)
   return needResize;
 }
 
-function setInitCamPos(cam)
-{ //initial camera position
-  cam.position.set(xa[0] + 5.0 / 4.0, ya[0] + 5.0 / 4.0, za[0] + 5.0 / 4.0);
-  cam.lookAt(xa[0], ya[0], za[0]);
+function setInitCamsPos()
+{ //initial cameras position
+  camera.position.set(xa[0] + 5.0 / 4.0, ya[0] + 5.0 / 4.0, za[0] + 5.0 / 4.0);
+  camera.lookAt(xa[0], ya[0], za[0]);
+  trailCamera.position.set(xa[0] - 0.125, ya[0] - 0.125, za[0] - 0.125);
+  trailCamera.lookAt(xa[0], ya[0], za[0]);
 }
