@@ -23,7 +23,7 @@ var clock, renderTime, renderDelta;
 var stats, statsPanels, guiPanel;
 var ptclClr, traiClr, elecClr, magnClr, resDefC;
 var soundPPRbtn, soundSbtn, props;
-const soundsList = await getDirFileNames("sounds");
+const soundsLocation = "https://github.com/juanjoseleongil/SREM/tree/main/sounds", soundsList = await getDirFileNames(soundsLocation);
 
 export function simulanimate(parDiv, canv, txyzAr, sOrigin)
 {
@@ -51,7 +51,7 @@ export function simulanimate(parDiv, canv, txyzAr, sOrigin)
            resDefCol: resetDefaultColors,
            followParticle: false,
            showPerformance: false,
-           soundSource: `sounds/${soundsList[Math.floor(soundsList.length * Math.random())]}`,
+           soundSource: `${soundsLocation}/${soundsList[Math.floor(soundsList.length * Math.random())]}`,
            soundPlayPauseResume: function() { if (!sound.isPlaying) {playSound()} else {pauseSound()} },
            soundStop: stopSound}
 
@@ -234,7 +234,7 @@ function init()
       .listen()
       .onChange( function(opt)
         {
-          props.soundSource = `sounds/${opt}`;
+          props.soundSource = `${soundsLocation}/${opt}`;
           audioLoader.load(props.soundSource, onLoadCallback);
         } );
     soundPPRbtn = folder3.add(props, "soundPlayPauseResume").name("⏵").listen();
