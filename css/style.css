@@ -29,17 +29,17 @@ nav ul li
   padding: 1.5625%;
 }
 
-input, button, #cstmSel, checkbox, fieldset, legend
+input, button, .cstmSel, checkbox, fieldset, legend
 {
   padding: 0.78125%; -webkit-box-sizing: border-box; -moz-box-sizing: border-box; box-sizing: border-box;
 }
 
-input, button, #cstmSel, checkbox, table, fieldset, legend
+input, button, .cstmSel, checkbox, table, fieldset, legend
 {
   outline-style: round; border-radius: calc(0.390625*(1vw + 1vh));
 }
 
-input, button, #cstmSel, table, fieldset, legend, body { font-size: var(--cFontSize); }
+input, button, .cstmSel, table, fieldset, legend, body { font-size: var(--cFontSize); }
 
 h1, h2, h3 { text-align: center; }
 h1 { font-size: calc(2.00*var(--cFontSize)); }
@@ -55,7 +55,7 @@ figcaption { font-size: calc(0.5*var(--cFontSize)); }
 button { margin: 1.5625% 1.5625% 1.5625% 1.5625%; }
 
 .cstmInpt { max-width: 25%; }
-#cstmSel { max-width: 31.25%; }
+.cstmSel { max-width: 31.25%; }
 
 .container { margin: 1.5625% 1.5625%; display: flex; justify-content: center; }
 .adaptDiv { width: 46.875%; margin: 0 auto; }
@@ -80,8 +80,8 @@ td, th { padding: 1.5625vw 1.5625vh; }
   h3 { color: var(--cCol04); }
   h4 { color: var(--cCol05); }
   body { background-color: var(--cCol07); }
-  input, button, #cstmSel, checkbox, legend, a {  background-color: var(--cCol06);  }
-  input, button, #cstmSel, checkbox, table, body, a { color: var(--cCol02); }
+  input, button, .cstmSel, checkbox, legend, a {  background-color: var(--cCol06);  }
+  input, button, .cstmSel, checkbox, table, body, a { color: var(--cCol02); }
   table, td, th fieldset { border: var(--cTableBorderSize) solid var(--cCol02); }
 }
 
@@ -92,8 +92,8 @@ td, th { padding: 1.5625vw 1.5625vh; }
   h3 { color: var(--cCol04); }
   h4 { color: var(--cCol03); }
   body { background-color: var(--cCol01); }
-  input, button, #cstmSel, checkbox, legend, a { background-color: var(--cCol02);  }
-  input, button, #cstmSel, checkbox, table, body, a { color: var(--cCol06); }
+  input, button, .cstmSel, checkbox, legend, a { background-color: var(--cCol02);  }
+  input, button, .cstmSel, checkbox, table, body, a { color: var(--cCol06); }
   table, td, th, fieldset { border: var(--cTableBorderSize) solid var(--cCol06); }
 }
 
