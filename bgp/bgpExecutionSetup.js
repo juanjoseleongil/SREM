@@ -40,7 +40,7 @@ function languageSelector()
     if (lan.value === "") { return; }
     document.documentElement.setAttribute("lang", lan.value);
 
-    for (const elem of ["liSimul", "lipbts", "liCode"])
+    for (const elem of ["liSimul", "liBgp", "liCode"])
     {
       for (const item of document.querySelectorAll(`.${elem}`))
       {
