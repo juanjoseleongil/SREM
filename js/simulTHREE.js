@@ -23,7 +23,7 @@ var clock, renderTime, renderDelta;
 var stats, statsPanels, guiPanel;
 var ptclClr, traiClr, elecClr, magnClr, resDefC;
 var soundPPRbtn, soundSbtn, props;
-const soundsLocation = "https://github.com/juanjoseleongil/SREM/tree/main/sounds", soundsList = await getDirFileNames(soundsLocation);
+const soundsLocation = "/sounds", soundsList = await getDirFileNames(soundsLocation);
 
 export function simulanimate(parDiv, canv, txyzAr, sOrigin)
 {
@@ -51,7 +51,7 @@ export function simulanimate(parDiv, canv, txyzAr, sOrigin)
            resDefCol: resetDefaultColors,
            followParticle: false,
            showPerformance: false,
-           soundSource: `${soundsLocation}/${soundsList[Math.floor(soundsList.length * Math.random())]}`,
+           soundSource: "sounds/Destination.mp3", //`${soundsLocation}/${soundsList[Math.floor(soundsList.length * Math.random())]}`,
            soundPlayPauseResume: function() { if (!sound.isPlaying) {playSound()} else {pauseSound()} },
            soundStop: stopSound}
 
@@ -228,18 +228,18 @@ function init()
           else if (!props.showPerformance) {for (var panel of statsPanels) {panel.style.display = "none"};}
         } );
 
-    const folder3 = guiPanel.addFolder("Sound");
-    folder3.add(props, "soundSource", soundsList)
-      .name("Source")
-      .listen()
-      .onChange( function(opt)
-        {
-          props.soundSource = `${soundsLocation}/${opt}`;
-          audioLoader.load(props.soundSource, onLoadCallback);
-        } );
-    soundPPRbtn = folder3.add(props, "soundPlayPauseResume").name("⏵").listen();
-    soundSbtn = folder3.add(props, "soundStop").name("⏹").listen();
-    folder3.close();
+    //const folder3 = guiPanel.addFolder("Sound");
+    //folder3.add(props, "soundSource", soundsList)
+    //  .name("Source")
+    //  .listen()
+    //  .onChange( function(opt)
+    //    {
+    //      props.soundSource = `${soundsLocation}/${opt}`;
+    //      audioLoader.load(props.soundSource, onLoadCallback);
+    //    } );
+    //soundPPRbtn = folder3.add(props, "soundPlayPauseResume").name("⏵").listen();
+    //soundSbtn = folder3.add(props, "soundStop").name("⏹").listen();
+    //folder3.close();
   }
 
 //⏵⏸⏹
@@ -338,11 +338,11 @@ function resetAnim()
 }
 
 
-function playSound() { if (!sound.isPlaying) { soundPPRbtn.name("⏸"); sound.play(); } }
+function playSound() { if (!sound.isPlaying) { sound.play(); } } //soundPPRbtn.name("⏸");
 
-function pauseSound() { if (sound.isPlaying) { soundPPRbtn.name("⏵"); sound.pause(); } }
+function pauseSound() { if (sound.isPlaying) { sound.pause(); } } //soundPPRbtn.name("⏵");
 
-function stopSound() { if (sound.isPlaying) { soundPPRbtn.name("⏵"); sound.stop(); } }
+function stopSound() { if (sound.isPlaying) { sound.stop(); } } //soundPPRbtn.name("⏵");
 
 
 function setParticlePos(index)
