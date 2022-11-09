@@ -4,7 +4,7 @@ function getLang() { return document.documentElement.getAttribute("lang"); }
 
 function createObjectSelect(options, innerID, hiddenOpt)
 {
-  let content = [`<select id = "${innerID}" required>`];
+  let content = [`<select class = "cstmSel" id = "${innerID}" required>`];
   if (hiddenOpt != null) { content.push(hiddenOpt); }
   for (const [key, value] of Object.entries(options))
   { content.push(`<option value = "${key}"> ${value} </option>`); }
