@@ -8,7 +8,6 @@
     <link rel = "stylesheet" type = "text/css" href = "./css/style.css">
     <link defer rel = "icon" type = "image/svg" href = "./icon/favicon.svg">
 
-    <script defer type = "text/javascript" src = "https://livejs.com/live.js"></script>
     <!-- <script defer type = "text/javascript" src = "https://unpkg.com/p5/lib/p5.min.js"></script> -->
     <script defer type = "text/javascript" src = "https://cdn.jsdelivr.net/npm/p5/lib/p5.min.js"></script>
 
@@ -104,7 +103,7 @@
           <input class = "cstmInpt" type = "number" id = "ECH" step = "1.0e-15" placeholder = "(-∞, ∞)" required>
           <span class = "validity"></span> 
           <span id = "EChpref"></span>
-          <span id = "EChU"> <select id = "EChUnits">
+          <span id = "EChU"> <select class = "cstmSel" id = "EChUnits">
             <option value = "C">C</option>
             <option value = "e">|qₑ|</option>
           </select> </span> 
@@ -112,7 +111,7 @@
         </form> <br>
 
         <span class = "loadPreset"> Load preset: </span>
-        <span id = "loadPresetPart"> <select id = "presetPart">
+        <span id = "loadPresetPart"> <select class = "cstmSel" id = "presetPart">
           <option value = "none" class = "none"> none </option>
         </select> </span><br>
 

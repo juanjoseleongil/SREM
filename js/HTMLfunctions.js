@@ -85,7 +85,7 @@ export function expNot(x, base = 10, basestr = "10", aap = signiFigM1)
 
 function createObjectSelect(options, innerID, hiddenOpt)
 {
-  let content = [`<select id = "${innerID}" required>`];
+  let content = [`<select class = "cstmSel" id = "${innerID}" required>`];
   if (hiddenOpt != null) { content.push(hiddenOpt); }
   for (const [key, value] of Object.entries(options))
   { content.push(`<option value = "${key}"> ${value} </option>`); }

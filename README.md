@@ -10,3 +10,9 @@ Check it out: https://juanjoseleongil.github.io/SREM
 4. Make the animations compatible with accessibility tools (i.e. relate the motion and visual outputs to sounds)
 5. Fix numerical computation overflows producing infs and NaNs
 6. Three.js: animation with both trail and orbit controls
+7. Remember the language choice between pages ("simulation" and "background physics").
+7.1. Idea: initialize a null variable (e.g. "pageLang") in "RMCUEMFparams.js" to store the language. 
+7.2. Import the variable in both "HTMLfunctions.js" and "bgp/bgpExecutionSetup.js".
+7.3. If "pageLang" is null and no selection has been made yet, keep default language chosen at the beginning by the browser
+7.4. Language selector: normal behaviour, store its value also in "pageLang"
+7.5. If "pageLang" is not null, document.documentElement.setAttribute("lang", pageLang)

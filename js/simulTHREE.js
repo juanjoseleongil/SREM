@@ -11,18 +11,18 @@ import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 //VARIABLES
 var parentDiv, canvas, cnvfactor, startButton, resetButton, frameTitle, timeSpan;
 var camera, scene, renderer, controls, xyzAxes, trailCamera;
-var radius, partGeom, partMate, partMesh;
+var partRadius, partWidthSeg, partHeightSeg, partGeom, partMate, partMesh;
 var trailPoints, trailSpline, trailGeom, trailMate, trailMesh;
 var cyliGeom, coneGeom, elecFieldArr, magnFieldArr, fieldMate;
 var qVec3, vecSize, locVx, locVy, locVz, countItem;
-var animStarted, animRunning;
+var animRunning;
 var i, step, animPace;
 var ta, xa, ya, za, orig;
-var sound, listener, audioLoader, soundStartedAt, soundPausedAt;
+var sound, listener, audioLoader;
 var clock, renderTime, renderDelta;
 var stats, statsPanels, guiPanel;
 var ptclClr, traiClr, elecClr, magnClr, resDefC;
-var props;
+var soundPPRbtn, soundSbtn, props;
 const soundsLocation = "/sounds", soundsList = await getDirFileNames(soundsLocation);
 
 export function simulanimate(parDiv, canv, txyzAr, sOrigin)
@@ -30,40 +30,32 @@ export function simulanimate(parDiv, canv, txyzAr, sOrigin)
   //INITIAL VALUES
   parentDiv = null, canvas = null, cnvfactor = 15.0 / 16.0, startButton = null, resetButton = null, frameTitle = null, timeSpan = null;
   camera = null, scene = null, renderer = null, controls = null, xyzAxes = null, trailCamera = null;
-  radius = null, partGeom = null, partMate = null, partMesh = null;
+  partRadius = null, partWidthSeg = null, partHeightSeg = null, partGeom = null, partMate = null, partMesh = null;
   trailPoints = null, trailSpline = null, trailGeom = null, trailMate = null, trailMesh = null;
   cyliGeom = null, coneGeom = null, elecFieldArr = new THREE.Group(), magnFieldArr = new THREE.Group(), fieldMate = null;
   qVec3 = Math.pow(qVec, 3), vecSize = null, locVx = null, locVy = null, locVz = null, countItem = null;
-  animStarted = false, animRunning = false;
+  animRunning = false;
   i = 0, step = 1, animPace = ptsPerCharTime / 8.0;
   ta = null, xa = null, ya = null, za = null, orig = null;
-  sound = null, listener = null, audioLoader = null, soundStartedAt = 0, soundPausedAt = 0;
+  sound = null, listener = null, audioLoader = null;
   clock = new THREE.Clock(), renderTime = 0, renderDelta = 0;
   stats = null, statsPanels = null, guiPanel = null;
   ptclClr = null, traiClr = null, elecClr = null, magnClr = null, resDefC = null;
+  soundPPRbtn = null, soundSbtn = null;
   props = {Start: playPauseResumeAnim,
            Reset: resetAnim,
            particleClr: "#ffffff",
            trailClr: "#00ffff",
            electricClr: "#ff00ff",
            magneticClr: "#ffff00",
-           resDefCol: function()
-                      {
-                        this.particleClr = "#ffffff"; this.trailClr = "#00ffff"; 
-                        this.electricClr = "#ff00ff"; this.magneticClr = "#ffff00";
-                        partMesh.material.color.set("#ffffff"); trailMesh.material.color.set("#00ffff");
-                        for (var obj of elecFieldArr.children) { obj.material.color.set("#ff00ff"); };
-                        for (var obj of magnFieldArr.children) { obj.material.color.set("#ffff00"); };
-                      },
+           resDefCol: resetDefaultColors,
            followParticle: false,
            showPerformance: false,
-           onLoadCallback: function(buffer)
-                           {
-                             sound.setBuffer(buffer); sound.setRefDistance(1);
-                             sound.hasPlaybackControl = true; sound.setLoop(true);
-                           },
-           soundSource: "sounds/destination.mp3" };
+           soundSource: `${soundsLocation}/${soundsList[Math.floor(soundsList.length * Math.random())]}`,
+           soundPlayPauseResume: function() { if (!sound.isPlaying) {playSound()} else {pauseSound()} },
+           soundStop: stopSound}
 
+  //DOM ELEMENTS
   parentDiv = document.getElementById(parDiv);
   canvas = document.getElementById(canv);
 
@@ -140,13 +132,12 @@ function init()
     camera.add(listener); //add the AudioListener to the main camera
     sound = new THREE.PositionalAudio(listener); //create the positional audio object (passing in the listener)
     audioLoader = new THREE.AudioLoader(); //create an audio loader
-    audioLoader.load(props.soundSource, props.onLoadCallback); //load a sound and set it as the PositionalAudio object's buffer
+    audioLoader.load(props.soundSource, onLoadCallback); //load a sound and set it as the PositionalAudio object's buffer
   }
 
   {//PARTICLE SETUP
-    radius = (1.0 / 2.0**16) * (window.innerWidth + window.innerHeight);
-    const res1 = 32, res2 = 32;
-    partGeom = new THREE.SphereGeometry(radius, res1, res2); //create a sphere geometry
+    partRadius = 1 / 32.0, partWidthSeg = 32, partHeightSeg = 32;
+    partGeom = new THREE.SphereGeometry(partRadius, partWidthSeg, partHeightSeg); //create a sphere geometry
     partMate = new THREE.MeshPhongMaterial({color : new THREE.Color(props.particleClr)}); //create a basic material and set its color
     partMesh = new THREE.Mesh(partGeom, partMate); //create a mesh for the particle
     partMate.needsUpdate = true; //required if color is updated
@@ -161,7 +152,7 @@ function init()
     for (var ipt = 0; ipt < numPts; ipt++) { trailPoints.push( new THREE.Vector3(xa[ipt], ya[ipt], za[ipt]) ); }
     trailSpline = new THREE.CatmullRomCurve3(trailPoints);
 
-    trailGeom = new THREE.TubeGeometry(trailSpline, numPts, 0.125 * radius);
+    trailGeom = new THREE.TubeGeometry(trailSpline, numPts, 0.125 * partRadius);
     trailMate = new THREE.MeshPhongMaterial( { color: props.trailClr, wireframe: false } );
     trailMate.transparent = true, trailMate.opacity = 1.0 / 2.0;
     trailMesh = new THREE.Mesh(trailGeom, trailMate);
@@ -205,8 +196,8 @@ function init()
     const folder1 = guiPanel.addFolder("Animation status");
     const folder2 = guiPanel.addFolder("Colors");
 
-    startButton = folder1.add(props, "Start");
-    resetButton = folder1.add(props, "Reset");
+    startButton = folder1.add(props, "Start").name("⏵");
+    resetButton = folder1.add(props, "Reset").name("⏹");
 
     ptclClr = folder2.addColor(props, "particleClr").name("Particle").listen();
     traiClr = folder2.addColor(props, "trailClr").name("Trail").listen();
@@ -224,8 +215,8 @@ function init()
       .listen()
       .onChange( function()
         {
-          if (props.followParticle) {trailCamera.add(listener); camera.remove(listener); controls.enable = false; }
-          else if (!props.followParticle) {trailCamera.remove(listener); camera.add(listener); controls.enable = true; }
+          if (props.followParticle) {trailCamera.add(listener); camera.remove(listener); controls.enabled = false; }
+          else if (!props.followParticle) {trailCamera.remove(listener); camera.add(listener); controls.enabled = true; }
         } );
 
     guiPanel.add(props, "showPerformance")
@@ -238,8 +229,20 @@ function init()
         } );
 
     const folder3 = guiPanel.addFolder("Sound");
-    //folder3.add(props, "soundSource").name("Source")
+    folder3.add(props, "soundSource", soundsList)
+      .name("Source")
+      .listen()
+      .onChange( function(opt)
+        {
+          props.soundSource = `${soundsLocation}/${opt}`;
+          audioLoader.load(props.soundSource, onLoadCallback);
+        } );
+    soundPPRbtn = folder3.add(props, "soundPlayPauseResume").name("⏵").listen();
+    soundSbtn = folder3.add(props, "soundStop").name("⏹").listen();
+    folder3.close();
   }
+
+//⏵⏸⏹
 
 }
 
@@ -257,10 +260,10 @@ async function getDirFileNames(dirLocation)
   }
 
   await fetch(dirLocation)
-    .then( (response) => { if (response.ok) {return response.text();}
-                           else {throw new Error(response.status);} })
+    .then( (response) => {if (response.ok) {return response.text();}
+                          else {throw new Error(response.status);}})
     .then( (data) => parseDirectoryListing(data) )
-    .catch( err => console.error(err) );
+    .catch( (err) => console.error(err) );
 
   return namesContainer;
 }
@@ -272,6 +275,7 @@ function createAndPosLight(colour, intensity, pos)
   light.position.set(pos[0], pos[1], pos[2]); //light.castShadow = true;
   scene.add(light);
 }
+
 
 function createVecFieldMesh(arrow, unit, relSize, col)
 {
@@ -308,62 +312,38 @@ function createVecFieldMesh(arrow, unit, relSize, col)
 }
 
 function playPauseResumeAnim()
-{
-  if (!animStarted)
-  {
-    animStarted = true; soundPausedAt = 0.001 * Date.now();
-  }
-
+{//⏵⏸
   if (!animRunning)
   {
     animRunning = true; animate();
-    soundStartedAt = 0.001 * Date.now();
-    startButton.name("Pause");
-    if (!sound.isPlaying) { sound.play(soundStartedAt - soundPausedAt); }
+    startButton.name("⏸");
+    playSound();
   }
   else if (animRunning)
   {
     animRunning = false;
-    startButton.name("Resume");
-    soundPausedAt = 0.001 * Date.now(); if (sound.isPlaying) { sound.pause(); }
+    startButton.name("⏵");
+    pauseSound();
   }
 }
 
+
 function resetAnim()
-{
-  animStarted = false, animRunning = false;
-  startButton.name("Start");
-  if (sound.isPlaying) { sound.stop(); } soundStartedAt = 0.001 * Date.now(); soundPausedAt = 0.001 * Date.now(), 
+{//⏹
+  animRunning = false; startButton.domElement.style.display = "block";
+  startButton.name("⏵");
+  stopSound();
   i = 0, renderTime = 0, setInitCamsPos();
   setParticlePos(0);
 }
 
-function animate()
-{
-  renderDelta = clock.getDelta();
-  if (!animRunning || i >= numPts - 1 || renderTime >= numPts - 1)
-  {
-    if (animStarted && i < numPts - 1) { soundPausedAt = 0.001 * Date.now(); sound.pause(); }
-    else
-    {
-      startButton.name("Start");
-      if (sound.isPlaying) { sound.stop(); }
-    }
-    step = 0;
-  }
-  else
-  {
-    step = 1; setParticlePos(i);
-      trailCamera.position.set(xa[i] - 0.125, ya[i] - 0.125, za[i] - 0.125);
-      trailCamera.lookAt(xa[i], ya[i], za[i]);
-  }
 
-  renderTime += animPace * step * renderDelta;
-  i = parseInt(Math.round(renderTime));
-  requestAnimationFrame(animate);
-  render();
-  controls.update(); stats.update();
-}
+function playSound() { if (!sound.isPlaying) { soundPPRbtn.name("⏸"); sound.play(); } }
+
+function pauseSound() { if (sound.isPlaying) { soundPPRbtn.name("⏵"); sound.pause(); } }
+
+function stopSound() { if (sound.isPlaying) { soundPPRbtn.name("⏵"); sound.stop(); } }
+
 
 function setParticlePos(index)
 {
@@ -374,16 +354,54 @@ function setParticlePos(index)
   timeSpan.innerHTML = timeText;
 }
 
-function render()
+
+function setInitCamsPos()
+{ //initial cameras position
+  camera.position.set(xa[0] + 5.0 / 4.0, ya[0] + 5.0 / 4.0, za[0] + 5.0 / 4.0);
+  camera.lookAt(xa[0], ya[0], za[0]);
+  trailCamera.position.set(xa[0] - 2 * partRadius, ya[0] - 2 * partRadius, za[0] - 2 * partRadius);
+  trailCamera.lookAt(xa[0], ya[0], za[0]);
+}
+
+
+function resetDefaultColors()
 {
-  if (resizeRendererToDisplaySize(renderer))
+  this.particleClr = "#ffffff"; this.trailClr = "#00ffff"; 
+  this.electricClr = "#ff00ff"; this.magneticClr = "#ffff00";
+  partMesh.material.color.set("#ffffff"); trailMesh.material.color.set("#00ffff");
+  for (var obj of elecFieldArr.children) { obj.material.color.set("#ff00ff"); };
+  for (var obj of magnFieldArr.children) { obj.material.color.set("#ffff00"); };
+}
+
+
+function onLoadCallback(buffer)
+{
+  sound.setBuffer(buffer); sound.setRefDistance(1);
+  sound.hasPlaybackControl = true; sound.setLoop(true);
+}
+
+
+function animate()
+{
+  renderDelta = clock.getDelta();
+  if (!animRunning || i >= numPts - 1 || renderTime >= numPts - 1)
   {
-    const canvas = renderer.domElement;
-    camera.aspect = canvas.clientWidth / canvas.clientHeight;
-    camera.updateProjectionMatrix();
+    step = 0; startButton.name("⏵");
+    if (i >= numPts - 1 || renderTime >= numPts - 1)
+    { startButton.domElement.style.display = "none"; }
+  }
+  else
+  {
+    step = 1; setParticlePos(i);
+    trailCamera.position.set(xa[i] - 2 * partRadius, ya[i] - 2 * partRadius, za[i] - 2 * partRadius);
+    trailCamera.lookAt(xa[i], ya[i], za[i]);
   }
 
-  renderer.render(scene, props.followParticle === true ? trailCamera : camera);
+  renderTime += animPace * step * renderDelta;
+  i = parseInt(Math.round(renderTime));
+  requestAnimationFrame(animate);
+  render();
+  controls.update(); stats.update();
 }
 
 
@@ -401,10 +419,15 @@ function resizeRendererToDisplaySize(renderer)
   return needResize;
 }
 
-function setInitCamsPos()
-{ //initial cameras position
-  camera.position.set(xa[0] + 5.0 / 4.0, ya[0] + 5.0 / 4.0, za[0] + 5.0 / 4.0);
-  camera.lookAt(xa[0], ya[0], za[0]);
-  trailCamera.position.set(xa[0] - 0.125, ya[0] - 0.125, za[0] - 0.125);
-  trailCamera.lookAt(xa[0], ya[0], za[0]);
+
+function render()
+{
+  if (resizeRendererToDisplaySize(renderer))
+  {
+    const canvas = renderer.domElement;
+    camera.aspect = canvas.clientWidth / canvas.clientHeight;
+    camera.updateProjectionMatrix();
+  }
+
+  renderer.render(scene, props.followParticle === true ? trailCamera : camera);
 }
