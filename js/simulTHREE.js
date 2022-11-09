@@ -23,7 +23,7 @@ var clock, renderTime, renderDelta;
 var stats, statsPanels, guiPanel;
 var ptclClr, traiClr, elecClr, magnClr, resDefC;
 var soundPPRbtn, soundSbtn, props;
-const soundsLocation = "../sounds", soundsList = await getDirFileNames(soundsLocation);
+const soundsList = await getDirFileNames("sounds");
 
 export function simulanimate(parDiv, canv, txyzAr, sOrigin)
 {
@@ -51,7 +51,7 @@ export function simulanimate(parDiv, canv, txyzAr, sOrigin)
            resDefCol: resetDefaultColors,
            followParticle: false,
            showPerformance: false,
-           soundSource: `${soundsLocation}/${soundsList[Math.floor(soundsList.length * Math.random())]}`,
+           soundSource: `sounds/${soundsList[Math.floor(soundsList.length * Math.random())]}`,
            soundPlayPauseResume: function() { if (!sound.isPlaying) {playSound()} else {pauseSound()} },
            soundStop: stopSound}
 
@@ -234,7 +234,7 @@ function init()
       .listen()
       .onChange( function(opt)
         {
-          props.soundSource = `${soundsLocation}/${opt}`;
+          props.soundSource = `sounds/${opt}`;
           audioLoader.load(props.soundSource, onLoadCallback);
         } );
     soundPPRbtn = folder3.add(props, "soundPlayPauseResume").name("⏵").listen();
