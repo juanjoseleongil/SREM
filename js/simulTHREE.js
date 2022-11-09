@@ -23,7 +23,7 @@ var clock, renderTime, renderDelta;
 var stats, statsPanels, guiPanel;
 var ptclClr, traiClr, elecClr, magnClr, resDefC;
 var soundPPRbtn, soundSbtn, props;
-const soundsLocation = "/sounds", soundsList = await getDirFileNames(soundsLocation);
+const soundsLocation = "./sounds", soundsList = await getDirFileNames(soundsLocation);
 
 export function simulanimate(parDiv, canv, txyzAr, sOrigin)
 {
