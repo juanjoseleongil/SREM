@@ -23,7 +23,7 @@ var clock, renderTime, renderDelta;
 var stats, statsPanels, guiPanel;
 var ptclClr, traiClr, elecClr, magnClr, resDefC;
 var soundPPRbtn, soundSbtn, props;
-const soundsLocation = "/sounds", soundsList = await getDirFileNames(soundsLocation);
+//const soundsLocation = "/sounds", soundsList = await getDirFileNames(soundsLocation);
 
 export function simulanimate(parDiv, canv, txyzAr, sOrigin)
 {
@@ -247,7 +247,7 @@ function init()
 }
 
 //ADDITIONAL FUNCTIONS
-
+/*
 async function getDirFileNames(dirLocation)
 {//adapted from "abalter/listdir.js" (https://gist.github.com/abalter/b5357657311349e06bc5b32222f37030), to work with vanilla JS, no jQuery
 
@@ -267,7 +267,7 @@ async function getDirFileNames(dirLocation)
 
   return namesContainer;
 }
-
+*/
 
 function createAndPosLight(colour, intensity, pos)
 {
