@@ -9,7 +9,7 @@ import { GPUStatsPanel } from "three/examples/jsm/utils/GPUStatsPanel.js";
 import { GUI } from "three/examples/jsm/libs/lil-gui.module.min.js";
 
 //VARIABLES
-var parentDiv, canvas, cnvfactor, startButton, resetButton, frameTitle, timeSpan;
+var parentDiv, canvas, startButton, resetButton, frameTitle, timeSpan;
 var camera, scene, renderer, controls, xyzAxes, trailCamera;
 var partRadius, partWidthSeg, partHeightSeg, partGeom, partMate, partMesh;
 var trailPoints, trailSpline, trailGeom, trailMate, trailMesh;
@@ -22,13 +22,14 @@ var sound, listener, audioLoader;
 var clock, renderTime, renderDelta;
 var stats, statsPanels, guiPanel;
 var ptclClr, traiClr, elecClr, magnClr, resDefC;
+var soundsLocation = "./sounds", soundsList = ['Alarm.m4a', 'BrownianNoise.ogg', 'Classical.wav', 'Constellation.m4a', 'Destination.mp3', 'ElevatorBossa.ogg', 'PinkNoise.ogg', 'Sawtooth440Hz.ogg', 'Sine440Hz.ogg', 'Square440Hz.ogg', 'Square440HzNoAlias.ogg', 'Waves.m4a', 'WhiteNoise.ogg'];
 var soundPPRbtn, soundSbtn, props;
-//const soundsLocation = "/sounds", soundsList = await getDirFileNames(soundsLocation);
+const unicodePlayPause = "\u23EF", unicodePlay = "\u25B6", unicodePause = "\u23F8", unicodeStop = "\u23F9";
 
 export function simulanimate(parDiv, canv, txyzAr, sOrigin)
 {
   //INITIAL VALUES
-  parentDiv = null, canvas = null, cnvfactor = 15.0 / 16.0, startButton = null, resetButton = null, frameTitle = null, timeSpan = null;
+  parentDiv = null, canvas = null, startButton = null, resetButton = null, frameTitle = null, timeSpan = null;
   camera = null, scene = null, renderer = null, controls = null, xyzAxes = null, trailCamera = null;
   partRadius = null, partWidthSeg = null, partHeightSeg = null, partGeom = null, partMate = null, partMesh = null;
   trailPoints = null, trailSpline = null, trailGeom = null, trailMate = null, trailMesh = null;
@@ -51,9 +52,10 @@ export function simulanimate(parDiv, canv, txyzAr, sOrigin)
            resDefCol: resetDefaultColors,
            followParticle: false,
            showPerformance: false,
-           soundSource: "sounds/Destination.mp3", //`${soundsLocation}/${soundsList[Math.floor(soundsList.length * Math.random())]}`,
+           enableControls: true,
+           soundSource: `${soundsLocation}/${soundsList[Math.floor(soundsList.length * Math.random())]}`,
            soundPlayPauseResume: function() { if (!sound.isPlaying) {playSound()} else {pauseSound()} },
-           soundStop: stopSound}
+           soundStop: stopSound};
 
   //DOM ELEMENTS
   parentDiv = document.getElementById(parDiv);
@@ -75,7 +77,7 @@ function init()
 {
   {//SET UP ELEMENTS
     renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-    renderer.setSize(cnvfactor * canvas.clientWidth  * window.devicePixelRatio, cnvfactor * canvas.clientHeight  * window.devicePixelRatio, false);
+    renderer.setSize(canvas.clientWidth * window.devicePixelRatio, canvas.clientHeight * window.devicePixelRatio, false);
     renderer.outputEncoding = THREE.sRGBEncoding;
     renderer.shadowMap.enabled = true;
   }
@@ -122,7 +124,7 @@ function init()
   }
 
   {//ILLUMINATION
-    const colour = 0xFFFFFF, intensity = 15.0 / 16.0, dist = 10;
+    const colour = 0xFFFFFF, intensity = 7.0 / 8.0, dist = 10;
     const lightPos = [[orig[0], orig[1] + dist, orig[2]], [orig[0], orig[1] - dist, orig[2]]];
     for (var pos of lightPos) { createAndPosLight(colour, intensity, pos); }
   }
@@ -163,8 +165,6 @@ function init()
     const maxF = Math.max(normEred, normBred);
     const Er = normEred / maxF, Br = normBred / maxF;
     vecSize = 1.0 / qVec;
-    //console.log("Er = " + Er);
-    //console.log("Br = " + Br);
   
     cyliGeom = new THREE.CylinderGeometry(vecSize / 32.0, vecSize / 32.0, 0.5 * vecSize); //arrow body
     coneGeom = new THREE.ConeGeometry(vecSize / 16.0, 0.5 * vecSize); //arrow head
@@ -196,8 +196,28 @@ function init()
     const folder1 = guiPanel.addFolder("Animation status");
     const folder2 = guiPanel.addFolder("Colors");
 
-    startButton = folder1.add(props, "Start").name("⏵");
-    resetButton = folder1.add(props, "Reset").name("⏹");
+    startButton = folder1.add(props, "Start").name(unicodePlayPause);
+    resetButton = folder1.add(props, "Reset").name(unicodeStop);
+
+    folder1.add(props, "followParticle")
+      .name("Follow particle")
+      .listen()
+      .onChange( function()
+        {
+          if (props.followParticle) {trailCamera.add(listener); camera.remove(listener); controls.enabled = false; }
+          else if (!props.followParticle) {trailCamera.remove(listener); camera.add(listener); controls.enabled = true; }
+        } );
+
+    folder1.add(props, "enableControls").name("Orbit controls").listen().onChange( function(bool) {controls.enabled = bool;} );
+
+    folder1.add(props, "showPerformance")
+      .name("Performance monitor")
+      .listen()
+      .onChange( function()
+        {
+          if (props.showPerformance) {for (var panel of statsPanels) {panel.style.display = "block"};}
+          else if (!props.showPerformance) {for (var panel of statsPanels) {panel.style.display = "none"};}
+        } );
 
     ptclClr = folder2.addColor(props, "particleClr").name("Particle").listen();
     traiClr = folder2.addColor(props, "trailClr").name("Trail").listen();
@@ -210,62 +230,38 @@ function init()
     elecClr.onChange( function() { for (var obj of elecFieldArr.children) { obj.material.color.set(props.electricClr); }; } );
     magnClr.onChange( function() { for (var obj of magnFieldArr.children) { obj.material.color.set(props.magneticClr); }; } );
 
-    guiPanel.add(props, "followParticle")
-      .name("Follow particle")
+    const folder3 = guiPanel.addFolder("Sound");
+    folder3.add(props, "soundSource", soundsList)
+      .name("Source")
       .listen()
-      .onChange( function()
+      .onChange( function(opt)
         {
-          if (props.followParticle) {trailCamera.add(listener); camera.remove(listener); controls.enabled = false; }
-          else if (!props.followParticle) {trailCamera.remove(listener); camera.add(listener); controls.enabled = true; }
+          props.soundSource = `${soundsLocation}/${opt}`;
+          audioLoader.load(props.soundSource, onLoadCallback);
         } );
-
-    guiPanel.add(props, "showPerformance")
-      .name("Performance monitor")
-      .listen()
-      .onChange( function()
-        {
-          if (props.showPerformance) {for (var panel of statsPanels) {panel.style.display = "block"};}
-          else if (!props.showPerformance) {for (var panel of statsPanels) {panel.style.display = "none"};}
-        } );
-
-    //const folder3 = guiPanel.addFolder("Sound");
-    //folder3.add(props, "soundSource", soundsList)
-    //  .name("Source")
-    //  .listen()
-    //  .onChange( function(opt)
-    //    {
-    //      props.soundSource = `${soundsLocation}/${opt}`;
-    //      audioLoader.load(props.soundSource, onLoadCallback);
-    //    } );
-    //soundPPRbtn = folder3.add(props, "soundPlayPauseResume").name("⏵").listen();
-    //soundSbtn = folder3.add(props, "soundStop").name("⏹").listen();
-    //folder3.close();
+    soundPPRbtn = folder3.add(props, "soundPlayPauseResume").name(unicodePlayPause).listen();
+    soundSbtn = folder3.add(props, "soundStop").name(unicodeStop).listen();
+    folder3.close();
   }
-
-//⏵⏸⏹
-
 }
 
 //ADDITIONAL FUNCTIONS
 /*
-async function getDirFileNames(dirLocation)
+async function getDirFileNames(dirLocation, namesList)
 {//adapted from "abalter/listdir.js" (https://gist.github.com/abalter/b5357657311349e06bc5b32222f37030), to work with vanilla JS, no jQuery
-
-  let namesContainer;
   function parseDirectoryListing(text)
   {
-    namesContainer = text
+    namesList = text
       .match(/href="([\w]+)\.\w{2,}/g) //pull out the hrefs
       .map((x) => x.replace('href="', '')); //clean up
+    console.log("From inside: ", namesList);
   }
 
   await fetch(dirLocation)
-    .then( (response) => {if (response.ok) {return response.text();}
-                          else {throw new Error(response.status);}})
+    .then( (response) => { if (response.ok) {return response.text();}
+                          else {throw new Error(response.status);} } )
     .then( (data) => parseDirectoryListing(data) )
     .catch( (err) => console.error(err) );
-
-  return namesContainer;
 }
 */
 
@@ -311,18 +307,19 @@ function createVecFieldMesh(arrow, unit, relSize, col)
   arrow.add(coneMesh); arrow.add(cyliMesh); arrow.needsUpdate = true; scene.add(arrow);
 }
 
+
 function playPauseResumeAnim()
-{//⏵⏸
+{//⏵⏸ ⏯︎
   if (!animRunning)
   {
     animRunning = true; animate();
-    startButton.name("⏸");
+    startButton.name(unicodePause);
     playSound();
   }
   else if (animRunning)
   {
     animRunning = false;
-    startButton.name("⏵");
+    startButton.name(unicodePlay);
     pauseSound();
   }
 }
@@ -331,18 +328,18 @@ function playPauseResumeAnim()
 function resetAnim()
 {//⏹
   animRunning = false; startButton.domElement.style.display = "block";
-  startButton.name("⏵");
-  stopSound();
+  startButton.name(unicodePlayPause);
+  stopSound(); props.enableControls = true;
   i = 0, renderTime = 0, setInitCamsPos();
   setParticlePos(0);
 }
 
 
-function playSound() { if (!sound.isPlaying) { sound.play(); } } //soundPPRbtn.name("⏸");
+function playSound() { if (!sound.isPlaying) { sound.play(); soundPPRbtn.name(unicodePause); } }
 
-function pauseSound() { if (sound.isPlaying) { sound.pause(); } } //soundPPRbtn.name("⏵");
+function pauseSound() { if (sound.isPlaying) { sound.pause(); soundPPRbtn.name(unicodePlay); } }
 
-function stopSound() { if (sound.isPlaying) { sound.stop(); } } //soundPPRbtn.name("⏵");
+function stopSound() { if (sound != null) { sound.stop(); soundPPRbtn.name(unicodePlayPause); } }
 
 
 function setParticlePos(index)
@@ -386,7 +383,7 @@ function animate()
   renderDelta = clock.getDelta();
   if (!animRunning || i >= numPts - 1 || renderTime >= numPts - 1)
   {
-    step = 0; startButton.name("⏵");
+    step = 0;
     if (i >= numPts - 1 || renderTime >= numPts - 1)
     { startButton.domElement.style.display = "none"; }
   }
