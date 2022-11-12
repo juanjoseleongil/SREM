@@ -3,7 +3,7 @@ import unitDirectionSketch from "./sketch.js";
 import { language, langs } from "./languageContent.js";
 
 //language selector insertion and setup
-FN.languageSelector();
+FN.languageSelector(); export var pageLang = null; //CONTINUE NEXT TIME HERE, LAST POINT OF README FILE
 
 //speed of light in the correct locale format
 document.getElementById("speedOfLight").innerHTML = (299792458).toLocaleString(FN.getLang());

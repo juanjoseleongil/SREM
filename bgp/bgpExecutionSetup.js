@@ -65,3 +65,12 @@ function languageSelector()
 }
 
 languageSelector();
+
+//LANGUAGE SETTING; RUN AFTER ALL THE ELEMENTS OF THE FIRST PART LOAD
+let langsList = Object.keys(LANG.langs), lan = document.getElementById("langSwitch");
+let userLang = window.navigator.language.slice(0, 2);
+if ( langsList.includes(userLang) )
+{
+  lan.value = userLang;
+  lan.dispatchEvent (new Event("change"));
+}

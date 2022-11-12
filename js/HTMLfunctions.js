@@ -103,7 +103,7 @@ function insertSelect(selectSpanID, objectArgs)
   container.appendChild(selectClone);
 }
 
-function insertLangSelect()
+export function insertLangSelect()
 {
   let hiddenOpt = '<option value = "" disabled selected class = "selLang">Select language</option>';
   insertSelect("langSpan", [LANG.langs, "langSwitch", hiddenOpt]);
