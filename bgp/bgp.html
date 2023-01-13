@@ -24,9 +24,9 @@
     <header>
       <nav>
         <ul>
-          <li> <a class = "liSimul" href = "../index.html"> Simulation </a> </li>
+          <li> <a class = "liSimul" href = "../index.html" target = "_blank" rel = "noopener noreferrer"> Simulation </a> </li>
           <li class = "liBgp"> Background physics </li>
-          <li> <a class = "liCode" href = "https://github.com/juanjoseleongil/SREM.git"> Code </a> </li>
+          <li> <a class = "liCode" href = "https://github.com/juanjoseleongil/SREM.git" target = "_blank" rel = "noopener noreferrer"> Code </a> </li>
         </ul>
         <span id = "langSpan"> </span>
       </nav>
@@ -159,12 +159,12 @@
       </ol> <br>
       <li> If \( \Evec \cdot \Mvec \ne 0 \), then there exists a Lorentz boost such that \(\Evec\prime\) and \(\Mvec\prime\) are either parallel or antiparallel; no Lorentz boost can make either \(\Evec\prime = \boldsymbol{0}\) or \(\Mvec\prime = \boldsymbol{0}\). In this case the electromagnetic field is of <em>collinear</em> type. The relevant parameters of the transformation are:</li>
         <ul>
-          <li> \( \boldsymbol{\beta} = \dfrac{ \Efield^2 + \Mfield^2 - R }{ 2 \left( \left(\Efield\Mfield\right)^2 - \left( \Evec \cdot \Mvec\right )^2 \right)} \Evec \times \Mvec \) </li>
-          <li> \( \gamma = \left( \dfrac{ 2 \left( \left( \Efield \Mfield \right)^2 - \left( \Evec \cdot \Mvec\right )^2 \right) }{ R \left( \Efield^2 + \Mfield^2 - R \right) } \right)^{1/2} \) </li>
-          <li> \( \Evec\prime = \left( \dfrac{ 2 \left( \left( \Efield \Mfield \right)^2 - \left( \Evec \cdot \Mvec\right )^2 \right) }{ R \left( \Efield^2 + \Mfield^2 - R \right) } \right)^{1/2} \Evec + \left( \dfrac{ \Efield^2 + \Mfield^2 - R }{ 2 R \left( \left( \Efield \Mfield \right)^2 - \left( \Evec \cdot \Mvec \right )^2 \right) } \right)^{1/2} \left( \left( \Evec \cdot \Mvec \right) \Mvec - \Mfield^2 \Evec \right) \) </li>
-          <li> \( \Mvec\prime = \left( \dfrac{ 2 \left( \left( \Efield \Mfield \right)^2 - \left( \Evec \cdot \Mvec\right )^2 \right) }{ R \left( \Efield^2 + \Mfield^2 - R \right) } \right)^{1/2} \Mvec + \left( \dfrac{ \Efield^2 + \Mfield^2 - R }{ 2 R \left( \left( \Efield \Mfield \right)^2 - \left( \Evec \cdot \Mvec \right )^2 \right) } \right)^{1/2} \left( \left( \Evec \cdot \Mvec \right) \Evec - \Efield^2 \Mvec \right) \) </li>
+          <li> \( \boldsymbol{\beta} = \dfrac{ \Efield^2 + \Mfield^2 - \mathsf{R} }{ 2 \left( \left(\Efield\Mfield\right)^2 - \left( \Evec \cdot \Mvec\right )^2 \right)} \Evec \times \Mvec \) </li>
+          <li> \( \gamma = \left( \dfrac{ 2 \left( \left( \Efield \Mfield \right)^2 - \left( \Evec \cdot \Mvec\right )^2 \right) }{ \mathsf{R} \left( \Efield^2 + \Mfield^2 - \mathsf{R} \right) } \right)^{1/2} \) </li>
+          <li> \( \Evec\prime = \left( \dfrac{ 2 \left( \left( \Efield \Mfield \right)^2 - \left( \Evec \cdot \Mvec\right )^2 \right) }{ \mathsf{R} \left( \Efield^2 + \Mfield^2 - \mathsf{R} \right) } \right)^{1/2} \Evec + \left( \dfrac{ \Efield^2 + \Mfield^2 - \mathsf{R} }{ 2 \mathsf{R} \left( \left( \Efield \Mfield \right)^2 - \left( \Evec \cdot \Mvec \right )^2 \right) } \right)^{1/2} \left( \left( \Evec \cdot \Mvec \right) \Mvec - \Mfield^2 \Evec \right) \) </li>
+          <li> \( \Mvec\prime = \left( \dfrac{ 2 \left( \left( \Efield \Mfield \right)^2 - \left( \Evec \cdot \Mvec\right )^2 \right) }{ \mathsf{R} \left( \Efield^2 + \Mfield^2 - \mathsf{R} \right) } \right)^{1/2} \Mvec + \left( \dfrac{ \Efield^2 + \Mfield^2 - \mathsf{R} }{ 2 \mathsf{R} \left( \left( \Efield \Mfield \right)^2 - \left( \Evec \cdot \Mvec \right )^2 \right) } \right)^{1/2} \left( \left( \Evec \cdot \Mvec \right) \Evec - \Efield^2 \Mvec \right) \) </li>
         </ul> <br>
-        where \( R = \left( \left( -\Efield^2 + \Mfield^2 \right)^2 + 4 \left( \Evec \cdot \Mvec \right)^2 \right)^{1/2} \)
+        where \( \mathsf{R} = \left( \left( -\Efield^2 + \Mfield^2 \right)^2 + 4 \left( \Evec \cdot \Mvec \right)^2 \right)^{1/2} \)
     </ol>
     
     <h3> Solution for the <em>Null</em> type field </h3>

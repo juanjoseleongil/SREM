@@ -27,6 +27,8 @@ export const qVec = 5; //quantity of vector field arrows per linear dimension, f
 
 export const prefixes =
 {
+  "+30": "quetta (Q, 10³⁰)",
+  "+27": "ronna (R, 10²⁷)",
   "+24": "yotta (Y, 10²⁴)",
   "+21": "zetta (Z, 10²¹)",
   "+18": "exa (E, 10¹⁸)",
@@ -47,13 +49,15 @@ export const prefixes =
   "-15": "femto (f, 10⁻¹⁵)",
   "-18": "atto (a, 10⁻¹⁸)",
   "-21": "zepto (z, 10⁻²¹)",
-  "-24": "yocto (y, 10⁻²⁴)"
+  "-24": "yocto (y, 10⁻²⁴)",
+  "-27": "ronto (r, 10⁻²⁷)",
+  "-30": "quecto (q, 10⁻³⁰)"
 };
 
 export const particles =
 {
-  "electron": ["electron (e⁻)", [0.00091093837015, "-24"], [-1.0, "000", "e"]],
-  "positron": ["positron (e⁺)", [0.00091093837015, "-24"], [+1.0, "000", "e"]],
+  "electron": ["electron (e⁻)", [0.91093837015, "-27"], [-1.0, "000", "e"]],
+  "positron": ["positron (e⁺)", [0.91093837015, "-27"], [+1.0, "000", "e"]],
   "proton": ["proton (p⁺)", [1.67262192369, "-24"], [+1.0, "000", "e"]],
   "antiproton": ["antiproton (p⁻)", [1.67262192369, "-24"], [-1.0, "000", "e"]],
   "Helium4Nucleus": ["Helium-4 nucleus (⁴He²⁺)", [6.6446573357, "-24"], [+2.0, "000", "e"]],

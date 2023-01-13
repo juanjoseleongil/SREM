@@ -13,7 +13,7 @@ var parentDiv, canvas, startButton, resetButton, frameTitle, timeSpan;
 var camera, scene, renderer, controls, xyzAxes, trailCamera;
 var partRadius, partWidthSeg, partHeightSeg, partGeom, partMate, partMesh;
 var trailPoints, trailSpline, trailGeom, trailMate, trailMesh;
-var cyliGeom, coneGeom, elecFieldArr, magnFieldArr, fieldMate;
+var cyliGeom, coneGeom, elecFieldArr, magnFieldArr;
 var qVec3, vecSize, locVx, locVy, locVz, countItem;
 var animRunning;
 var i, step, animPace;
@@ -33,7 +33,7 @@ export function simulanimate(parDiv, canv, txyzAr, sOrigin)
   camera = null, scene = null, renderer = null, controls = null, xyzAxes = null, trailCamera = null;
   partRadius = null, partWidthSeg = null, partHeightSeg = null, partGeom = null, partMate = null, partMesh = null;
   trailPoints = null, trailSpline = null, trailGeom = null, trailMate = null, trailMesh = null;
-  cyliGeom = null, coneGeom = null, elecFieldArr = new THREE.Group(), magnFieldArr = new THREE.Group(), fieldMate = null;
+  cyliGeom = null, coneGeom = null, elecFieldArr = new THREE.Group(), magnFieldArr = new THREE.Group();
   qVec3 = Math.pow(qVec, 3), vecSize = null, locVx = null, locVy = null, locVz = null, countItem = null;
   animRunning = false;
   i = 0, step = 1, animPace = ptsPerCharTime / 8.0;
@@ -170,7 +170,6 @@ function init()
     coneGeom = new THREE.ConeGeometry(vecSize / 16.0, 0.5 * vecSize); //arrow head
     cyliGeom.translate(0, 0.25 * vecSize, 0); coneGeom.translate(0, 0.75 * vecSize, 0); //correct placement
     cyliGeom.rotateX( Math.PI / 2 ); coneGeom.rotateX( Math.PI / 2 ); //correct orientation
-    fieldMate = new THREE.MeshPhongMaterial(); //arrow material
 
     if (!isNaN(Er) && isFinite(Er) && Er > TOL) { createVecFieldMesh(elecFieldArr, unitE, Er, props.electricClr); }
     if (!isNaN(Br) && isFinite(Br) && Br > TOL) { createVecFieldMesh(magnFieldArr, unitB, Br, props.magneticClr); }
@@ -195,9 +194,11 @@ function init()
     guiPanel.domElement.style.cssText = "position: relative; width: 25%; margin-left: 75%; margin-top: 0%; z-index: 1;";
     const folder1 = guiPanel.addFolder("Animation status");
     const folder2 = guiPanel.addFolder("Colors");
-
-    startButton = folder1.add(props, "Start").name(unicodePlayPause);
-    resetButton = folder1.add(props, "Reset").name(unicodeStop);
+    const folder3 = guiPanel.addFolder("Sound");
+    folder2.close(); folder3.close();
+    
+    startButton = folder1.add(props, "Start").name(unicodePlayPause).listen();
+    resetButton = folder1.add(props, "Reset").name(unicodeStop).listen();
 
     folder1.add(props, "followParticle")
       .name("Follow particle")
@@ -227,21 +228,19 @@ function init()
     
     ptclClr.onChange( function() { partMesh.material.color.set(props.particleClr); } );
     traiClr.onChange( function() { trailMesh.material.color.set(props.trailClr); } );
-    elecClr.onChange( function() { for (var obj of elecFieldArr.children) { obj.material.color.set(props.electricClr); }; } );
-    magnClr.onChange( function() { for (var obj of magnFieldArr.children) { obj.material.color.set(props.magneticClr); }; } );
+    elecClr.onChange( function() { for (var obj of elecFieldArr.children) { console.log(obj); obj.material.color.set(props.electricClr); }; } );
+    magnClr.onChange( function() { for (var obj of magnFieldArr.children) { console.log(obj); obj.material.color.set(props.magneticClr); }; } );
 
-    const folder3 = guiPanel.addFolder("Sound");
     folder3.add(props, "soundSource", soundsList)
       .name("Source")
       .listen()
-      .onChange( function(opt)
+      .onChange( async function(opt)
         {
           props.soundSource = `${soundsLocation}/${opt}`;
-          audioLoader.load(props.soundSource, onLoadCallback);
+          await audioLoader.load(props.soundSource, onLoadCallback);
         } );
     soundPPRbtn = folder3.add(props, "soundPlayPauseResume").name(unicodePlayPause).listen();
     soundSbtn = folder3.add(props, "soundStop").name(unicodeStop).listen();
-    folder3.close();
   }
 }
 
@@ -277,8 +276,8 @@ function createVecFieldMesh(arrow, unit, relSize, col)
 {
   var dummy = new THREE.Object3D();
   dummy.scale.set(1, 1, relSize); //sets the scale for the length of the arrow
-  var cyliMesh = new THREE.InstancedMesh(cyliGeom, fieldMate.clone(), qVec3);
-  var coneMesh = new THREE.InstancedMesh(coneGeom, fieldMate.clone(), qVec3);
+  var cyliMesh = new THREE.InstancedMesh(cyliGeom, new THREE.MeshPhongMaterial(), qVec3);
+  var coneMesh = new THREE.InstancedMesh(coneGeom, new THREE.MeshPhongMaterial(), qVec3);
   countItem = 0;
 
   for (var ix = 0; ix < qVec; ix++)
