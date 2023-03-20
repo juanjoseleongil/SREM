@@ -22,7 +22,7 @@ var sound, listener, audioLoader;
 var clock, renderTime, renderDelta;
 var stats, statsPanels, guiPanel;
 var ptclClr, traiClr, elecClr, magnClr, resDefC;
-var soundsLocation = "./sounds", soundsList = ['Alarm.m4a', 'Classical.wav', 'Constellation.m4a', 'Destination.mp3', 'ElevatorBossa.ogg', 'NoiseBrownian.ogg', 'NoisePink.ogg', 'NoiseWhite.ogg', 'Sawtooth440Hz.ogg', 'Sine440Hz.ogg', 'Square440Hz.ogg', 'Square440HzNoAlias.ogg', 'Waves.m4a'];
+var soundsLocation = "./sounds", soundsList = ['Classical.wav', 'Constellation.m4a', 'Destination.mp3', 'ElevatorBossa.ogg', 'Waves.m4a']; //['Alarm.m4a', 'Classical.wav', 'Constellation.m4a', 'Destination.mp3', 'ElevatorBossa.ogg', 'NoiseBrownian.ogg', 'NoisePink.ogg', 'NoiseWhite.ogg', 'Sawtooth440Hz.ogg', 'Sine440Hz.ogg', 'Square440Hz.ogg', 'Square440HzNoAlias.ogg', 'Waves.m4a'];
 var soundPPRbtn, soundSbtn, props;
 const unicodePlayPause = "\u23EF", unicodePlay = "\u25B6", unicodePause = "\u23F8", unicodeStop = "\u23F9";
 
